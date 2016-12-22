@@ -107,7 +107,7 @@ private:
 	DirectGL::Buffers::Framebuffer m_fbo;
 	DirectGL::Buffers::Renderbuffer m_colorBuff,
 									m_depthBuff,
-									*m_extBuff;
+									*m_extBuff = nullptr;
 	GLWidget *m_shared = nullptr;
 
 	DirectGL::Geometry::OBJTriangleModel m_model;

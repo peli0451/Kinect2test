@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CC97A646-F756-4CA2-8CC0-BF9D6D843EF9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>DirectGL</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Label="UserMacros">
+    <LIBRARY_PROPS_DIR>D:\Lib\</LIBRARY_PROPS_DIR>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\Eigen\Eigen.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\boost_1_57_0\boost.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\FreeImage\FreeImage.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\Eigen\Eigen.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\boost_1_57_0\boost.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\FreeImage\FreeImage.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\Eigen\Eigen.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\boost_1_57_0\boost.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\FreeImage\FreeImage.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\Eigen\Eigen.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\boost_1_57_0\boost.props" />
+    <Import Project="$(LIBRARY_PROPS_DIR)\FreeImage\FreeImage.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\libepoxy\include\;$(ProjectDir)..\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\libepoxy\include\;$(ProjectDir)..\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\libepoxy\include\;$(ProjectDir)..\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\libepoxy\include\;$(ProjectDir)..\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Buffers\Buffer.h" />
+    <ClInclude Include="Buffers\Framebuffer.h" />
+    <ClInclude Include="Buffers\GBuffer.h" />
+    <ClInclude Include="Buffers\UniformBuffer.h" />
+    <ClInclude Include="Buffers\Renderbuffer.h" />
+    <ClInclude Include="Buffers\VertexArray.h" />
+    <ClInclude Include="Cameras\QuaternionCamera.h" />
+    <ClInclude Include="Cameras\StereoCamera.h" />
+    <ClInclude Include="Cameras\Transformation.h" />
+    <ClInclude Include="Context.h" />
+    <ClInclude Include="DirectGL.h" />
+    <ClInclude Include="Forward.h" />
+    <ClInclude Include="Geometry\AABB.h" />
+    <ClInclude Include="Geometry\BoundingGrid.h" />
+    <ClInclude Include="Geometry\IndexedLineModel.h" />
+    <ClInclude Include="Geometry\IndexedQuadModel.h" />
+    <ClInclude Include="Geometry\IndexedTriangleModel.h" />
+    <ClInclude Include="Geometry\MaterializedModel.h" />
+    <ClInclude Include="Geometry\ModelBase.h" />
+    <ClInclude Include="Geometry\MultiMaterialModel.h" />
+    <ClInclude Include="Geometry\OBJTriangleModel.h" />
+    <ClInclude Include="Geometry\PointModel.h" />
+    <ClInclude Include="Geometry\PostProcessQuad.h" />
+    <ClInclude Include="Geometry\SkyBox2D.h" />
+    <ClInclude Include="Lighting\Light.h" />
+    <ClInclude Include="Math\Vector.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="Pipelining\Node.h" />
+    <ClInclude Include="Pipelining\Outputs.h" />
+    <ClInclude Include="Pipelining\Pipeline.h" />
+    <ClInclude Include="Renderable.h" />
+    <ClInclude Include="Shaders\Program.h" />
+    <ClInclude Include="Shaders\Shader.h" />
+    <ClInclude Include="Shaders\UniformBlock.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Texturing\Color.h" />
+    <ClInclude Include="Texturing\Material.h" />
+    <ClInclude Include="Texturing\Texture2D.h" />
+    <ClInclude Include="Texturing\TextureCubeMap.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Utility\GLError.h" />
+    <ClInclude Include="Utility\Globals.h" />
+    <ClInclude Include="Utility\ImageIO.h" />
+    <ClInclude Include="Utility\Logging.h" />
+    <ClInclude Include="Utility\OBJFile.h" />
+    <ClInclude Include="Utility\PrecisionTimer.h" />
+    <ClInclude Include="Utility\SafeInit.h" />
+    <ClInclude Include="Utility\String.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Buffers\Buffer.cpp" />
+    <ClCompile Include="Buffers\Framebuffer.cpp" />
+    <ClCompile Include="Buffers\Renderbuffer.cpp" />
+    <ClCompile Include="Buffers\UniformBuffer.cpp" />
+    <ClCompile Include="Buffers\VertexArray.cpp" />
+    <ClCompile Include="Cameras\QuaternionCamera.cpp" />
+    <ClCompile Include="Cameras\StereoCamera.cpp" />
+    <ClCompile Include="Cameras\Transformation.cpp" />
+    <ClCompile Include="Context.cpp" />
+    <ClCompile Include="Geometry\AABB.cpp" />
+    <ClCompile Include="Geometry\BoundingGrid.cpp" />
+    <ClCompile Include="Geometry\IndexedLineModel.cpp" />
+    <ClCompile Include="Geometry\IndexedQuadModel.cpp" />
+    <ClCompile Include="Geometry\IndexedTriangleModel.cpp" />
+    <ClCompile Include="Geometry\MaterializedModel.cpp" />
+    <ClCompile Include="Geometry\ModelBase.cpp" />
+    <ClCompile Include="Geometry\OBJTriangleModel.cpp" />
+    <ClCompile Include="Geometry\PointModel.cpp" />
+    <ClCompile Include="Geometry\PostProcessQuad.cpp" />
+    <ClCompile Include="Geometry\SkyBox2D.cpp" />
+    <ClCompile Include="Geometry\MultiMaterialModel.cpp" />
+    <ClCompile Include="Lighting\Light.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Pipelining\Node.cpp" />
+    <ClCompile Include="Pipelining\Pipeline.cpp" />
+    <ClCompile Include="Renderable.cpp" />
+    <ClCompile Include="Shaders\Program.cpp" />
+    <ClCompile Include="Shaders\Shader.cpp" />
+    <ClCompile Include="Shaders\UniformBlock.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Texturing\Material.cpp" />
+    <ClCompile Include="Texturing\Texture2D.cpp" />
+    <ClCompile Include="Texturing\TextureCubeMap.cpp" />
+    <ClCompile Include="Utility\Globals.cpp" />
+    <ClCompile Include="Utility\ImageIO.cpp" />
+    <ClCompile Include="Utility\Logging.cpp" />
+    <ClCompile Include="Utility\OBJFile.cpp" />
+    <ClCompile Include="Utility\PrecisionTimer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Buffers\All" />
+    <None Include="Cameras\All" />
+    <None Include="Geometry\All" />
+    <None Include="Pipelining\All" />
+    <None Include="Shaders\All" />
+    <None Include="Texturing\All" />
+    <None Include="Utility\All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libepoxy\libepoxy.vcxproj">
+      <Project>{cf103c15-f8cf-45ae-a6b2-8c3b516eb9fb}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

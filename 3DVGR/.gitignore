@@ -1,0 +1,10 @@
+build
+bin
+GeneratedFiles
+*.log
+*.user
+*.sdf
+*.VC.*
+ipch
+.vs
+3DVGR\vgrlogfile.html

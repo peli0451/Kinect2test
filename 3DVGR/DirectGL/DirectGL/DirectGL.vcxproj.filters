@@ -1,0 +1,328 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Cameras">
+      <UniqueIdentifier>{7c32cc95-64f8-4348-b309-920e9f751720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{efcbb317-5f82-4f77-aeed-ac9cd5aa5711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{b05943aa-70a0-44c0-ad17-a2f28711bb7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Texturing">
+      <UniqueIdentifier>{07d8662b-f808-49a8-a39e-312c9032a083}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{8ea116f6-5f69-4cc1-9bc1-a94afd0e1d66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Buffers">
+      <UniqueIdentifier>{a1003f9c-4b73-42d8-8ab3-9e986fc040e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lighting">
+      <UniqueIdentifier>{5773e71e-1198-4156-a1fa-a29711ccba8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pipelining">
+      <UniqueIdentifier>{24ba061c-1ce8-4dcb-961f-a54f69b6c53a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{ba06058c-f5f9-4e01-beb0-d2a920a344f7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cameras\QuaternionCamera.h">
+      <Filter>Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\PrecisionTimer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\IndexedTriangleModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\OBJTriangleModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Logging.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\GLError.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\ImageIO.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\String.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Texturing\Texture2D.h">
+      <Filter>Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\SkyBox2D.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\Shader.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\Program.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cameras\Transformation.h">
+      <Filter>Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\PostProcessQuad.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\VertexArray.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\Buffer.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texturing\TextureCubeMap.h">
+      <Filter>Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\AABB.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\BoundingGrid.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\OBJFile.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Texturing\Color.h">
+      <Filter>Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="Texturing\Material.h">
+      <Filter>Texturing</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\MultiMaterialModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\MaterializedModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\Framebuffer.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\Renderbuffer.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\Globals.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lighting\Light.h">
+      <Filter>Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\PointModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cameras\StereoCamera.h">
+      <Filter>Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\GBuffer.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipelining\Node.h">
+      <Filter>Pipelining</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipelining\Pipeline.h">
+      <Filter>Pipelining</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipelining\Outputs.h">
+      <Filter>Pipelining</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\IndexedQuadModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Forward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers\UniformBuffer.h">
+      <Filter>Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\UniformBlock.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\IndexedLineModel.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\ModelBase.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\SafeInit.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cameras\QuaternionCamera.cpp">
+      <Filter>Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\PrecisionTimer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\IndexedTriangleModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\OBJTriangleModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Logging.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\ImageIO.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Texturing\Texture2D.cpp">
+      <Filter>Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\SkyBox2D.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\Shader.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\Program.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Cameras\Transformation.cpp">
+      <Filter>Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\PostProcessQuad.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffers\VertexArray.cpp">
+      <Filter>Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffers\Buffer.cpp">
+      <Filter>Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Texturing\TextureCubeMap.cpp">
+      <Filter>Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\AABB.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\BoundingGrid.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\OBJFile.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Texturing\Material.cpp">
+      <Filter>Texturing</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\MultiMaterialModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\MaterializedModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffers\Framebuffer.cpp">
+      <Filter>Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffers\Renderbuffer.cpp">
+      <Filter>Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Globals.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Lighting\Light.cpp">
+      <Filter>Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\PointModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Cameras\StereoCamera.cpp">
+      <Filter>Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipelining\Node.cpp">
+      <Filter>Pipelining</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipelining\Pipeline.cpp">
+      <Filter>Pipelining</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\IndexedQuadModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffers\UniformBuffer.cpp">
+      <Filter>Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\UniformBlock.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\IndexedLineModel.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\ModelBase.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Buffers\All">
+      <Filter>Buffers</Filter>
+    </None>
+    <None Include="Cameras\All">
+      <Filter>Cameras</Filter>
+    </None>
+    <None Include="Geometry\All">
+      <Filter>Geometry</Filter>
+    </None>
+    <None Include="Shaders\All">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Texturing\All">
+      <Filter>Texturing</Filter>
+    </None>
+    <None Include="Utility\All">
+      <Filter>Utility</Filter>
+    </None>
+    <None Include="Pipelining\All">
+      <Filter>Pipelining</Filter>
+    </None>
+  </ItemGroup>
+</Project>

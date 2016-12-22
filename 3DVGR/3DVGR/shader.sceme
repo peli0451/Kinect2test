@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+      xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <ItemType Name="GLSLShader" DisplayName="GLSL Shader" />
+  <FileExtension Name="*.frag" ContentType="GLSLShader" />
+  <FileExtension Name="*.vert" ContentType="GLSLShader" />
+  <FileExtension Name="*.tesc" ContentType="GLSLShader" />
+  <FileExtension Name="*.tese" ContentType="GLSLShader" />
+  <FileExtension Name="*.geom" ContentType="GLSLShader" />
+  <ContentType Name="GLSLShader" DisplayName="GLSL Shader" ItemType="GLSLShader" />
+  <Rule Name="GLSLShader" PageTemplate="tool" DisplayName="GLSL Shader" Order="200"/>
+</ProjectSchemaDefinitions>

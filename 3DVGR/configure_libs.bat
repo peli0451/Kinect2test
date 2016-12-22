@@ -1,0 +1,1 @@
+configure_libs.vbs "D:\Lib\"

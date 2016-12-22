@@ -1,0 +1,9 @@
+build
+bin
+GeneratedFiles
+*.log
+*.user
+*.sdf
+*.VC.*
+ipch
+.vs

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema 
+        Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).sceme" />
+	<AvailableItemName Include="GLSLShader">
+		<Targets>_GLSLShader</Targets>
+	</AvailableItemName>
+  </ItemGroup>
+  <Target Name="_GLSLShader" BeforeTargets="AfterBuild" AfterTargets="Build" Inputs="@(GLSLShader)" Outputs="@(GLSLShader -> '$(IntDir)\Shader\%(Filename)%(Extension).slog')">
+	<MakeDir Directories="$(IntDir)\shader\"/>
+	<Exec Command='"$(SolutionDir)bin\$(Platform)\$(Configuration)\ShaderCompiler.exe" "%(GLSLShader.Identity)" "$(IntDir)\shader" '/>
+  </Target>
+  <UsingTask TaskName="GLSLShader" TaskFactory="XamlTaskFactory" AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).sceme</Task>
+</UsingTask>
+</Project>

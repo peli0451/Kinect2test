@@ -1,0 +1,16 @@
+
+/** All ========================================================================
+ *	All-include convenience file for the Buffer namespace.
+ *
+ *	@author Julian Meder
+ * =============================================================================
+ */
+
+#pragma once
+
+#include "Buffer.h"
+#include "Framebuffer.h"
+#include "Renderbuffer.h"
+#include "VertexArray.h" 
+#include "GBuffer.h"
+#include "UniformBuffer.h"

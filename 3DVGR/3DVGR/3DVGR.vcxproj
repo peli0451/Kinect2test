@@ -24,7 +24,7 @@
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros">
-    <LIBRARY_PROPS_DIR>D:\Lib\</LIBRARY_PROPS_DIR>
+    <LIBRARY_PROPS_DIR>C:\Users\Peter\Documents\Libraries\Lib\</LIBRARY_PROPS_DIR>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -295,7 +295,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="Qt5.3x86" Qt5Version_x0020_x64="5.7_msvc2015_64" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="Qt5.3x86" Qt5Version_x0020_x64="QT5.7x64" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

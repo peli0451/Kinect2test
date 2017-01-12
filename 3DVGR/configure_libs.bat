@@ -1,1 +1,1 @@
-configure_libs.vbs "D:\Lib\"
+configure_libs.vbs "C:\Users\Peter\Documents\Libraries\Lib\"

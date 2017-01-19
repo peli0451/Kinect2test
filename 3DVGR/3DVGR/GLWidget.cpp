@@ -99,7 +99,7 @@ void GLWidget::initializeGL()
 	}
 
 
-	m_customScale = 1.f;
+	m_customScale = 0.1f;
 	m_separation = 0.02f;
 	m_cameraSpeed = 1.f;
 	m_camera.setSeparation(0.02f);

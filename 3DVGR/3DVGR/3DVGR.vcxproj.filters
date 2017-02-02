@@ -99,4 +99,7 @@
       <Filter>Source Files</Filter>
     </GLSLShader>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
 </Project>

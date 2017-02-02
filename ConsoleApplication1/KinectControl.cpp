@@ -32,43 +32,50 @@ void KinectControl::init() {
 	bodyFrameSource->OpenReader(&bodyFrameReader);
 }
 
-void KinectControl::run() {
-	while (true) {
-		//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
-		master.id = -1;
-		master.z = 100.0;
+void KinectControl::run(MotionParameters *motionParameters) {
+	//Initialisierung der motionParameters
+	motionParameters->translateX = .0f;
+	motionParameters->translateY = .0f;
+	motionParameters->translateZ = .0f;
+	motionParameters->rotateX = .0f;
+	motionParameters->rotateY = .0f;
+	motionParameters->rotateZ = .0f;
 
-		IBodyFrame *bodyFrame;
-		result = bodyFrameReader->AcquireLatestFrame(&bodyFrame);
+	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
+	master.id = -1;
+	master.z = 100.0;
 
-		if (FAILED(result)) {
-			continue;
-		}
+	IBodyFrame *bodyFrame;
+	result = bodyFrameReader->AcquireLatestFrame(&bodyFrame);
 
-		result = bodyFrame->GetAndRefreshBodyData(numberOfTrackedBodies, trackedBodies); //Update für bodies-Array
+	if (result != S_OK) {
+		return;
+	}
 
-		if (FAILED(result)) {
-			bodyFrame->Release();
-			continue;
-		}
+	result = bodyFrame->GetAndRefreshBodyData(numberOfTrackedBodies, trackedBodies); //Update für bodies-Array
 
-		for (int i = 0; i < numberOfTrackedBodies; ++i)
+	if (result != S_OK) {
+		bodyFrame->Release();
+		return;
+	}
+
+	for (int i = 0; i < numberOfTrackedBodies; ++i)
+	{
+		BOOLEAN isTracked;
+		trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
+		if (isTracked == TRUE) //Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
 		{
-			BOOLEAN isTracked;
-			trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
-			if (isTracked == TRUE) //Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
+			result = trackedBodies[i]->GetJoints(JointType_Count, joints);
+
+			if (SUCCEEDED(result)) //Falls Gelenke erfolgreich geholt
 			{
-				result = trackedBodies[i]->GetJoints(JointType_Count, joints);
-
-				if (SUCCEEDED(result)) //Falls Gelenke erfolgreich geholt
-				{
-					auto position(joints[JointType::JointType_Head].Position);  //Weißt position den Position-struct vom joint zu (referenziell)
-					if (position.Z < master.z) {
-						master.id = i;
-						master.z = position.Z;
-					}
-
+				auto position(joints[JointType::JointType_Head].Position);  //Weißt position den Position-struct vom joint zu (referenziell)
+				if (position.Z < master.z) {
+					master.id = i;
+					master.z = position.Z;
 				}
+
+			}
 			}
 		}
 
@@ -82,27 +89,46 @@ void KinectControl::run() {
 			master.leftHandCurrentPosition = joints[JointType::JointType_HandLeft].Position;
 			master.rightHandCurrentPosition = joints[JointType::JointType_HandRight].Position;
 
-			std::cout << master.leftHandCurrentPosition.Z << " -- " << master.rightHandCurrentPosition.Z << "\t";
+			//std::cout << master.leftHandCurrentPosition.Z << " -- " << master.rightHandCurrentPosition.Z << "\t";
 
 
 			if (master.leftHandState == HandState_Closed && master.rightHandState == HandState_Closed) {
 				//Startpunkt für Puffer
 				currentControlMode = CAMERA_MODE;
 
-				std::cout << "Rotiere Kamera";
-			}
+				//OutputDebugStringA("Rotiere Kamera\n");
+				//std::cout << "Rotiere Kamera";
+			} else if (master.leftHandState == HandState_Open && master.rightHandState == HandState_Open) {
+				float currentPositionX = (master.leftHandCurrentPosition.X + master.rightHandCurrentPosition.X) / 2;
+				float currentPositionY = (master.leftHandCurrentPosition.Y + master.rightHandCurrentPosition.Y) / 2;
+				float currentPositionZ = (master.leftHandCurrentPosition.Z + master.rightHandCurrentPosition.Z) / 2;
 
-			if (master.leftHandState == HandState_Open && master.rightHandState == HandState_Open) {
-				motionParameters.translateX = master.leftHandCurrentPosition.X - master.leftHandLastPosition.X;
-				motionParameters.translateY = master.leftHandCurrentPosition.Y - master.leftHandLastPosition.Y;
-				motionParameters.translateZ = master.leftHandCurrentPosition.Z - master.leftHandLastPosition.Z;
+				float lastPositionX = (master.leftHandLastPosition.X + master.rightHandLastPosition.X)/2;
+				float lastPositionY = (master.leftHandLastPosition.Y + master.rightHandLastPosition.Y)/2;
+				float lastPositionZ = (master.leftHandLastPosition.Z + master.rightHandLastPosition.Z)/2;
+
+				float translateX = currentPositionX - lastPositionX;
+				float translateY = currentPositionY - lastPositionY;
+				float translateZ = currentPositionZ - lastPositionZ;
+				/*
+				float threshold = .002f;
+
+				if (std::abs(translateX) < threshold) translateX = .0f;
+				if (std::abs(translateY) < threshold) translateY = .0f;
+				if (std::abs(translateZ) < threshold) translateZ = .0f;
+				*/
+				motionParameters->translateX = translateX;
+				motionParameters->translateY = translateY;
+				motionParameters->translateZ = translateZ;
 
 				//On-Screen-Debug-Gehacke
-				std::cout << "Verschiebe Kamera ( " << (int)(motionParameters.translateX * 100) << " "
-					<< (int)(motionParameters.translateY * 100) << " " << (int)(motionParameters.translateZ * 100) << " )";
-
-
+				//OutputDebugStringA("Verschiebe Kamera\n");
+				//std::cout << "Verschiebe Kamera ( " << (int)(motionParameters->translateX * 100) << " "
+				//	<< (int)(motionParameters->translateY * 100) << " " << (int)(motionParameters->translateZ * 100) << " )";
+			} else {
+				//OutputDebugStringA("Master AFK\n");
 			}
+
 			std::cout << std::endl;
 			master.leftHandLastPosition = master.leftHandCurrentPosition;
 			master.rightHandLastPosition = master.rightHandCurrentPosition;
@@ -133,17 +159,4 @@ void KinectControl::run() {
 		
 		}
 		bodyFrame->Release();
-	}
 }
-
-/*
-int main()
-{
-	init();
-	while (true) run();
-	//bodyFrameReader->Release();
-	//kinectSensor->Close();
-    //return 0;
-}
-
-*/

@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3DVGR", "3DVGR\3DVGR.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2F13AC4C-9E10-4738-9600-9CED9A8CC894} = {2F13AC4C-9E10-4738-9600-9CED9A8CC894}
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83} = {91D11867-50A6-4573-B2A1-9BC79A3C2F83}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectGL", "DirectGL\DirectGL\DirectGL.vcxproj", "{CC97A646-F756-4CA2-8CC0-BF9D6D843EF9}"
@@ -13,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libepoxy", "DirectGL\libepoxy\libepoxy.vcxproj", "{CF103C15-F8CF-45AE-A6B2-8C3B516EB9FB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderCompiler", "DirectGL\ShaderCompiler\ShaderCompiler.vcxproj", "{2F13AC4C-9E10-4738-9600-9CED9A8CC894}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KinectControl", "..\ConsoleApplication1\ConsoleApplication1.vcxproj", "{91D11867-50A6-4573-B2A1-9BC79A3C2F83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +57,14 @@ Global
 		{2F13AC4C-9E10-4738-9600-9CED9A8CC894}.Release|Win32.Build.0 = Release|Win32
 		{2F13AC4C-9E10-4738-9600-9CED9A8CC894}.Release|x64.ActiveCfg = Release|x64
 		{2F13AC4C-9E10-4738-9600-9CED9A8CC894}.Release|x64.Build.0 = Release|x64
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Debug|Win32.Build.0 = Debug|Win32
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Debug|x64.ActiveCfg = Debug|x64
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Debug|x64.Build.0 = Debug|x64
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Release|Win32.ActiveCfg = Release|Win32
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Release|Win32.Build.0 = Release|Win32
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Release|x64.ActiveCfg = Release|x64
+		{91D11867-50A6-4573-B2A1-9BC79A3C2F83}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

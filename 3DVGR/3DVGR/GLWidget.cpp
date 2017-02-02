@@ -24,6 +24,7 @@ GLWidget::~GLWidget()
 
 void GLWidget::initializeGL()
 {
+
 	m_near = 0.1;
 	m_far = 1000.f;
 	m_camera.setPosition(DirectGL::Vector3f(1000, 1000, 1000));
@@ -40,6 +41,8 @@ void GLWidget::initializeGL()
 
 	if (m_shared)
 	{
+		kinectControl.init();
+
 		m_shared->setReadBuffer(m_colorBuff);
 
 		m_camera.setProjective(90.f, m_near, m_far, 4.f / 3.f);
@@ -225,9 +228,27 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::eventLoop()
 {
+	KinectControl::MotionParameters motionParameters;
+	kinectControl.run(&motionParameters);
+	
 	// TODO speed configurable
 	float time = m_timer.restart() * m_cameraSpeed;
 	DirectGL::Vector3f dir(DirectGL::Vector3f::Zero());
+
+	float strength = time*100;
+
+	//if (m_pressedKeys[Qt::Key::Key_X])
+		dir += strength * m_camera.getRotation()._transformVector(DirectGL::Vector3f(
+			motionParameters.translateX,
+			motionParameters.translateY,
+			motionParameters.translateZ)
+		);
+	//Debug-Ausgabe
+	if(motionParameters.translateX != 0 || motionParameters.translateY != 0 || motionParameters.translateZ != 0) {
+		OutputDebugStringA(("Translate =  " + std::to_string(motionParameters.translateX) + "  /  ").c_str());
+		OutputDebugStringA((std::to_string(motionParameters.translateY) + "  /  ").c_str());
+		OutputDebugStringA((std::to_string(motionParameters.translateZ) + "\n ").c_str());
+	}
 	if (m_pressedKeys[Qt::Key::Key_W])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(0.f, 0.f, -time));
 	if (m_pressedKeys[Qt::Key::Key_S])

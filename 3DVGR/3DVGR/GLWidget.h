@@ -5,6 +5,10 @@
 
 #define NOMINMAX
 
+#include <../../ConsoleApplication1/KinectControl.h>
+#undef min
+#undef max
+
 #include <epoxy/gl.h>
 #include <epoxy/wgl.h>
 #include <GL/GL.h>
@@ -135,5 +139,7 @@ private:
 
 	QPoint m_oldMousePos;
 	bool m_mouseCapturing = false;
+
+	KinectControl kinectControl;
 };
 

@@ -6,8 +6,17 @@
 
 class KinectControl {
 	public:
+		struct MotionParameters {
+			float translateX;
+			float translateY;
+			float translateZ;
+			float rotateX;
+			float rotateY;
+			float rotateZ;
+		};
+
 		void init();
-		void run();
+		void run(MotionParameters *motionParameters);
 		KinectControl();
 	private:
 		IKinectSensor *kinectSensor;
@@ -15,7 +24,7 @@ class KinectControl {
 		IBodyFrameReader *bodyFrameReader;
 
 		INT32 numberOfTrackedBodies;
-		IBody *trackedBodies[BODY_COUNT];
+		IBody *trackedBodies[BODY_COUNT] = { 0,0,0,0,0,0 };
 		Joint joints[JointType_Count];
 
 		struct Person {
@@ -42,17 +51,6 @@ class KinectControl {
 		};
 
 		ControlMode currentControlMode;
-
-		struct MotionParameters {
-			float translateX;
-			float translateY;
-			float translateZ;
-			float rotateX;
-			float rotateY;
-			float rotateZ;
-		};
-
-		MotionParameters motionParameters;
 
 		HRESULT result;
 };

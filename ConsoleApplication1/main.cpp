@@ -4,7 +4,7 @@
 
 int main()
 {
-	KinectControl kinectControl;
+	/*KinectControl kinectControl;
 	kinectControl.init();
-	kinectControl.run();
+	kinectControl.run();*/
 }

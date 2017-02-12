@@ -22,6 +22,9 @@ KinectControl::KinectControl() {
 		100.0
 	};
 	currentControlMode = DEFAULT_MODE;
+
+	leftHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
+	rightHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 }
 
 void KinectControl::init() {
@@ -30,7 +33,27 @@ void KinectControl::init() {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //Anzahl Personen?
 	bodyFrameSource->OpenReader(&bodyFrameReader);
+	for (int i = 0; i < POS_BUFFER_SIZE; i++) {
+		smoothing_sum += smoothing_factor[i];
+	}
 }
+
+CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) {
+	CameraSpacePoint speed_point = { 0,0,0 };
+	// läuft atm vom ältesten zum jüngsten, deshalb schleife absteigend
+	for (int i = buffer->end(); i >= 1; i--) {
+		// von jung zu alt, stoppt eins später für ableitung
+		// ich achte mal noch nich drauf was bei nicht vollem puffer genau passiert
+		CameraSpacePoint *cur_point = buffer->get(i);
+		CameraSpacePoint *next_point = buffer->get(i - 1);
+		float smoothing = smoothing_factor[i-1] / smoothing_sum;
+		speed_point.X += (cur_point->X - next_point->X) * smoothing;
+		speed_point.Y += (cur_point->Y - next_point->Y) * smoothing;
+		speed_point.Z += (cur_point->Z - next_point->Z) * smoothing;
+	}
+	return &speed_point;
+}
+
 
 void KinectControl::run(MotionParameters *motionParameters) {
 	//Initialisierung der motionParameters
@@ -107,9 +130,12 @@ void KinectControl::run(MotionParameters *motionParameters) {
 				float lastPositionY = (master.leftHandLastPosition.Y + master.rightHandLastPosition.Y)/2;
 				float lastPositionZ = (master.leftHandLastPosition.Z + master.rightHandLastPosition.Z)/2;
 
-				float translateX = currentPositionX - lastPositionX;
-				float translateY = currentPositionY - lastPositionY;
-				float translateZ = currentPositionZ - lastPositionZ;
+				CameraSpacePoint result_left = *smooth_speed(leftHandPositionBuffer);
+				CameraSpacePoint result_right = *smooth_speed(rightHandPositionBuffer);
+				float translateX = (result_left.X + result_right.X) / 2;
+				float translateY = (result_left.Y + result_right.Y) / 2;
+				float translateZ = (result_left.Z + result_right.Z) / 2;
+
 				/*
 				float threshold = .002f;
 
@@ -130,8 +156,12 @@ void KinectControl::run(MotionParameters *motionParameters) {
 			}
 
 			std::cout << std::endl;
-			master.leftHandLastPosition = master.leftHandCurrentPosition;
-			master.rightHandLastPosition = master.rightHandCurrentPosition;
+
+			leftHandPositionBuffer->push(master.leftHandCurrentPosition);
+			rightHandPositionBuffer->push(master.rightHandCurrentPosition);
+
+			//master.leftHandLastPosition = master.leftHandCurrentPosition;
+			//master.rightHandLastPosition = master.rightHandCurrentPosition;
 
 			//auto master_position(joints[JointType::JointType_HandLeft].Position);
 

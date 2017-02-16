@@ -1,5 +1,7 @@
-// ConsoleApplication1.cpp : Defines the entry point for the console application.
-//
+/**
+* KinectControl.cpp
+* Managerklasse, Schnittstelle zur Kinect
+*/
 
 #include "stdafx.h"
 #include <iostream>
@@ -7,26 +9,148 @@
 #include "KinectControl.h"
 
 
-/*
-* fancy doku
+/**
+* Konstruktor
 */
 KinectControl::KinectControl() {
+	// Master
 	master = {
-		-1,
-		{ 0,0,0 },
-		{ 0,0,0 },
-		{ 0,0,0 },
-		{ 0,0,0 },
-		HandState_Unknown,
-		HandState_Unknown,
-		100.0
+		-1,						// id
+		{ 0,0,0 },				// leftHandCurrentPosition
+		{ 0,0,0 },				// rightHandCurrentPosition
+		{ 0,0,0 },				// leftHandLastPosition
+		{ 0,0,0 },				// rightHandLastPosition
+		HandState_Unknown,		// leftHandState
+		HandState_Unknown,		// rightHandState
+		100.0					// z
 	};
-	currentControlMode = DEFAULT_MODE;
 
+	// State Machine
+	setState(CAMERA_IDLE);		// Initialzustand
+
+	// Gestenbuffer
+	recognizedGesture = UNKNOWN;
+	recognizedGesturesBuffer = new Buffer<Gesture>(GESTURE_BUFFER_SIZE);
+
+	// Handpositionenbuffer
 	leftHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 	rightHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 }
 
+/**
+* Wechselt den aktuellen Zustand
+*
+* @param newState neuer Zustand
+*/
+void KinectControl::setState(KinectControlState newState) {
+	state = newState;
+}
+
+/**
+* Liest den aktuellen Zustand
+*
+* @return state aktueller Zustand
+*/
+KinectControl::KinectControlState KinectControl::getState() {
+	return state;
+}
+
+/**
+* Führt einen Berechnungsschritt der StateMachine durch
+* Dies sind die für die Parameter benötigen Rechnung und die Zustandswechsel
+*/
+void KinectControl::stateMachineStep() {
+	float currentPositionX = (master.leftHandCurrentPosition.X + master.rightHandCurrentPosition.X) / 2;
+	float currentPositionY = (master.leftHandCurrentPosition.Y + master.rightHandCurrentPosition.Y) / 2;
+	float currentPositionZ = (master.leftHandCurrentPosition.Z + master.rightHandCurrentPosition.Z) / 2;
+
+	float lastPositionX = (master.leftHandLastPosition.X + master.rightHandLastPosition.X) / 2;
+	float lastPositionY = (master.leftHandLastPosition.Y + master.rightHandLastPosition.Y) / 2;
+	float lastPositionZ = (master.leftHandLastPosition.Z + master.rightHandLastPosition.Z) / 2;
+
+	CameraSpacePoint result_left;
+	CameraSpacePoint result_right;
+
+	float translateX;
+	float translateY;
+	float translateZ;
+
+	switch (state)
+	{
+	case KinectControl::CAMERA_IDLE:
+		if (recognizedGesture == ROTATE_GESTURE)
+			setState(CAMERA_ROTATE);
+		else if (recognizedGesture == TRANSLATE_GESTURE)
+			setState(CAMERA_TRANSLATE);
+		break;
+
+	//Translation der Kamera + Zustandswechsel
+	case KinectControl::CAMERA_TRANSLATE:
+		result_left = *smooth_speed(leftHandPositionBuffer);
+		result_right = *smooth_speed(rightHandPositionBuffer);
+
+		translateX = (result_left.X + result_right.X) / 2;
+		translateY = (result_left.Y + result_right.Y) / 2;
+		translateZ = (result_left.Z + result_right.Z) / 2;
+		/*
+		TBD: entfernen, wenn durch Glättung nicht mehr nötig
+		float threshold = .002f;
+
+		if (std::abs(translateX) < threshold) translateX = .0f;
+		if (std::abs(translateY) < threshold) translateY = .0f;
+		if (std::abs(translateZ) < threshold) translateZ = .0f;
+		*/
+
+		motionParameters.translateX = translateX;
+		motionParameters.translateY = translateY;
+		motionParameters.translateZ = translateZ;
+
+		//On-Screen-Debug-Gehacke
+		//OutputDebugStringA("Verschiebe Kamera\n");
+		//std::cout << "Verschiebe Kamera ( " << (int)(motionParameters->translateX * 100) << " "
+		//	<< (int)(motionParameters->translateY * 100) << " " << (int)(motionParameters->translateZ * 100) << " )";
+
+		if (recognizedGesture == ROTATE_GESTURE)
+			setState(CAMERA_ROTATE);
+		else if (recognizedGesture == TRANSLATE_GESTURE)
+			setState(CAMERA_TRANSLATE);
+		break;
+
+	//Rotation der Kamera + Zustandswechsel
+	case KinectControl::CAMERA_ROTATE:
+		//TBD: Kamerarotation
+
+		//OutputDebugStringA("Rotiere Kamera\n");
+		//std::cout << "Rotiere Kamera";
+
+		//Zustandswechsel
+		if (recognizedGesture == ROTATE_GESTURE)
+			setState(CAMERA_ROTATE);
+		else if (recognizedGesture == TRANSLATE_GESTURE)
+			setState(CAMERA_TRANSLATE);
+		break;
+
+	case KinectControl::OBJECT_IDLE:		// TDB
+		break;
+	case KinectControl::OBJECT_TRANSLATE:
+		break;
+	case KinectControl::OBJECT_ROTATE:
+		break;
+
+	default:
+		break;
+	}
+
+	// Neue Werte in die Buffer schreiben
+	leftHandPositionBuffer->push(master.leftHandCurrentPosition);
+	rightHandPositionBuffer->push(master.rightHandCurrentPosition);
+}
+
+/**
+* Initialisiert eine KinectControl-Instanz
+* Bereitet Kinect-Sensor und -Frame-Reader vor
+* Bereitet Puffer vor
+*/
 void KinectControl::init() {
 	GetDefaultKinectSensor(&kinectSensor);
 	kinectSensor->Open();
@@ -38,6 +162,11 @@ void KinectControl::init() {
 	}
 }
 
+/**
+* Glättet gepufferte Parameter
+*
+* @TODO Doku ergänzen
+*/
 CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) {
 	CameraSpacePoint speed_point = { 0,0,0 };
 	// läuft atm vom ältesten zum jüngsten, deshalb schleife absteigend
@@ -54,44 +183,64 @@ CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) 
 	return &speed_point;
 }
 
+/**
+* Wertet den Buffer mit den erkannten Gesten aus
+* Führt dabei einen gewichteten Mehrheitsentscheid durch
+* @TODO eventuell ist noch mit Puffergröße und Gewichten zu spielen
+*
+* @return maxConfidenceGesture Geste, die basierend auf den gepufferten Gesten wahrscheinlich vorgeführt wurde
+*/
+KinectControl::Gesture KinectControl::evaluateGestureBuffer() {
+	int gestureCounter[4] = { 0 }; //4 Gesten
+	float gestureWeights[4] = { .1f,.3f,.3f,.3f };
+	for (int i = 0; i < recognizedGesturesBuffer->end(); i++)
+		gestureCounter[*recognizedGesturesBuffer->get(i)]++;
+	float weightedGestures[4] = { 0 };
+	Gesture maxConfidenceGesture = UNKNOWN;
+	for (int i = 0; i < 4; i++) {
+		weightedGestures[i] = gestureCounter[i] * gestureWeights[i];
+		if (weightedGestures[i] > weightedGestures[maxConfidenceGesture])
+			maxConfidenceGesture = static_cast<Gesture>(i);
+	}
+	return maxConfidenceGesture;
+}
 
-void KinectControl::run(MotionParameters *motionParameters) {
+/**
+* Hole und bearbeite Frame, den Kinect liefert
+*
+* @return motionParameters Transformationsparameter
+*/
+KinectControl::MotionParameters KinectControl::run() {
 	//Initialisierung der motionParameters
-	motionParameters->translateX = .0f;
-	motionParameters->translateY = .0f;
-	motionParameters->translateZ = .0f;
-	motionParameters->rotateX = .0f;
-	motionParameters->rotateY = .0f;
-	motionParameters->rotateZ = .0f;
+	motionParameters.translateX = .0f;
+	motionParameters.translateY = .0f;
+	motionParameters.translateZ = .0f;
+	motionParameters.rotateX = .0f;
+	motionParameters.rotateY = .0f;
+	motionParameters.rotateZ = .0f;
 
 	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
 	master.id = -1;
 	master.z = 100.0;
 
 	IBodyFrame *bodyFrame;
-	result = bodyFrameReader->AcquireLatestFrame(&bodyFrame);
 
-	if (result != S_OK) {
-		return;
-	}
+	result = bodyFrameReader->AcquireLatestFrame(&bodyFrame);
+	if (result != S_OK) { return motionParameters; }
 
 	result = bodyFrame->GetAndRefreshBodyData(numberOfTrackedBodies, trackedBodies); //Update für bodies-Array
-
-	if (result != S_OK) {
-		bodyFrame->Release();
-		return;
-	}
+	if (result != S_OK) { bodyFrame->Release(); return motionParameters; }
 
 	for (int i = 0; i < numberOfTrackedBodies; ++i)
 	{
 		BOOLEAN isTracked;
 		trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
-		if (isTracked == TRUE) //Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
-		{
+
+		//Tracking erkannter Personen, Identifikation des Masters
+		if (isTracked == TRUE) { //Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
 			result = trackedBodies[i]->GetJoints(JointType_Count, joints);
 
-			if (SUCCEEDED(result)) //Falls Gelenke erfolgreich geholt
-			{
+			if (SUCCEEDED(result)) { //Falls Gelenke erfolgreich geholt
 				auto position(joints[JointType::JointType_Head].Position);  //Weißt position den Position-struct vom joint zu (referenziell)
 				if (position.Z < master.z) {
 					master.id = i;
@@ -99,94 +248,30 @@ void KinectControl::run(MotionParameters *motionParameters) {
 				}
 
 			}
-			}
 		}
+	}
 
-		if (master.id != -1) {
-			//std::cout << "Master hat ID " << masterId << "\n";
+	if (master.id != -1) {
+		//Hole Gelenkobjekte und wichtige Positionen des Masters
+		trackedBodies[master.id]->GetJoints(JointType_Count, joints);
+		trackedBodies[master.id]->get_HandLeftState(&master.leftHandState);
+		trackedBodies[master.id]->get_HandRightState(&master.rightHandState);
+		master.leftHandCurrentPosition = joints[JointType::JointType_HandLeft].Position;
+		master.rightHandCurrentPosition = joints[JointType::JointType_HandRight].Position;
 
-			trackedBodies[master.id]->GetJoints(JointType_Count, joints);
-			trackedBodies[master.id]->get_HandLeftState(&master.leftHandState);
-			trackedBodies[master.id]->get_HandRightState(&master.rightHandState);
+		// Erkennen der Grundtypen von Gesten
+		if (master.leftHandState == HandState_Closed && master.rightHandState == HandState_Closed)
+			recognizedGesturesBuffer->push(ROTATE_GESTURE);
+		else if (master.leftHandState == HandState_Open && master.rightHandState == HandState_Open)
+			recognizedGesturesBuffer->push(TRANSLATE_GESTURE);
+		else
+			recognizedGesturesBuffer->push(UNKNOWN);
+		recognizedGesture = evaluateGestureBuffer();
 
-			master.leftHandCurrentPosition = joints[JointType::JointType_HandLeft].Position;
-			master.rightHandCurrentPosition = joints[JointType::JointType_HandRight].Position;
+		// Berechnungsschritt der State-Machine
+		stateMachineStep();
+	}
 
-			//std::cout << master.leftHandCurrentPosition.Z << " -- " << master.rightHandCurrentPosition.Z << "\t";
-
-
-			if (master.leftHandState == HandState_Closed && master.rightHandState == HandState_Closed) {
-				//Startpunkt für Puffer
-				currentControlMode = CAMERA_MODE;
-
-				//OutputDebugStringA("Rotiere Kamera\n");
-				//std::cout << "Rotiere Kamera";
-			} else if (master.leftHandState == HandState_Open && master.rightHandState == HandState_Open) {
-				float currentPositionX = (master.leftHandCurrentPosition.X + master.rightHandCurrentPosition.X) / 2;
-				float currentPositionY = (master.leftHandCurrentPosition.Y + master.rightHandCurrentPosition.Y) / 2;
-				float currentPositionZ = (master.leftHandCurrentPosition.Z + master.rightHandCurrentPosition.Z) / 2;
-
-				float lastPositionX = (master.leftHandLastPosition.X + master.rightHandLastPosition.X)/2;
-				float lastPositionY = (master.leftHandLastPosition.Y + master.rightHandLastPosition.Y)/2;
-				float lastPositionZ = (master.leftHandLastPosition.Z + master.rightHandLastPosition.Z)/2;
-
-				CameraSpacePoint result_left = *smooth_speed(leftHandPositionBuffer);
-				CameraSpacePoint result_right = *smooth_speed(rightHandPositionBuffer);
-				float translateX = (result_left.X + result_right.X) / 2;
-				float translateY = (result_left.Y + result_right.Y) / 2;
-				float translateZ = (result_left.Z + result_right.Z) / 2;
-
-				/*
-				float threshold = .002f;
-
-				if (std::abs(translateX) < threshold) translateX = .0f;
-				if (std::abs(translateY) < threshold) translateY = .0f;
-				if (std::abs(translateZ) < threshold) translateZ = .0f;
-				*/
-				motionParameters->translateX = translateX;
-				motionParameters->translateY = translateY;
-				motionParameters->translateZ = translateZ;
-
-				//On-Screen-Debug-Gehacke
-				//OutputDebugStringA("Verschiebe Kamera\n");
-				//std::cout << "Verschiebe Kamera ( " << (int)(motionParameters->translateX * 100) << " "
-				//	<< (int)(motionParameters->translateY * 100) << " " << (int)(motionParameters->translateZ * 100) << " )";
-			} else {
-				//OutputDebugStringA("Master AFK\n");
-			}
-
-			std::cout << std::endl;
-
-			leftHandPositionBuffer->push(master.leftHandCurrentPosition);
-			rightHandPositionBuffer->push(master.rightHandCurrentPosition);
-
-			//master.leftHandLastPosition = master.leftHandCurrentPosition;
-			//master.rightHandLastPosition = master.rightHandCurrentPosition;
-
-			//auto master_position(joints[JointType::JointType_HandLeft].Position);
-
-			/*
-			Marios wildes Rumgehacke
-			switch (masterLeftHandState)
-			{
-			case HandState::HandState_Closed:
-			std::cout << "Left Hand: X: " << master_position.X - last_point.X
-			<< " Y: " << master_position.Y - last_point.Y
-			<< " Z: " << master_position.Z - last_point.Z << "\n";
-			break;
-			case HandState::HandState_Open:
-			std::cout << "0\n";
-			break;
-			case HandState::HandState_Lasso:
-			auto head_position(joints[JointType::JointType_Head].Position);
-			float x_dif = head_position.X - master_position.X;
-			float y_dif = head_position.Y - master_position.Y;
-			std::cout << "Rotieren - X:" << x_dif <<
-			" Y: " << y_dif << "\n";
-			break;
-			}
-			*/
-		
-		}
-		bodyFrame->Release();
+	// Frame - Speicher freigeben
+	bodyFrame->Release();
 }

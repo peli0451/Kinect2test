@@ -16,13 +16,16 @@ class KinectControl {
 		};
 
 		void init();
-		void run(MotionParameters *motionParameters);
+		MotionParameters run();
 		KinectControl();
 	private:
+		//Kinect Basics
 		IKinectSensor *kinectSensor;
 		IBodyFrameSource *bodyFrameSource;
 		IBodyFrameReader *bodyFrameReader;
 
+
+		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;
 		IBody *trackedBodies[BODY_COUNT] = { 0,0,0,0,0,0 };
 		Joint joints[JointType_Count];
@@ -41,17 +44,23 @@ class KinectControl {
 
 			FLOAT z;
 		};
-
 		Person master;
 
-		enum ControlMode {
-			DEFAULT_MODE,
-			CAMERA_MODE,
-			OBJECT_MODE
+		MotionParameters motionParameters;
+
+		enum Gesture {
+			UNKNOWN,
+			TRANSLATE_GESTURE,
+			ROTATE_GESTURE,
+			GRAB_GESTURE
 		};
+		const int GESTURE_COUNT = 4;
+		Gesture recognizedGesture;
+		const int GESTURE_BUFFER_SIZE = 10;
+		Buffer<Gesture> *recognizedGesturesBuffer;
+		Gesture evaluateGestureBuffer();
 
-		ControlMode currentControlMode;
-
+		//@TODO in die .cpp?
 		HRESULT result;
 
 		const int POS_BUFFER_SIZE = 10;
@@ -61,4 +70,21 @@ class KinectControl {
 		float smoothing_sum;
 
 		CameraSpacePoint* smooth_speed(Buffer<CameraSpacePoint>* buffer);
+
+
+		//State-Machine für KinectControl
+		enum KinectControlState {
+			CAMERA_IDLE,
+			CAMERA_TRANSLATE,
+			CAMERA_ROTATE,
+			OBJECT_IDLE,
+			OBJECT_TRANSLATE,
+			OBJECT_ROTATE
+		};
+
+		KinectControlState state;
+		void setState(KinectControlState newState);
+		KinectControlState getState();
+
+		void stateMachineStep();
 };

@@ -229,7 +229,7 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::eventLoop()
 {
 	KinectControl::MotionParameters motionParameters;
-	kinectControl.run(&motionParameters);
+	motionParameters = kinectControl.run();
 	
 	// TODO speed configurable
 	float time = m_timer.restart() * m_cameraSpeed;

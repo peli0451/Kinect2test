@@ -4,6 +4,7 @@
 */
 
 #include "stdafx.h"
+#include <string>
 #include <iostream>
 
 #include "KinectControl.h"
@@ -60,13 +61,9 @@ KinectControl::KinectControlState KinectControl::getState() {
 * Dies sind die für die Parameter benötigen Rechnung und die Zustandswechsel
 */
 void KinectControl::stateMachineStep() {
-	float currentPositionX = (master.leftHandCurrentPosition.X + master.rightHandCurrentPosition.X) / 2;
-	float currentPositionY = (master.leftHandCurrentPosition.Y + master.rightHandCurrentPosition.Y) / 2;
-	float currentPositionZ = (master.leftHandCurrentPosition.Z + master.rightHandCurrentPosition.Z) / 2;
-
-	float lastPositionX = (master.leftHandLastPosition.X + master.rightHandLastPosition.X) / 2;
-	float lastPositionY = (master.leftHandLastPosition.Y + master.rightHandLastPosition.Y) / 2;
-	float lastPositionZ = (master.leftHandLastPosition.Z + master.rightHandLastPosition.Z) / 2;
+	// Neue Werte in die Buffer schreiben
+	leftHandPositionBuffer->push(master.leftHandCurrentPosition);
+	rightHandPositionBuffer->push(master.rightHandCurrentPosition);
 
 	CameraSpacePoint result_left;
 	CameraSpacePoint result_right;
@@ -84,7 +81,7 @@ void KinectControl::stateMachineStep() {
 			setState(CAMERA_TRANSLATE);
 		break;
 
-	//Translation der Kamera + Zustandswechsel
+		//Translation der Kamera + Zustandswechsel
 	case KinectControl::CAMERA_TRANSLATE:
 		result_left = *smooth_speed(leftHandPositionBuffer);
 		result_right = *smooth_speed(rightHandPositionBuffer);
@@ -110,13 +107,27 @@ void KinectControl::stateMachineStep() {
 		//std::cout << "Verschiebe Kamera ( " << (int)(motionParameters->translateX * 100) << " "
 		//	<< (int)(motionParameters->translateY * 100) << " " << (int)(motionParameters->translateZ * 100) << " )";
 
-		if (recognizedGesture == ROTATE_GESTURE)
+		if (recognizedGesture == ROTATE_GESTURE) {
+			motionParameters.translateX = .0f;
+			motionParameters.translateY = .0f;
+			motionParameters.translateZ = .0f;
 			setState(CAMERA_ROTATE);
-		else if (recognizedGesture == TRANSLATE_GESTURE)
+		}
+		else if (recognizedGesture == TRANSLATE_GESTURE) {
 			setState(CAMERA_TRANSLATE);
+		}
+		else {
+			motionParameters.translateX = .0f;
+			motionParameters.translateY = .0f;
+			motionParameters.translateZ = .0f;
+			motionParameters.rotateX = .0f;
+			motionParameters.rotateY = .0f;
+			motionParameters.rotateZ = .0f;
+			setState(CAMERA_IDLE);
+		}
 		break;
 
-	//Rotation der Kamera + Zustandswechsel
+		//Rotation der Kamera + Zustandswechsel
 	case KinectControl::CAMERA_ROTATE:
 		//TBD: Kamerarotation
 
@@ -126,8 +137,20 @@ void KinectControl::stateMachineStep() {
 		//Zustandswechsel
 		if (recognizedGesture == ROTATE_GESTURE)
 			setState(CAMERA_ROTATE);
-		else if (recognizedGesture == TRANSLATE_GESTURE)
+		else if (recognizedGesture == TRANSLATE_GESTURE) {
+			motionParameters.rotateX = .0f;
+			motionParameters.rotateY = .0f;
+			motionParameters.rotateZ = .0f;
 			setState(CAMERA_TRANSLATE);
+		} else {
+			motionParameters.translateX = .0f;
+			motionParameters.translateY = .0f;
+			motionParameters.translateZ = .0f;
+			motionParameters.rotateX = .0f;
+			motionParameters.rotateY = .0f;
+			motionParameters.rotateZ = .0f;
+			setState(CAMERA_IDLE);
+		}
 		break;
 
 	case KinectControl::OBJECT_IDLE:		// TDB
@@ -140,10 +163,6 @@ void KinectControl::stateMachineStep() {
 	default:
 		break;
 	}
-
-	// Neue Werte in die Buffer schreiben
-	leftHandPositionBuffer->push(master.leftHandCurrentPosition);
-	rightHandPositionBuffer->push(master.rightHandCurrentPosition);
 }
 
 /**
@@ -157,9 +176,17 @@ void KinectControl::init() {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //Anzahl Personen?
 	bodyFrameSource->OpenReader(&bodyFrameReader);
+	smoothing_sum = 0;
 	for (int i = 0; i < POS_BUFFER_SIZE; i++) {
 		smoothing_sum += smoothing_factor[i];
 	}
+	//Initialisierung der motionParameters
+	motionParameters.translateX = .0f;
+	motionParameters.translateY = .0f;
+	motionParameters.translateZ = .0f;
+	motionParameters.rotateX = .0f;
+	motionParameters.rotateY = .0f;
+	motionParameters.rotateZ = .0f;
 }
 
 /**
@@ -176,6 +203,16 @@ CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) 
 		CameraSpacePoint *cur_point = buffer->get(i);
 		CameraSpacePoint *next_point = buffer->get(i - 1);
 		float smoothing = smoothing_factor[i-1] / smoothing_sum;
+
+		/*
+		OutputDebugStringA(std::to_string(smoothing).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(smoothing_factor[i-1]).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(smoothing_sum).c_str());
+		OutputDebugStringA("\n");
+		*/
+
 		speed_point.X += (cur_point->X - next_point->X) * smoothing;
 		speed_point.Y += (cur_point->Y - next_point->Y) * smoothing;
 		speed_point.Z += (cur_point->Z - next_point->Z) * smoothing;
@@ -186,6 +223,7 @@ CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) 
 /**
 * Wertet den Buffer mit den erkannten Gesten aus
 * Führt dabei einen gewichteten Mehrheitsentscheid durch
+*
 * @TODO eventuell ist noch mit Puffergröße und Gewichten zu spielen
 *
 * @return maxConfidenceGesture Geste, die basierend auf den gepufferten Gesten wahrscheinlich vorgeführt wurde
@@ -211,13 +249,6 @@ KinectControl::Gesture KinectControl::evaluateGestureBuffer() {
 * @return motionParameters Transformationsparameter
 */
 KinectControl::MotionParameters KinectControl::run() {
-	//Initialisierung der motionParameters
-	motionParameters.translateX = .0f;
-	motionParameters.translateY = .0f;
-	motionParameters.translateZ = .0f;
-	motionParameters.rotateX = .0f;
-	motionParameters.rotateY = .0f;
-	motionParameters.rotateZ = .0f;
 
 	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
 	master.id = -1;
@@ -251,6 +282,8 @@ KinectControl::MotionParameters KinectControl::run() {
 		}
 	}
 
+	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
+	//@TODO Mastererkennung mit Confidence, nicht direkt
 	if (master.id != -1) {
 		//Hole Gelenkobjekte und wichtige Positionen des Masters
 		trackedBodies[master.id]->GetJoints(JointType_Count, joints);
@@ -270,8 +303,36 @@ KinectControl::MotionParameters KinectControl::run() {
 
 		// Berechnungsschritt der State-Machine
 		stateMachineStep();
+		
+		switch (state)
+		{
+		case KinectControl::CAMERA_IDLE:
+			OutputDebugStringA("CAMERA_IDLE\t");
+			break;
+		case KinectControl::CAMERA_TRANSLATE:
+			OutputDebugStringA("CAMERA_TRANSLATE\t");
+			break;
+		case KinectControl::CAMERA_ROTATE:
+			OutputDebugStringA("CAMERA_ROTATE\t");
+			break;
+		case KinectControl::OBJECT_IDLE:
+			OutputDebugStringA("OBJECT_IDLE\t");
+			break;
+		case KinectControl::OBJECT_TRANSLATE:
+			OutputDebugStringA("OBJECT_TRANSLATE\t");
+			break;
+		case KinectControl::OBJECT_ROTATE:
+			OutputDebugStringA("OBJECT_ROTATE\t");
+			break;
+		default:
+			break;
+		}
+		
+		
 	}
 
 	// Frame - Speicher freigeben
 	bodyFrame->Release();
+
+	return motionParameters;
 }

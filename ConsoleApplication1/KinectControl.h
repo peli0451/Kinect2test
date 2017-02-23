@@ -66,7 +66,7 @@ class KinectControl {
 		const int POS_BUFFER_SIZE = 10;
 		Buffer<CameraSpacePoint> *leftHandPositionBuffer;
 		Buffer<CameraSpacePoint> *rightHandPositionBuffer;
-		float smoothing_factor[9] = { 1,2,3,4,6,8,12,14,20 };
+		float smoothing_factor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 		float smoothing_sum;
 
 		CameraSpacePoint* smooth_speed(Buffer<CameraSpacePoint>* buffer);

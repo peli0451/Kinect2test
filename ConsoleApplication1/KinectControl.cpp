@@ -38,6 +38,10 @@ KinectControl::KinectControl() {
 	rightHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 }
 
+
+
+
+
 /**
 * Wechselt den aktuellen Zustand
 *
@@ -57,107 +61,177 @@ KinectControl::KinectControlState KinectControl::getState() {
 }
 
 /**
-* Führt einen Berechnungsschritt der StateMachine durch
-* Dies sind die für die Parameter benötigen Rechnung und die Zustandswechsel
+* Liest die aktuellen motionParameters
+*
+* @return motionParameters aktuelle (zuvor berechnete) Manipulationsparameter
 */
-void KinectControl::stateMachineStep() {
-	// Neue Werte in die Buffer schreiben
-	leftHandPositionBuffer->push(master.leftHandCurrentPosition);
-	rightHandPositionBuffer->push(master.rightHandCurrentPosition);
+KinectControl::MotionParameters KinectControl::getMotion() {
+	return motionParameters;
+}
 
-	CameraSpacePoint result_left;
-	CameraSpacePoint result_right;
+/**
+* Setzt neue motionParameters
+*
+* @param translateX neuer Translationswert in x-Richtung
+* @param translateY neuer Translationswert in y-Richtung
+* @param translateZ neuer Translationswert in z-Richtung
+* @param rotateX neuer Rotationswinkel um x-Achse
+* @param rotateY neuer Rotationswinkel um y-Achse
+* @param rotateZ neuer Rotationswinkel um z-Achse
+*/
+void KinectControl::setMotion(float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ) {
+	setTranslation(translateX, translateY, translateZ);
+	setRotation(rotateX, rotateY, rotateZ);
+}
 
-	float translateX;
-	float translateY;
-	float translateZ;
+/**
+* Setzt neue motionParameters, nur Translation
+*
+* @param translateX neuer Translationswert in x-Richtung
+* @param translateY neuer Translationswert in y-Richtung
+* @param translateZ neuer Translationswert in z-Richtung
+*/
+void KinectControl::setTranslation(float translateX, float translateY, float translateZ) {
+	motionParameters.translateX = translateX;
+	motionParameters.translateY = translateY;
+	motionParameters.translateZ = translateZ;
+}
 
-	switch (state)
-	{
+/**
+* Setzt neue motionParameters, nur Rotation
+*
+* @param rotateX neuer Rotationswinkel um x-Achse
+* @param rotateY neuer Rotationswinkel um y-Achse
+* @param rotateZ neuer Rotationswinkel um z-Achse
+*/
+void KinectControl::setRotation(float rotateX, float rotateY, float rotateZ) {
+
+	motionParameters.rotateX = rotateX;
+	motionParameters.rotateY = rotateY;
+	motionParameters.rotateZ = rotateZ;
+}
+
+/**
+* Nullt die motionParameters
+*/
+void KinectControl::resetMotion() {
+	setMotion(.0f, .0f, .0f, .0f, .0f, .0f);
+}
+
+/**
+* Nullt die motionParameters, nur Translation
+*/
+void KinectControl::resetTranslation() {
+	setTranslation(.0f, .0f, .0f);
+}
+
+/**
+* Nullt die motionParameters, nur Rotation
+*/
+void KinectControl::resetRotation() {
+	setRotation(.0f, .0f, .0f);
+}
+
+/**
+* Liest die erkannte Geste
+* @return recognizedGesture erkannte Geste
+*/
+KinectControl::Gesture KinectControl::getRecognizedGesture() {
+	return recognizedGesture;
+}
+
+/**
+* Setzt die erkannte Geste
+*/
+void KinectControl::setRecognizedGesture(Gesture gesture) {
+	recognizedGesture = gesture;
+}
+
+/**
+* Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
+*/
+void KinectControl::stateMachineCompute() {
+	KinectControlState currentState = getState();
+	Gesture recognizedGesture = getRecognizedGesture();
+
+	switch (currentState) {
 	case KinectControl::CAMERA_IDLE:
-		if (recognizedGesture == ROTATE_GESTURE)
-			setState(CAMERA_ROTATE);
-		else if (recognizedGesture == TRANSLATE_GESTURE)
-			setState(CAMERA_TRANSLATE);
+		//TODO
 		break;
-
-		//Translation der Kamera + Zustandswechsel
 	case KinectControl::CAMERA_TRANSLATE:
-		result_left = *smooth_speed(leftHandPositionBuffer);
-		result_right = *smooth_speed(rightHandPositionBuffer);
-
-		translateX = (result_left.X + result_right.X) / 2;
-		translateY = (result_left.Y + result_right.Y) / 2;
-		translateZ = (result_left.Z + result_right.Z) / 2;
-		/*
-		TBD: entfernen, wenn durch Glättung nicht mehr nötig
-		float threshold = .002f;
-
-		if (std::abs(translateX) < threshold) translateX = .0f;
-		if (std::abs(translateY) < threshold) translateY = .0f;
-		if (std::abs(translateZ) < threshold) translateZ = .0f;
-		*/
-
-		motionParameters.translateX = translateX;
-		motionParameters.translateY = translateY;
-		motionParameters.translateZ = translateZ;
-
-		//On-Screen-Debug-Gehacke
-		//OutputDebugStringA("Verschiebe Kamera\n");
-		//std::cout << "Verschiebe Kamera ( " << (int)(motionParameters->translateX * 100) << " "
-		//	<< (int)(motionParameters->translateY * 100) << " " << (int)(motionParameters->translateZ * 100) << " )";
-
-		if (recognizedGesture == ROTATE_GESTURE) {
-			motionParameters.translateX = .0f;
-			motionParameters.translateY = .0f;
-			motionParameters.translateZ = .0f;
-			setState(CAMERA_ROTATE);
-		}
-		else if (recognizedGesture == TRANSLATE_GESTURE) {
-			setState(CAMERA_TRANSLATE);
-		}
-		else {
-			motionParameters.translateX = .0f;
-			motionParameters.translateY = .0f;
-			motionParameters.translateZ = .0f;
-			motionParameters.rotateX = .0f;
-			motionParameters.rotateY = .0f;
-			motionParameters.rotateZ = .0f;
-			setState(CAMERA_IDLE);
+		switch (recognizedGesture) {
+		case ROTATE_GESTURE:
+			resetTranslation();
+			break;
+		case TRANSLATE_GESTURE: {
+			CameraSpacePoint smoothenedLeftHandPosition = *smooth_speed(leftHandPositionBuffer);
+			CameraSpacePoint smoothenedRightHandPosition = *smooth_speed(rightHandPositionBuffer);
+			float translateX = (smoothenedLeftHandPosition.X + smoothenedRightHandPosition.X) / 2;
+			float translateY = (smoothenedLeftHandPosition.Y + smoothenedRightHandPosition.Y) / 2;
+			float translateZ = (smoothenedLeftHandPosition.Z + smoothenedRightHandPosition.Z) / 2;
+			setTranslation(translateX, translateX, translateZ);
+			break;
+			}
+		default:
+			resetMotion();
+			break;
 		}
 		break;
-
-		//Rotation der Kamera + Zustandswechsel
 	case KinectControl::CAMERA_ROTATE:
-		//TBD: Kamerarotation
-
-		//OutputDebugStringA("Rotiere Kamera\n");
-		//std::cout << "Rotiere Kamera";
-
-		//Zustandswechsel
-		if (recognizedGesture == ROTATE_GESTURE)
-			setState(CAMERA_ROTATE);
-		else if (recognizedGesture == TRANSLATE_GESTURE) {
-			motionParameters.rotateX = .0f;
-			motionParameters.rotateY = .0f;
-			motionParameters.rotateZ = .0f;
-			setState(CAMERA_TRANSLATE);
-		} else {
-			motionParameters.translateX = .0f;
-			motionParameters.translateY = .0f;
-			motionParameters.translateZ = .0f;
-			motionParameters.rotateX = .0f;
-			motionParameters.rotateY = .0f;
-			motionParameters.rotateZ = .0f;
-			setState(CAMERA_IDLE);
+		switch (recognizedGesture) {
+		case ROTATE_GESTURE: 
+			//TODO
+			break;
+		case TRANSLATE_GESTURE:
+			resetRotation();
+			break;
+		default:
+			resetMotion();
+			break;
 		}
 		break;
 
-	case KinectControl::OBJECT_IDLE:		// TDB
+	case KinectControl::OBJECT_IDLE:
 		break;
 	case KinectControl::OBJECT_TRANSLATE:
 		break;
 	case KinectControl::OBJECT_ROTATE:
+		break;
+	default:
+		break;
+	}
+}
+
+/**
+* Realisiert die Zustandsübergänge der StateMachine
+*/
+void KinectControl::stateMachineSwitchState() {
+	KinectControlState currentState = getState();
+	Gesture recognizedGesture = getRecognizedGesture();
+
+	switch (currentState) {
+	case CAMERA_IDLE:		//Fallthrough
+	case CAMERA_TRANSLATE:	//Fallthrough
+	case CAMERA_ROTATE:
+		switch (recognizedGesture) {
+		case ROTATE_GESTURE:
+			setState(CAMERA_ROTATE);
+			break;
+		case TRANSLATE_GESTURE:
+			setState(CAMERA_TRANSLATE);
+			break;
+		case GRAB_GESTURE:
+			//setState(OBJECT_IDLE);
+			break;
+		default:
+			//Zustand nicht wechseln
+			break;
+		}
+		break;
+
+	case OBJECT_IDLE:		//Fallthrough
+	case OBJECT_TRANSLATE:  //Fallthrough
+	case OBJECT_ROTATE:
 		break;
 
 	default:
@@ -181,12 +255,7 @@ void KinectControl::init() {
 		smoothing_sum += smoothing_factor[i];
 	}
 	//Initialisierung der motionParameters
-	motionParameters.translateX = .0f;
-	motionParameters.translateY = .0f;
-	motionParameters.translateZ = .0f;
-	motionParameters.rotateX = .0f;
-	motionParameters.rotateY = .0f;
-	motionParameters.rotateZ = .0f;
+	resetMotion();
 }
 
 /**
@@ -299,10 +368,15 @@ KinectControl::MotionParameters KinectControl::run() {
 			recognizedGesturesBuffer->push(TRANSLATE_GESTURE);
 		else
 			recognizedGesturesBuffer->push(UNKNOWN);
-		recognizedGesture = evaluateGestureBuffer();
+		setRecognizedGesture(evaluateGestureBuffer());
+
+		// Neue Werte in die Buffer schreiben
+		leftHandPositionBuffer->push(master.leftHandCurrentPosition);
+		rightHandPositionBuffer->push(master.rightHandCurrentPosition);
 
 		// Berechnungsschritt der State-Machine
-		stateMachineStep();
+		stateMachineCompute();
+		stateMachineSwitchState();
 		
 		switch (state)
 		{

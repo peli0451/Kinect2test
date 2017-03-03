@@ -60,6 +60,9 @@ class KinectControl {
 		Buffer<Gesture> *recognizedGesturesBuffer;
 		Gesture evaluateGestureBuffer();
 
+		Gesture getRecognizedGesture();
+		void setRecognizedGesture(Gesture gesture);
+
 		//@TODO in die .cpp?
 		HRESULT result;
 
@@ -86,5 +89,14 @@ class KinectControl {
 		void setState(KinectControlState newState);
 		KinectControlState getState();
 
-		void stateMachineStep();
+		MotionParameters getMotion();
+		void setMotion(float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ);
+		void setTranslation(float translateX, float translateY, float translateZ);
+		void setRotation(float rotateX, float rotateY, float rotateZ);
+		void resetMotion();
+		void resetTranslation();
+		void resetRotation();
+
+		void stateMachineCompute();
+		void stateMachineSwitchState();
 };

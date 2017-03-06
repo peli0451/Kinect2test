@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #include <string>
 #include <iostream>
-
+#include "Eigen/Dense"
 #include "KinectControl.h"
 
 
@@ -148,6 +148,21 @@ void KinectControl::setRecognizedGesture(Gesture gesture) {
 }
 
 /**
+* Bestimmt eine Matrix, die den ersten Einheitsvektor auf den Argumentvektor dreht
+* @param Vektor, auf den gedreht werden soll
+* @return Rotationsmatrix
+*/
+Eigen::Matrix3f getRotationMatrix(Eigen::Vector3f target) {
+	Eigen::Matrix3f ret;
+	ret.row(0) = target; // Erste Spalte der Rotationsmatrix ist der Zielvektor selbst
+	ret.row(1) = target.cross(Eigen::Vector3f::UnitX()); // Zweite Spalte ist das Kreuzprodukt aus Zielvektor und (1,0,0)
+	ret.row(1).normalize(); // geteilt durch die Norm davon
+	ret.row(2) = ret.row(0).cross(ret.row(1)); // Dritte Spalte ist das Kreuzprodukt der ersten und zweiten Spalte
+	return ret;
+}
+
+
+/**
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
 */
 void KinectControl::stateMachineCompute() {
@@ -179,9 +194,26 @@ void KinectControl::stateMachineCompute() {
 		break;
 	case KinectControl::CAMERA_ROTATE:
 		switch (recognizedGesture) {
-		case ROTATE_GESTURE: 
-			//TODO
+		case ROTATE_GESTURE: {
+
+			Eigen::Vector3f origin_axis;
+			Eigen::Vector3f target_axis; //TODO: Smoothing
+			origin_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X;
+			origin_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Y;
+			origin_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Z;
+
+			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
+			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
+			target_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z;
+
+			origin_axis.normalize();
+			target_axis.normalize();
+
+			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis);
+			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis);
+			Eigen::Matrix3f rot3 = rot2 * rot1.inverse();
 			break;
+		}
 		case TRANSLATE_GESTURE:
 			resetRotation();
 			break;

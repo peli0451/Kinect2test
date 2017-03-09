@@ -5,3 +5,8 @@ ConsoleApplication1/x64
 .vs
 .suo
 .cd
+.pdf
+.aux
+.synctex.gz
+.toc
+.log

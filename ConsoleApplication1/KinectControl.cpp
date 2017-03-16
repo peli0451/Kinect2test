@@ -9,6 +9,12 @@
 #include "Eigen/Dense"
 #include "KinectControl.h"
 
+/* 
+* Globale Konstanten
+*/
+
+const float MAX_SANE_DISTANCE = 0.1; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
+const float MAX_STEP = 0.05; // muss <= MAX_SANE_DISTANCe sein
 
 /**
 * Konstruktor
@@ -158,7 +164,7 @@ Eigen::Matrix3f getRotationMatrix(Eigen::Vector3f target) {
 	ret.row(1) = target.cross(Eigen::Vector3f::UnitX()); // Zweite Spalte ist das Kreuzprodukt aus Zielvektor und (1,0,0)
 	ret.row(1).normalize(); // geteilt durch die Norm davon
 	ret.row(2) = ret.row(0).cross(ret.row(1)); // Dritte Spalte ist das Kreuzprodukt der ersten und zweiten Spalte
-	return ret;
+	return ret; // diese Konstruktion stellt sicher, dass die Matrix orthogonal ist
 }
 
 
@@ -201,17 +207,19 @@ void KinectControl::stateMachineCompute() {
 			origin_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X;
 			origin_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Y;
 			origin_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Z;
+			origin_axis.normalize();
+			// origin_axis enthält nun den normalisierten Vektor zwischen der rechten und linken Hand im letzten Frame
 
 			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
 			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
 			target_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z;
-
-			origin_axis.normalize();
 			target_axis.normalize();
-
-			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis);
-			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis);
-			Eigen::Matrix3f rot3 = rot2 * rot1.inverse();
+			// target_axis enthält nun den normalisierten Vektor zwischen der rechten und linken Hand im aktuellen Frame 
+			
+			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis).inverse(); // rot1 ist die Rotationsmatrix, die origin_axis auf den 1. Einheitsvektor dreht 
+			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis); // rot2 ist die Rotationsmatrix, die den 1. Einheitsvektor auf target_axis dreht 
+			Eigen::Matrix3f rot3 = rot2 * rot1.inverse(); // rot3 ist die Gesamtrotation (wenn es genau falsch herum rotiert, rot3 invertieren ;) )
+			// Quelle für den Lösungsansatz: http://matheplanet.com/default3.html?call=viewtopic.php?topic=64323 Antwort 1
 			break;
 		}
 		case TRANSLATE_GESTURE:
@@ -345,6 +353,23 @@ KinectControl::Gesture KinectControl::evaluateGestureBuffer() {
 }
 
 /**
+* Testet die Differenz zweier (X-/Y-/Z-)Positionswerte, ob sie vernünftig ist
+* @param old Die Position aus dem letzten Frame
+* @param fresh Die Position aus dem aktuellen Frame
+* @return Position, die definierte Abweichung nicht überschreitet, sich aber fresh annähert
+*/
+float getSaneValue(float old, float fresh) {
+
+	if (fresh - old > MAX_SANE_DISTANCE) {
+		return old + MAX_STEP;
+	}
+	if (fresh - old < -MAX_SANE_DISTANCE) {
+		return old - MAX_STEP;
+	}
+	return fresh; // Bewegungsdistanz liegt innerhalb der Schwelle
+}
+
+/**
 * Hole und bearbeite Frame, den Kinect liefert
 *
 * @return motionParameters Transformationsparameter
@@ -402,9 +427,19 @@ KinectControl::MotionParameters KinectControl::run() {
 			recognizedGesturesBuffer->push(UNKNOWN);
 		setRecognizedGesture(evaluateGestureBuffer());
 
+		// Sanity-Check der Positionswerte
+		CameraSpacePoint sane_value_left;
+		CameraSpacePoint sane_value_right;
+		sane_value_left.X = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X, master.leftHandCurrentPosition.X);
+		sane_value_left.Y = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y, master.leftHandCurrentPosition.Y);
+		sane_value_left.Z = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z, master.leftHandCurrentPosition.Z);
+		sane_value_right.X = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X, master.rightHandCurrentPosition.X);
+		sane_value_right.Y = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y, master.rightHandCurrentPosition.Y);
+		sane_value_right.Z = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z, master.rightHandCurrentPosition.Z);
+
 		// Neue Werte in die Buffer schreiben
-		leftHandPositionBuffer->push(master.leftHandCurrentPosition);
-		rightHandPositionBuffer->push(master.rightHandCurrentPosition);
+		leftHandPositionBuffer->push(sane_value_left);
+		rightHandPositionBuffer->push(sane_value_right);
 
 		// Berechnungsschritt der State-Machine
 		stateMachineCompute();

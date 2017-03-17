@@ -259,6 +259,7 @@ void GLWidget::eventLoop()
 	if (m_pressedKeys[Qt::Key::Key_A])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(-time, 0.f, 0.f));
 	m_camera.translate(DirectGL::Translation3f(dir));
+	m_camera.rotate(motionParameters.rotate);
 
 	if (m_mouseCapturing || use_special_controls)
 	{

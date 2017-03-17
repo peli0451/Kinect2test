@@ -6,15 +6,14 @@
 #include "stdafx.h"
 #include <string>
 #include <iostream>
-#include "Eigen/Dense"
 #include "KinectControl.h"
 
 /* 
 * Globale Konstanten
 */
 
-const float MAX_SANE_DISTANCE = 0.1; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
-const float MAX_STEP = 0.05; // muss <= MAX_SANE_DISTANCe sein
+const float MAX_SANE_DISTANCE = 0.1f; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
+const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 
 /**
 * Konstruktor
@@ -85,9 +84,9 @@ KinectControl::MotionParameters KinectControl::getMotion() {
 * @param rotateY neuer Rotationswinkel um y-Achse
 * @param rotateZ neuer Rotationswinkel um z-Achse
 */
-void KinectControl::setMotion(float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ) {
+void KinectControl::setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate) {
 	setTranslation(translateX, translateY, translateZ);
-	setRotation(rotateX, rotateY, rotateZ);
+	setRotation(rotate);
 }
 
 /**
@@ -110,18 +109,16 @@ void KinectControl::setTranslation(float translateX, float translateY, float tra
 * @param rotateY neuer Rotationswinkel um y-Achse
 * @param rotateZ neuer Rotationswinkel um z-Achse
 */
-void KinectControl::setRotation(float rotateX, float rotateY, float rotateZ) {
+void KinectControl::setRotation(Eigen::Quaternionf rotate) {
 
-	motionParameters.rotateX = rotateX;
-	motionParameters.rotateY = rotateY;
-	motionParameters.rotateZ = rotateZ;
+	motionParameters.rotate = rotate;
 }
 
 /**
 * Nullt die motionParameters
 */
 void KinectControl::resetMotion() {
-	setMotion(.0f, .0f, .0f, .0f, .0f, .0f);
+	setMotion(.0f, .0f, .0f, Eigen::Quaternionf::Identity());
 }
 
 /**
@@ -135,7 +132,7 @@ void KinectControl::resetTranslation() {
 * Nullt die motionParameters, nur Rotation
 */
 void KinectControl::resetRotation() {
-	setRotation(.0f, .0f, .0f);
+	setRotation(Eigen::Quaternionf::Identity());
 }
 
 /**
@@ -190,7 +187,7 @@ void KinectControl::stateMachineCompute() {
 			float translateX = (smoothenedLeftHandPosition.X + smoothenedRightHandPosition.X) / 2;
 			float translateY = (smoothenedLeftHandPosition.Y + smoothenedRightHandPosition.Y) / 2;
 			float translateZ = (smoothenedLeftHandPosition.Z + smoothenedRightHandPosition.Z) / 2;
-			setTranslation(translateX, translateX, translateZ);
+			setTranslation(translateX, translateY, translateZ);
 			break;
 			}
 		default:
@@ -220,6 +217,7 @@ void KinectControl::stateMachineCompute() {
 			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis); // rot2 ist die Rotationsmatrix, die den 1. Einheitsvektor auf target_axis dreht 
 			Eigen::Matrix3f rot3 = rot2 * rot1.inverse(); // rot3 ist die Gesamtrotation (wenn es genau falsch herum rotiert, rot3 invertieren ;) )
 			// Quelle für den Lösungsansatz: http://matheplanet.com/default3.html?call=viewtopic.php?topic=64323 Antwort 1
+			setRotation(Eigen::Quaternionf(rot3));
 			break;
 		}
 		case TRANSLATE_GESTURE:
@@ -430,12 +428,19 @@ KinectControl::MotionParameters KinectControl::run() {
 		// Sanity-Check der Positionswerte
 		CameraSpacePoint sane_value_left;
 		CameraSpacePoint sane_value_right;
-		sane_value_left.X = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X, master.leftHandCurrentPosition.X);
-		sane_value_left.Y = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y, master.leftHandCurrentPosition.Y);
-		sane_value_left.Z = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z, master.leftHandCurrentPosition.Z);
-		sane_value_right.X = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X, master.rightHandCurrentPosition.X);
-		sane_value_right.Y = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y, master.rightHandCurrentPosition.Y);
-		sane_value_right.Z = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z, master.rightHandCurrentPosition.Z);
+		
+		if (leftHandPositionBuffer->get(leftHandPositionBuffer->end()) != NULL && rightHandPositionBuffer->get(rightHandPositionBuffer->end()) != NULL) {
+			sane_value_left.X = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X, master.leftHandCurrentPosition.X);
+			sane_value_left.Y = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y, master.leftHandCurrentPosition.Y);
+			sane_value_left.Z = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z, master.leftHandCurrentPosition.Z);
+			sane_value_right.X = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X, master.rightHandCurrentPosition.X);
+			sane_value_right.Y = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y, master.rightHandCurrentPosition.Y);
+			sane_value_right.Z = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z, master.rightHandCurrentPosition.Z);
+		}
+		else {
+			sane_value_left = master.leftHandCurrentPosition;
+			sane_value_right = master.rightHandCurrentPosition;
+		}
 
 		// Neue Werte in die Buffer schreiben
 		leftHandPositionBuffer->push(sane_value_left);

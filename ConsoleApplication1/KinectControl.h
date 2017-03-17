@@ -3,6 +3,8 @@
 #include <Kinect.VisualGestureBuilder.h>
 
 #include "Buffer.h"
+#include "Eigen/Dense"
+
 
 class KinectControl {
 	public:
@@ -10,9 +12,7 @@ class KinectControl {
 			float translateX;
 			float translateY;
 			float translateZ;
-			float rotateX;
-			float rotateY;
-			float rotateZ;
+			Eigen::Quaternionf rotate;
 		};
 
 		void init();
@@ -90,9 +90,9 @@ class KinectControl {
 		KinectControlState getState();
 
 		MotionParameters getMotion();
-		void setMotion(float translateX, float translateY, float translateZ, float rotateX, float rotateY, float rotateZ);
+		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate);
 		void setTranslation(float translateX, float translateY, float translateZ);
-		void setRotation(float rotateX, float rotateY, float rotateZ);
+		void setRotation(Eigen::Quaternionf rotate);
 		void resetMotion();
 		void resetTranslation();
 		void resetRotation();

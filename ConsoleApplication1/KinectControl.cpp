@@ -205,19 +205,27 @@ void KinectControl::stateMachineCompute() {
 			origin_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Y;
 			origin_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Z;
 			origin_axis.normalize();
-			// origin_axis enthält nun den normalisierten Vektor zwischen der rechten und linken Hand im letzten Frame
+			// origin_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im letzten Frame
 
 			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
 			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
 			target_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z;
 			target_axis.normalize();
-			// target_axis enthält nun den normalisierten Vektor zwischen der rechten und linken Hand im aktuellen Frame 
-			
+			// target_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im aktuellen Frame
+
+			Eigen::Vector3f rotation_axis;
+			rotation_axis = origin_axis.cross(target_axis); // Rotationsachse ist der zur von origin_ und target_axis aufgespannten Ebene orthogonale Vektor
+			rotation_axis.normalize(); // nicht sicher, ob das notwendig ist, weil die Ursprungsvektoren ja normiert waren
+			Eigen::AngleAxisf rot(std::acos(origin_axis.dot(target_axis)), rotation_axis); // Rotation wird beschrieben durch Winkel und Rotationsachse
+			setRotation(Eigen::Quaternionf(rot));
+
+			/* // ursprünglicher Ansatz
 			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis).inverse(); // rot1 ist die Rotationsmatrix, die origin_axis auf den 1. Einheitsvektor dreht 
 			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis); // rot2 ist die Rotationsmatrix, die den 1. Einheitsvektor auf target_axis dreht 
 			Eigen::Matrix3f rot3 = rot2 * rot1.inverse(); // rot3 ist die Gesamtrotation (wenn es genau falsch herum rotiert, rot3 invertieren ;) )
 			// Quelle für den Lösungsansatz: http://matheplanet.com/default3.html?call=viewtopic.php?topic=64323 Antwort 1
 			setRotation(Eigen::Quaternionf(rot3));
+			*/
 			break;
 		}
 		case TRANSLATE_GESTURE:

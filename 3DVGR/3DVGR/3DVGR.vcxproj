@@ -283,7 +283,7 @@
     </GLSLShader>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ConsoleApplication1\ConsoleApplication1.vcxproj">
+    <ProjectReference Include="..\..\KinectControl\KinectControl.vcxproj">
       <Project>{91d11867-50a6-4573-b2a1-9bc79a3c2f83}</Project>
     </ProjectReference>
     <ProjectReference Include="..\DirectGL\DirectGL\DirectGL.vcxproj">

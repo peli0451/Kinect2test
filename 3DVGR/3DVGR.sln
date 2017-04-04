@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libepoxy", "DirectGL\libepo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderCompiler", "DirectGL\ShaderCompiler\ShaderCompiler.vcxproj", "{2F13AC4C-9E10-4738-9600-9CED9A8CC894}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KinectControl", "..\ConsoleApplication1\ConsoleApplication1.vcxproj", "{91D11867-50A6-4573-B2A1-9BC79A3C2F83}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KinectControl", "..\KinectControl\KinectControl.vcxproj", "{91D11867-50A6-4573-B2A1-9BC79A3C2F83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

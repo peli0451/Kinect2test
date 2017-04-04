@@ -5,7 +5,7 @@
 
 #define NOMINMAX
 
-#include <../../ConsoleApplication1/KinectControl.h>
+#include <../../KinectControl/KinectControl.h>
 #undef min
 #undef max
 

@@ -40,6 +40,7 @@ namespace DirectGL
 			void translate(const Eigen::Translation3f &translation) noexcept;
 			void translateLocal(const Eigen::Translation3f &translation) noexcept;
 			void rotate(const Eigen::Quaternionf &rotation) noexcept;
+			void rotateLocal(const Eigen::Quaternionf &rotation) noexcept;
 			void scale(const Eigen::AlignedScaling3f &scaling) noexcept;
 
 			void rotateX(float magnitude) noexcept;

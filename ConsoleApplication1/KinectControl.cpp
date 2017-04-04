@@ -154,7 +154,10 @@ void KinectControl::setRecognizedGesture(Gesture gesture) {
 * Bestimmt eine Matrix, die den ersten Einheitsvektor auf den Argumentvektor dreht
 * @param Vektor, auf den gedreht werden soll
 * @return Rotationsmatrix
+*
+* Deprecated
 */
+/*
 Eigen::Matrix3f getRotationMatrix(Eigen::Vector3f target) {
 	Eigen::Matrix3f ret;
 	ret.row(0) = target; // Erste Spalte der Rotationsmatrix ist der Zielvektor selbst
@@ -163,7 +166,7 @@ Eigen::Matrix3f getRotationMatrix(Eigen::Vector3f target) {
 	ret.row(2) = ret.row(0).cross(ret.row(1)); // Dritte Spalte ist das Kreuzprodukt der ersten und zweiten Spalte
 	return ret; // diese Konstruktion stellt sicher, dass die Matrix orthogonal ist
 }
-
+*/
 
 /**
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.

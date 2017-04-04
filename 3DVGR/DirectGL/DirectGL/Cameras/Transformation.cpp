@@ -11,6 +11,11 @@ void DirectGL::Cameras::Transformation::rotate(const Eigen::Quaternionf &rotatio
 	m_rotation = rotation * m_rotation;
 }
 
+void DirectGL::Cameras::Transformation::rotateLocal(const Eigen::Quaternionf &rotation) noexcept
+{
+	m_rotation =  m_rotation * rotation;
+}
+
 void DirectGL::Cameras::Transformation::scale(const Eigen::AlignedScaling3f &scaling) noexcept
 {
 	m_scale.diagonal().x() *= scaling.diagonal().x();

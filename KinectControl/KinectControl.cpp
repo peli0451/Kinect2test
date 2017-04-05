@@ -83,10 +83,12 @@ KinectControl::MotionParameters KinectControl::getMotion() {
 * @param rotateX neuer Rotationswinkel um x-Achse
 * @param rotateY neuer Rotationswinkel um y-Achse
 * @param rotateZ neuer Rotationswinkel um z-Achse
+* @param applyToCam Objekt oder Kamera bewegen?
 */
-void KinectControl::setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate) {
+void KinectControl::setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget applyToCam) {
 	setTranslation(translateX, translateY, translateZ);
 	setRotation(rotate);
+	setTarget(applyToCam);
 }
 
 /**
@@ -110,15 +112,23 @@ void KinectControl::setTranslation(float translateX, float translateY, float tra
 * @param rotateZ neuer Rotationswinkel um z-Achse
 */
 void KinectControl::setRotation(Eigen::Quaternionf rotate) {
-
 	motionParameters.rotate = rotate;
+}
+
+/**
+* Setzt neue motionParameters, nur Objekt/Kamera-Modus
+*
+* @param applyToCam neuer Modus (Objekt oder Kamera)
+*/
+void KinectControl::setTarget(MotionTarget applyToCam) {
+	motionParameters.applyToCamera = applyToCam;
 }
 
 /**
 * Nullt die motionParameters
 */
 void KinectControl::resetMotion() {
-	setMotion(.0f, .0f, .0f, Eigen::Quaternionf::Identity());
+	setMotion(.0f, .0f, .0f, Eigen::Quaternionf::Identity(), TARGET_CAMERA);
 }
 
 /**
@@ -243,6 +253,16 @@ void KinectControl::stateMachineCompute() {
 	case KinectControl::OBJECT_IDLE:
 		break;
 	case KinectControl::OBJECT_TRANSLATE:
+		CameraSpacePoint smoothenedHandPosition;
+		if (objectPickHand == HAND_LEFT) {
+			smoothenedHandPosition = *smooth_speed(leftHandPositionBuffer);
+		}
+		else {
+			smoothenedHandPosition = *smooth_speed(rightHandPositionBuffer);
+		}
+		// Bewegung
+		setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
+		// TODO: Rotation
 		break;
 	case KinectControl::OBJECT_ROTATE:
 		break;
@@ -264,13 +284,18 @@ void KinectControl::stateMachineSwitchState() {
 	case CAMERA_ROTATE:
 		switch (recognizedGesture) {
 		case ROTATE_GESTURE:
+			setTarget(TARGET_CAMERA);
 			setState(CAMERA_ROTATE);
 			break;
 		case TRANSLATE_GESTURE:
+			setTarget(TARGET_CAMERA);
 			setState(CAMERA_TRANSLATE);
 			break;
 		case GRAB_GESTURE:
-			//setState(OBJECT_IDLE);
+			objectPickHand = HAND_LEFT; //fällt später aus der Transition raus
+			widget->pickModel(0, 0); // löst Ray cast im widget aus
+			setTarget(TARGET_OBJECT);
+			setState(OBJECT_TRANSLATE);
 			break;
 		default:
 			//Zustand nicht wechseln
@@ -293,7 +318,8 @@ void KinectControl::stateMachineSwitchState() {
 * Bereitet Kinect-Sensor und -Frame-Reader vor
 * Bereitet Puffer vor
 */
-void KinectControl::init() {
+void KinectControl::init(GLWidget _widget) {
+	widget = _widget;
 	GetDefaultKinectSensor(&kinectSensor);
 	kinectSensor->Open();
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);

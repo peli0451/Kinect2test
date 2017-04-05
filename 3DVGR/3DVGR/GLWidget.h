@@ -77,6 +77,8 @@ public:
 	void setNear(float n) { m_near = n; }
 	void setFar(float f) { m_far = f; }
 
+	void pickModel(float x, float y);
+
 protected:
 	void initializeGL();
 	void resizeGL(int w, int h);
@@ -141,5 +143,6 @@ private:
 	bool m_mouseCapturing = false;
 
 	KinectControl kinectControl;
+	DirectGL::Geometry::OBJTriangleModel *picked_model;
 };
 

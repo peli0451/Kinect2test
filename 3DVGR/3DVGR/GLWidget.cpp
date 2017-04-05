@@ -41,7 +41,7 @@ void GLWidget::initializeGL()
 
 	if (m_shared)
 	{
-		kinectControl.init();
+		kinectControl.init(*this);
 
 		m_shared->setReadBuffer(m_colorBuff);
 
@@ -440,4 +440,9 @@ void GLWidget::loadModel(const std::string &model)
 			m_model.fromFile(model);
 	}
 	m_camera.resetTransformation();
+}
+
+void pickModel(float x, float y) {
+	//TODO ray cast
+	picked_model = &m_model;
 }

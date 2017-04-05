@@ -4,6 +4,7 @@
 
 #include "Buffer.h"
 #include "Eigen/Dense"
+#include <GLWidget>
 
 
 class KinectControl {
@@ -13,6 +14,7 @@ class KinectControl {
 			float translateY;
 			float translateZ;
 			Eigen::Quaternionf rotate;
+			MotionTarget applyToCamera; //0-verändere Model, 1-verändere Kamera
 		};
 
 		void init();
@@ -89,14 +91,28 @@ class KinectControl {
 		void setState(KinectControlState newState);
 		KinectControlState getState();
 
+		enum MotionTarget {
+			TARGET_OBJECT = false,
+			TARGET_CAMERA = true
+		};
+
+		enum ControlHand {
+			HAND_LEFT = 0,
+			HAND_RIGHT = 1
+		};
+
 		MotionParameters getMotion();
-		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate);
+		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget applyToCam);
 		void setTranslation(float translateX, float translateY, float translateZ);
 		void setRotation(Eigen::Quaternionf rotate);
+		void setTarget(MotionTarget applyToCam);
 		void resetMotion();
 		void resetTranslation();
 		void resetRotation();
 
 		void stateMachineCompute();
 		void stateMachineSwitchState();
+
+		GLWidget widget;
+		ControlHand objectPickHand;
 };

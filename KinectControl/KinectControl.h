@@ -4,20 +4,23 @@
 
 #include "Buffer.h"
 #include "Eigen/Dense"
-#include <GLWidget>
-
+#include "../3DVGR/3DVGR/GLWidget.h"
 
 class KinectControl {
 	public:
+		enum MotionTarget {
+			TARGET_OBJECT = false,
+			TARGET_CAMERA = true
+		};
 		struct MotionParameters {
 			float translateX;
 			float translateY;
 			float translateZ;
 			Eigen::Quaternionf rotate;
-			MotionTarget applyToCamera; //0-verändere Model, 1-verändere Kamera
+			MotionTarget target; //0-verändere Model, 1-verändere Kamera
 		};
 
-		void init();
+		void init(GLWidget *_widget);
 		MotionParameters run();
 		KinectControl();
 	private:
@@ -71,6 +74,7 @@ class KinectControl {
 		const int POS_BUFFER_SIZE = 10;
 		Buffer<CameraSpacePoint> *leftHandPositionBuffer;
 		Buffer<CameraSpacePoint> *rightHandPositionBuffer;
+		Eigen::Quaternionf lastHandOrientation; // später: Buffer
 		float smoothing_factor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 		float smoothing_sum;
 
@@ -91,21 +95,16 @@ class KinectControl {
 		void setState(KinectControlState newState);
 		KinectControlState getState();
 
-		enum MotionTarget {
-			TARGET_OBJECT = false,
-			TARGET_CAMERA = true
-		};
-
 		enum ControlHand {
 			HAND_LEFT = 0,
 			HAND_RIGHT = 1
 		};
 
 		MotionParameters getMotion();
-		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget applyToCam);
+		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget target);
 		void setTranslation(float translateX, float translateY, float translateZ);
 		void setRotation(Eigen::Quaternionf rotate);
-		void setTarget(MotionTarget applyToCam);
+		void setTarget(MotionTarget target);
 		void resetMotion();
 		void resetTranslation();
 		void resetRotation();
@@ -113,6 +112,6 @@ class KinectControl {
 		void stateMachineCompute();
 		void stateMachineSwitchState();
 
-		GLWidget widget;
+		GLWidget *widget;
 		ControlHand objectPickHand;
 };

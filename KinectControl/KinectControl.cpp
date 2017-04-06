@@ -83,12 +83,12 @@ KinectControl::MotionParameters KinectControl::getMotion() {
 * @param rotateX neuer Rotationswinkel um x-Achse
 * @param rotateY neuer Rotationswinkel um y-Achse
 * @param rotateZ neuer Rotationswinkel um z-Achse
-* @param applyToCam Objekt oder Kamera bewegen?
+* @param target Objekt oder Kamera bewegen?
 */
-void KinectControl::setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget applyToCam) {
+void KinectControl::setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget target) {
 	setTranslation(translateX, translateY, translateZ);
 	setRotation(rotate);
-	setTarget(applyToCam);
+	setTarget(target);
 }
 
 /**
@@ -118,10 +118,10 @@ void KinectControl::setRotation(Eigen::Quaternionf rotate) {
 /**
 * Setzt neue motionParameters, nur Objekt/Kamera-Modus
 *
-* @param applyToCam neuer Modus (Objekt oder Kamera)
+* @param target neuer Modus (Objekt oder Kamera)
 */
-void KinectControl::setTarget(MotionTarget applyToCam) {
-	motionParameters.applyToCamera = applyToCam;
+void KinectControl::setTarget(MotionTarget target) {
+	motionParameters.target = target;
 }
 
 /**
@@ -253,6 +253,7 @@ void KinectControl::stateMachineCompute() {
 	case KinectControl::OBJECT_IDLE:
 		break;
 	case KinectControl::OBJECT_TRANSLATE:
+		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
 		if (objectPickHand == HAND_LEFT) {
 			smoothenedHandPosition = *smooth_speed(leftHandPositionBuffer);
@@ -260,9 +261,27 @@ void KinectControl::stateMachineCompute() {
 		else {
 			smoothenedHandPosition = *smooth_speed(rightHandPositionBuffer);
 		}
-		// Bewegung
 		setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
-		// TODO: Rotation
+
+		// Rotation
+		JointOrientation joint_orient[JointType::JointType_Count];
+		trackedBodies[master.id]->GetJointOrientations(JointType::JointType_Count, joint_orient);
+		Eigen::Quaternionf currentHandOrientation;
+		Vector4 handOrientation;
+		if (objectPickHand == HAND_LEFT) {
+			handOrientation = joint_orient[JointType::JointType_HandLeft].Orientation;
+		}
+		else {
+			handOrientation = joint_orient[JointType::JointType_HandRight].Orientation;
+		}
+		currentHandOrientation.x = handOrientation.x;
+		currentHandOrientation.y = handOrientation.y;
+		currentHandOrientation.z = handOrientation.z;
+		currentHandOrientation.w = handOrientation.w;
+		if (lastHandOrientation.x != -1337) { // nur tun, wenn lastHandOrientation initialisiert ist 
+			setRotation(currentHandOrientation * lastHandOrientation.inverse());
+		}
+		lastHandOrientation = currentHandOrientation;
 		break;
 	case KinectControl::OBJECT_ROTATE:
 		break;
@@ -318,7 +337,7 @@ void KinectControl::stateMachineSwitchState() {
 * Bereitet Kinect-Sensor und -Frame-Reader vor
 * Bereitet Puffer vor
 */
-void KinectControl::init(GLWidget _widget) {
+void KinectControl::init(GLWidget *_widget) {
 	widget = _widget;
 	GetDefaultKinectSensor(&kinectSensor);
 	kinectSensor->Open();
@@ -331,6 +350,7 @@ void KinectControl::init(GLWidget _widget) {
 	}
 	//Initialisierung der motionParameters
 	resetMotion();
+	lastHandOrientation.x = -1337;
 }
 
 /**

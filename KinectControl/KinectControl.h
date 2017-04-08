@@ -53,17 +53,28 @@ class KinectControl {
 
 		MotionParameters motionParameters;
 
+		//TODO Translate -> TranslateCamera?
 		enum Gesture {
 			UNKNOWN,
 			TRANSLATE_GESTURE,
 			ROTATE_GESTURE,
-			GRAB_GESTURE
+			GRAB_GESTURE,
 		};
+
+		struct GestureConfidence {
+			float unknownConfidence;
+			float translateCameraConfidence;
+			float rotateCameraConfidence;
+			float grabConfidence;
+		};
+
 		const int GESTURE_COUNT = 4;
 		Gesture recognizedGesture;
 		const int GESTURE_BUFFER_SIZE = 10;
-		Buffer<Gesture> *recognizedGesturesBuffer;
+		Buffer<GestureConfidence> *gestureConfidenceBuffer;
 		Gesture evaluateGestureBuffer();
+		float gestureSmooth[10] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
+		float gestureSmoothSum = 1023;
 
 		Gesture getRecognizedGesture();
 		void setRecognizedGesture(Gesture gesture);
@@ -86,9 +97,7 @@ class KinectControl {
 			CAMERA_IDLE,
 			CAMERA_TRANSLATE,
 			CAMERA_ROTATE,
-			OBJECT_IDLE,
-			OBJECT_TRANSLATE,
-			OBJECT_ROTATE
+			OBJECT_MANIPULATE
 		};
 
 		KinectControlState state;
@@ -109,6 +118,7 @@ class KinectControl {
 		void resetTranslation();
 		void resetRotation();
 
+		void stateMachineBufferGestureConfidence();
 		void stateMachineCompute();
 		void stateMachineSwitchState();
 

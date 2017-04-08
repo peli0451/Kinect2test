@@ -36,7 +36,7 @@ KinectControl::KinectControl() {
 
 	// Gestenbuffer
 	recognizedGesture = UNKNOWN;
-	recognizedGesturesBuffer = new Buffer<Gesture>(GESTURE_BUFFER_SIZE);
+	gestureConfidenceBuffer = new Buffer<GestureConfidence>(GESTURE_BUFFER_SIZE);
 
 	// Handpositionenbuffer
 	leftHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
@@ -179,6 +179,98 @@ Eigen::Matrix3f getRotationMatrix(Eigen::Vector3f target) {
 */
 
 /**
+* Berechnet aus der Trackingrückgabe Konfidenzwerte für die verschiedenen Gesten
+*/
+void KinectControl::stateMachineBufferGestureConfidence() {
+	//aktueller Zustand
+	KinectControlState currentState = getState();
+	
+	//Ermittelter Konfidenzwert
+	GestureConfidence newConfidence = { 0,0,0,0 };
+	//Erinnerung Konfidenzschema: { unknown, translate, rotate, grab }
+
+
+	//Hilfsvariablen für Kombinationen von von Handstates
+	boolean leftHandOpen = (master.leftHandState == HandState_Open);
+	boolean leftHandClosed = (master.leftHandState == HandState_Closed);
+	boolean rightHandOpen = (master.rightHandState == HandState_Open);
+	boolean rightHandClosed = (master.rightHandState == HandState_Closed);
+
+	boolean bothHandsOpen = (leftHandOpen && rightHandOpen);
+	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
+
+	boolean oneHandUp;
+	boolean oneHandUpAndClosed;
+	ControlHand controlHand;
+	
+	if (master.leftHandCurrentPosition.Y - master.rightHandCurrentPosition.Y > .4) {
+		controlHand = HAND_LEFT;
+		oneHandUp = true;
+		oneHandUpAndClosed = leftHandClosed;
+	} else if (master.rightHandCurrentPosition.Y - master.leftHandCurrentPosition.Y > .4) {
+		controlHand = HAND_RIGHT;
+		oneHandUp = true;
+		oneHandUpAndClosed = rightHandClosed;
+	} else {
+		oneHandUp = false;
+		oneHandUpAndClosed = false;
+	}
+
+
+	//Je nach Zustand sind die Bewertungen der Trackingergebnisse anders zu bewerten
+	switch (currentState) {
+
+	//Zustand IDLE -> alle Gesten werden nur eindeutig betrachtet
+	case KinectControl::CAMERA_IDLE:
+		if (oneHandUpAndClosed) newConfidence = { 0,0,0,1 }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { 0,0,1,0 }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { 0,1,0,0 }; //beide offen
+		else newConfidence = { 1,0,0,0 }; //Unbekannt
+		break;
+
+	//Zustand TRANSLATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geöffneten Hand vermutlich ein Translate
+	case KinectControl::CAMERA_TRANSLATE :
+		if (oneHandUpAndClosed) newConfidence = { 0,0,0,1 }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { 0,0,1,0 }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { 0,1,0,0 }; //beide offen
+		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
+			newConfidence = { 0,1,0,0 }; //sehr wahrscheinlich Translate
+		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
+			newConfidence = { 0,.75,.25,0 }; //doppeldeutig, halte Translate für wahrscheinlicher
+		else newConfidence = { .25,.25,.25,.25 }; //Unbekannt
+		break;
+
+	//Zustand ROTATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geschlossenen Hand vermutlich ein Rotate
+	case KinectControl::CAMERA_ROTATE :
+		if (oneHandUpAndClosed) newConfidence = { 0,0,0,1 }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { 0,0,1,0 }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { 0,1,0,0 }; //beide offen
+		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
+			newConfidence = { 0,0,1,0 }; //sehr wahrscheinlich Rotate
+		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
+			newConfidence = { 0,.25,.75,0 }; //doppeldeutig, halte Rotate für wahrscheinlicher
+		else newConfidence = { .25,.25,.25,.25 }; //Unbekannt
+		break;
+
+	//Zustand MANIPULATE -> alle Gesten werden nur eindeutig betrachtet
+	case KinectControl::OBJECT_MANIPULATE :
+		if (oneHandUpAndClosed) newConfidence = { 0,0,0,1 }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { 0,0,1,0 }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { 0,1,0,0 }; //beide offen
+		else newConfidence = { .25,.25,.25,.25 }; //Unbekannt
+		break;
+	
+	default: break;
+	}
+	
+	//Berechnete Konfidenzien in den Pufferschreiben
+	gestureConfidenceBuffer->push(newConfidence);
+
+	//Puffer auswerten
+	setRecognizedGesture(evaluateGestureBuffer());
+}
+
+/**
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
 */
 void KinectControl::stateMachineCompute() {
@@ -250,9 +342,7 @@ void KinectControl::stateMachineCompute() {
 		}
 		break;
 
-	case KinectControl::OBJECT_IDLE:
-		break;
-	case KinectControl::OBJECT_TRANSLATE:
+	case KinectControl::OBJECT_MANIPULATE:
 		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
 		if (objectPickHand == HAND_LEFT) {
@@ -283,8 +373,6 @@ void KinectControl::stateMachineCompute() {
 		}
 		lastHandOrientation = currentHandOrientation;
 		break;
-	case KinectControl::OBJECT_ROTATE:
-		break;
 	default:
 		break;
 	}
@@ -314,7 +402,7 @@ void KinectControl::stateMachineSwitchState() {
 			objectPickHand = HAND_LEFT; //fällt später aus der Transition raus
 			widget->pickModel(0, 0); // löst Ray cast im widget aus
 			setTarget(TARGET_OBJECT);
-			setState(OBJECT_TRANSLATE);
+			setState(OBJECT_MANIPULATE);
 			break;
 		default:
 			//Zustand nicht wechseln
@@ -322,9 +410,7 @@ void KinectControl::stateMachineSwitchState() {
 		}
 		break;
 
-	case OBJECT_IDLE:		//Fallthrough
-	case OBJECT_TRANSLATE:  //Fallthrough
-	case OBJECT_ROTATE:
+	case OBJECT_MANIPULATE : 
 		break;
 
 	default:
@@ -385,25 +471,34 @@ CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) 
 }
 
 /**
-* Wertet den Buffer mit den erkannten Gesten aus
-* Führt dabei einen gewichteten Mehrheitsentscheid durch
+* Wertet den Buffer mit den erkannten Confidence-Werten aus
+* Die Werte werden mittels einer Exponentialfunktion geglättet, dann wird der Maximalwert herausgesucht
 *
-* @TODO eventuell ist noch mit Puffergröße und Gewichten zu spielen
-*
-* @return maxConfidenceGesture Geste, die basierend auf den gepufferten Gesten wahrscheinlich vorgeführt wurde
+* @return maxConfidenceGesture Geste, die basierend auf den gepufferten Konfidenzen wahrscheinlich vorgeführt wurde
 */
 KinectControl::Gesture KinectControl::evaluateGestureBuffer() {
-	int gestureCounter[4] = { 0 }; //4 Gesten
-	float gestureWeights[4] = { .1f,.3f,.3f,.3f };
-	for (int i = 0; i < recognizedGesturesBuffer->end(); i++)
-		gestureCounter[*recognizedGesturesBuffer->get(i)]++;
-	float weightedGestures[4] = { 0 };
-	Gesture maxConfidenceGesture = UNKNOWN;
-	for (int i = 0; i < 4; i++) {
-		weightedGestures[i] = gestureCounter[i] * gestureWeights[i];
-		if (weightedGestures[i] > weightedGestures[maxConfidenceGesture])
-			maxConfidenceGesture = static_cast<Gesture>(i);
+
+	//Konfidenz aus dem Puffer
+	GestureConfidence currentConfidence;
+
+	//Ergebniskonfidenz der Auswertung
+	GestureConfidence finalConfidence = { 0 };
+
+	//Gehe durch den Puffer und glätte alle Komponenten
+	for (int i = 0; i < GESTURE_BUFFER_SIZE; i++) {
+		currentConfidence = *gestureConfidenceBuffer->get(i);
+		finalConfidence.grabConfidence += currentConfidence.grabConfidence * gestureSmooth[i] / gestureSmoothSum;
+		finalConfidence.translateCameraConfidence += currentConfidence.translateCameraConfidence * gestureSmooth[i] / gestureSmoothSum;
+		finalConfidence.rotateCameraConfidence += currentConfidence.rotateCameraConfidence * gestureSmooth[i] / gestureSmoothSum;
+		finalConfidence.unknownConfidence += currentConfidence.unknownConfidence * gestureSmooth[i] / gestureSmoothSum;
 	}
+
+	//Werte aus, welche Komponente den höchsten Konfidenzwert hat
+	float maxConfidence = finalConfidence.unknownConfidence; Gesture maxConfidenceGesture = UNKNOWN;
+	if (maxConfidence < finalConfidence.grabConfidence) { maxConfidence = finalConfidence.grabConfidence; maxConfidenceGesture = GRAB_GESTURE; }
+	if (maxConfidence < finalConfidence.translateCameraConfidence) { maxConfidence = finalConfidence.translateCameraConfidence; maxConfidenceGesture = TRANSLATE_GESTURE; }
+	if (maxConfidence < finalConfidence.rotateCameraConfidence) { maxConfidence = finalConfidence.rotateCameraConfidence;  maxConfidenceGesture = ROTATE_GESTURE; }
+
 	return maxConfidenceGesture;
 }
 
@@ -473,15 +568,6 @@ KinectControl::MotionParameters KinectControl::run() {
 		master.leftHandCurrentPosition = joints[JointType::JointType_HandLeft].Position;
 		master.rightHandCurrentPosition = joints[JointType::JointType_HandRight].Position;
 
-		// Erkennen der Grundtypen von Gesten
-		if (master.leftHandState == HandState_Closed && master.rightHandState == HandState_Closed)
-			recognizedGesturesBuffer->push(ROTATE_GESTURE);
-		else if (master.leftHandState == HandState_Open && master.rightHandState == HandState_Open)
-			recognizedGesturesBuffer->push(TRANSLATE_GESTURE);
-		else
-			recognizedGesturesBuffer->push(UNKNOWN);
-		setRecognizedGesture(evaluateGestureBuffer());
-
 		// Sanity-Check der Positionswerte
 		CameraSpacePoint sane_value_left;
 		CameraSpacePoint sane_value_right;
@@ -504,6 +590,7 @@ KinectControl::MotionParameters KinectControl::run() {
 		rightHandPositionBuffer->push(sane_value_right);
 
 		// Berechnungsschritt der State-Machine
+		stateMachineBufferGestureConfidence();
 		stateMachineCompute();
 		stateMachineSwitchState();
 		
@@ -518,14 +605,8 @@ KinectControl::MotionParameters KinectControl::run() {
 		case KinectControl::CAMERA_ROTATE:
 			OutputDebugStringA("CAMERA_ROTATE\t");
 			break;
-		case KinectControl::OBJECT_IDLE:
-			OutputDebugStringA("OBJECT_IDLE\t");
-			break;
-		case KinectControl::OBJECT_TRANSLATE:
-			OutputDebugStringA("OBJECT_TRANSLATE\t");
-			break;
-		case KinectControl::OBJECT_ROTATE:
-			OutputDebugStringA("OBJECT_ROTATE\t");
+		case KinectControl::OBJECT_MANIPULATE:
+			OutputDebugStringA("OBJECT_MANIPULATE\t");
 			break;
 		default:
 			break;

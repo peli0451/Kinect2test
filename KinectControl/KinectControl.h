@@ -4,7 +4,10 @@
 
 #include "Buffer.h"
 #include "Eigen/Dense"
-#include "../3DVGR/3DVGR/GLWidget.h"
+
+class ControlWidget {
+	public: virtual void pickModel(float x, float y) {};
+};
 
 class KinectControl {
 	public:
@@ -20,7 +23,7 @@ class KinectControl {
 			MotionTarget target; //0-verändere Model, 1-verändere Kamera
 		};
 
-		void init(GLWidget *_widget);
+		void init(ControlWidget *_widget);
 		MotionParameters run();
 		KinectControl();
 	private:
@@ -108,6 +111,7 @@ class KinectControl {
 			HAND_LEFT = 0,
 			HAND_RIGHT = 1
 		};
+		ControlHand controlHand;
 
 		MotionParameters getMotion();
 		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget target);
@@ -122,6 +126,5 @@ class KinectControl {
 		void stateMachineCompute();
 		void stateMachineSwitchState();
 
-		GLWidget *widget;
-		ControlHand objectPickHand;
+		ControlWidget *widget;
 };

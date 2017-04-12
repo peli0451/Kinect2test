@@ -345,7 +345,7 @@ void KinectControl::stateMachineCompute() {
 	case KinectControl::OBJECT_MANIPULATE:
 		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
-		if (objectPickHand == HAND_LEFT) {
+		if (objectPickHand == HAND_LEFT) { // welche Hand wird zum Bewegen verwendet?
 			smoothenedHandPosition = *smooth_speed(leftHandPositionBuffer);
 		}
 		else {
@@ -355,23 +355,24 @@ void KinectControl::stateMachineCompute() {
 
 		// Rotation
 		JointOrientation joint_orient[JointType::JointType_Count];
-		trackedBodies[master.id]->GetJointOrientations(JointType::JointType_Count, joint_orient);
+		trackedBodies[master.id]->GetJointOrientations(JointType::JointType_Count, joint_orient); //Ausrichtung der Gelenke holen
 		Eigen::Quaternionf currentHandOrientation;
 		Vector4 handOrientation;
-		if (objectPickHand == HAND_LEFT) {
-			handOrientation = joint_orient[JointType::JointType_HandLeft].Orientation;
+		if (objectPickHand == HAND_LEFT) { // welche Hand wird zum Rotieren verwendet?
+			handOrientation = joint_orient[JointType::JointType_HandLeft].Orientation; // Ausrichtung der linken Hand
 		}
 		else {
-			handOrientation = joint_orient[JointType::JointType_HandRight].Orientation;
+			handOrientation = joint_orient[JointType::JointType_HandRight].Orientation; // Ausrichtung der rechten Hand
 		}
+		// übertrage Werte von Kinect Vector4 in Eigen Quaternion
 		currentHandOrientation.x = handOrientation.x;
 		currentHandOrientation.y = handOrientation.y;
 		currentHandOrientation.z = handOrientation.z;
 		currentHandOrientation.w = handOrientation.w;
-		if (lastHandOrientation.x != -1337) { // nur tun, wenn lastHandOrientation initialisiert ist 
-			setRotation(currentHandOrientation * lastHandOrientation.inverse());
+		if (lastHandOrientation.x != -1337) { // nur rotieren, wenn lastHandOrientation initialisiert ist (später: ist Buffer gefüllt?)
+			setRotation(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
 		}
-		lastHandOrientation = currentHandOrientation;
+		lastHandOrientation = currentHandOrientation; // später: Buffer füllen
 		break;
 	default:
 		break;

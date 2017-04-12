@@ -264,7 +264,7 @@ void GLWidget::eventLoop()
 		m_camera.rotateLocal(motionParameters.rotate);
 	}
 	else {
-		picked_model.translate(DirectGL::Translation3f(dir));
+		picked_model.translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?
 		picked_model.rotateLocal(motionParameters.rotate);
 	}
 	if (m_mouseCapturing || use_special_controls)
@@ -447,7 +447,7 @@ void GLWidget::loadModel(const std::string &model)
 	m_camera.resetTransformation();
 }
 
-void pickModel(float x, float y) {
+void GLWidget::pickModel(float x, float y) {
 	//TODO ray cast
 	picked_model = &m_model;
 }

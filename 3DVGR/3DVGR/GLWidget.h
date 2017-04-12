@@ -5,7 +5,7 @@
 
 #define NOMINMAX
 
-#include <../../KinectControl/KinectControl.h>
+#include <KinectControl.h>
 #undef min
 #undef max
 
@@ -29,7 +29,7 @@
 
 #define MOUSE_UNIT 0.00174532925199432957692369076849f
 
-class GLWidget : public QGLWidget
+class GLWidget : public QGLWidget, public ControlWidget
 {
 	Q_OBJECT
 

@@ -41,7 +41,7 @@ void GLWidget::initializeGL()
 
 	if (m_shared)
 	{
-		kinectControl.init(*this);
+		kinectControl.init(this);
 
 		m_shared->setReadBuffer(m_colorBuff);
 
@@ -259,13 +259,13 @@ void GLWidget::eventLoop()
 	if (m_pressedKeys[Qt::Key::Key_A])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(-time, 0.f, 0.f));
 
-	if (motionParameters.target == TARGET_CAMERA) {
+	if (motionParameters.target == KinectControl::MotionTarget::TARGET_CAMERA) {
 		m_camera.translate(DirectGL::Translation3f(dir));
 		m_camera.rotateLocal(motionParameters.rotate);
 	}
 	else {
-		picked_model.translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?
-		picked_model.rotateLocal(motionParameters.rotate);
+		picked_model->getTransformation().translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?
+		picked_model->getTransformation().rotateLocal(motionParameters.rotate);
 	}
 	if (m_mouseCapturing || use_special_controls)
 	{

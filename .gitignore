@@ -11,3 +11,5 @@ KinectControl/x64
 .toc
 .log
 .db
+.dvi
+.out

@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{scrartcl}
+\documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
@@ -6,13 +6,39 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{lmodern}
-\title{Projektseminar: Gestensteuerung einer 3D-Anwendung mittels Kinect}
+
+\newcommand{\Title}{Projektseminar: Gestensteuerung einer 3D-Anwendung mittels Kinect}
+\newcommand{\Authors}{Mario Janke,\\Peter Lindner,\\Patrik Stäblein}
+\title{\Title}
 \author{
 	Mario Janke\\
-	Andreas John\\
 	Peter Lindner\\
 	Patrik Stäblein}
 \date{}
+
+\usepackage{fancyhdr}
+\usepackage{vmargin}
+\usepackage{setspace}
+\onehalfspacing
+\pagestyle{fancy}  %lustige fuß- und kopfzeilen
+\parindent 0pt	
+\parskip 0pt %
+\emergencystretch 20pt
+\setmarginsrb{3.0cm}{2.5cm}{2.5cm}{1.5cm}%  %ränder links oben rechts unten
+             {1.0cm}{1.5cm}{1.0cm}{1.7cm}%  %kopf und fußzeile, höhe, abstand
+\setlength{\leftmargin}{3.0cm}
+\setlength{\textwidth}{15.5cm}
+\setlength{\headwidth}{15.5cm}
+\setlength{\topmargin}{2.0cm}
+\lfoot{\footnotesize{\emph{\Title}}}
+\cfoot{}
+\rfoot{\footnotesize{\emph{\thepage}}}
+\rhead{\emph{\leftmark}}
+\chead{}
+\lhead{}
+\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\headrulewidth}{0.5pt}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -96,6 +122,13 @@ zusätzlich geplant ist später
 	\item Berechnung im aktuellen Zustand
 	\item Etwaiger Zustandswechsel
 	\end{itemize}
+	Die letztendlichen Zustände und das dazugehörige Zusammenspiel sind ein Ergebnis unserer Überlegungen zusammen mit dem Feedback, das wir aus unseren vielen Tests gewonnen haben. Ursprüunglich war es angedacht, lediglich zwischen einem Kamera- und einem Objektzustand zu unterscheiden, also einem Zustand zur Kamera- und einem zur Objektmanipulation, wobei dann die entsprechende Geste bestimmt, wie manipuliert wird. Die oben genannten Subzustände haben sich dann aus den Betrachtungen zur Einfachheit und Intuitivität ergeben. Im Folgenden stellen wir die Zustände unserer Zustandsmaschine vor und geben dabei an, was jeweils berechnet wird und einen Zustandswechsel herbeiführt.
+	\begin{description} %TODO !
+		\item[CAMERA\_IDLE] Zweck dieses Zustands ist es, eine Art Default-Zustand bereitzustellen, in dem keine Kamera- und auch keine Objektmanipulation vorgenommen wird. Der Zustand wird betreten, wenn keine der vordefinierten Gesten sicher genug erkannt wurde. Durch Ausführung der entsprechenden Gesten gelangt man zurück in die anderen Zustände.
+		\item[CAMERA\_TRANSLATE] In diesem Zustand werden gemäß der oben erklärten Geste die Parameter zur Kamerabewegung bestimmt. Wir berechnen dazu aus den gepufferten Positionswerten von linker und rechter Hand die diskrete Ableitung, die uns ein Maß für die Geschwindigkeit der Bewegung liefert. Ebenso erhält man daraus die Richtung, in die die Hände bewegt wurden. Aus diesen Größen berechnen wir Translationsparameter für die $x$"=, $y$"= und $z$"=Richtungen, die für diesen Zustand unsere \texttt{motionParameters} definieren.
+		\item[CAMERA\_ROTATE] Analog wird nun in diesem Zustand die Rotation vorbereitet.
+	\end{description}
+	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt ???? zu finden. %TODO
 	\subsection{Robustheit und Pufferung}
 	Wie wir vorangegangen festgestellt haben, sind einige der Mechanismen, die wir implementieren wollen anfällig gegenüber qualitativ niedrigwertigen Kinectdaten. Tests mit der Kinect haben folgende kritische Situtationen ergeben:
 	\begin{itemize}

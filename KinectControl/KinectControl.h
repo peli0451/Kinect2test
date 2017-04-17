@@ -88,11 +88,15 @@ class KinectControl {
 		const int POS_BUFFER_SIZE = 10;
 		Buffer<CameraSpacePoint> *leftHandPositionBuffer;
 		Buffer<CameraSpacePoint> *rightHandPositionBuffer;
-		Eigen::Quaternionf lastHandOrientation; // später: Buffer
-		float smoothing_factor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
-		float smoothing_sum;
+		const int ROT_BUFFER_SIZE = 10;
+		Eigen::Quaternionf lastHandOrientation; 
+		bool lastHandOrientationInitialized;
+		Buffer<Eigen::Quaternionf> *rotationBuffer; 
+		float smoothingFactor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
+		float smoothingSum;
 
-		CameraSpacePoint* smooth_speed(Buffer<CameraSpacePoint>* buffer);
+		CameraSpacePoint* smoothSpeed(Buffer<CameraSpacePoint>* buffer);
+		Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer);
 
 
 		//State-Machine für KinectControl
@@ -112,6 +116,7 @@ class KinectControl {
 			HAND_RIGHT = 1
 		};
 		ControlHand controlHand;
+		ControlHand risenHand;
 
 		MotionParameters getMotion();
 		void setMotion(float translateX, float translateY, float translateZ, Eigen::Quaternionf rotate, MotionTarget target);

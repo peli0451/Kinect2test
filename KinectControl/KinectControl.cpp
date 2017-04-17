@@ -43,6 +43,9 @@ KinectControl::KinectControl() {
 	// Handpositionenbuffer
 	leftHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 	rightHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
+
+	// Rotationenbuffer
+	rotationBuffer = new Buffer<Eigen::Quaternionf>(ROT_BUFFER_SIZE);
 }
 
 
@@ -206,11 +209,11 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 	
 	
 	if (master.leftHandCurrentPosition.Y - master.rightHandCurrentPosition.Y > .4) {
-		controlHand = HAND_LEFT;
+		risenHand = HAND_LEFT;
 		oneHandUp = true;
 		oneHandUpAndClosed = leftHandClosed;
 	} else if (master.rightHandCurrentPosition.Y - master.leftHandCurrentPosition.Y > .4) {
-		controlHand = HAND_RIGHT;
+		risenHand = HAND_RIGHT;
 		oneHandUp = true;
 		oneHandUpAndClosed = rightHandClosed;
 	} else {
@@ -298,8 +301,8 @@ void KinectControl::stateMachineCompute() {
 			resetTranslation();
 			break;
 		case TRANSLATE_GESTURE: {
-			CameraSpacePoint smoothenedLeftHandPosition = *smooth_speed(leftHandPositionBuffer);
-			CameraSpacePoint smoothenedRightHandPosition = *smooth_speed(rightHandPositionBuffer);
+			CameraSpacePoint smoothenedLeftHandPosition = *smoothSpeed(leftHandPositionBuffer);
+			CameraSpacePoint smoothenedRightHandPosition = *smoothSpeed(rightHandPositionBuffer);
 			float translateX = (smoothenedLeftHandPosition.X + smoothenedRightHandPosition.X) / 2;
 			float translateY = (smoothenedLeftHandPosition.Y + smoothenedRightHandPosition.Y) / 2;
 			float translateZ = (smoothenedLeftHandPosition.Z + smoothenedRightHandPosition.Z) / 2;
@@ -333,7 +336,8 @@ void KinectControl::stateMachineCompute() {
 			rotation_axis = origin_axis.cross(target_axis); // Rotationsachse ist der zur von origin_ und target_axis aufgespannten Ebene orthogonale Vektor
 			rotation_axis.normalize(); // nicht sicher, ob das notwendig ist, weil die Ursprungsvektoren ja normiert waren
 			Eigen::AngleAxisf rot(std::acos(origin_axis.dot(target_axis)), rotation_axis); // Rotation wird beschrieben durch Winkel und Rotationsachse
-			setRotation(Eigen::Quaternionf(rot));
+			rotationBuffer->push(Eigen::Quaternionf(rot));
+			setRotation(smoothRotation(rotationBuffer));
 
 			/* // ursprünglicher Ansatz
 			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis).inverse(); // rot1 ist die Rotationsmatrix, die origin_axis auf den 1. Einheitsvektor dreht 
@@ -358,10 +362,10 @@ void KinectControl::stateMachineCompute() {
 		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
 		if (controlHand == HAND_LEFT) { // welche Hand wird zum Bewegen verwendet?
-			smoothenedHandPosition = *smooth_speed(leftHandPositionBuffer);
+			smoothenedHandPosition = *smoothSpeed(leftHandPositionBuffer);
 		}
 		else {
-			smoothenedHandPosition = *smooth_speed(rightHandPositionBuffer);
+			smoothenedHandPosition = *smoothSpeed(rightHandPositionBuffer);
 		}
 		setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
 
@@ -378,10 +382,12 @@ void KinectControl::stateMachineCompute() {
 		}
 		// übertrage Werte von Kinect Vector4 in Eigen Quaternion
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
-		if (lastHandOrientation.x() != -1337) { // nur rotieren, wenn lastHandOrientation initialisiert ist (später: ist Buffer gefüllt?)
-			setRotation(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
+		if (lastHandOrientationInitialized) { // nur rotieren, wenn lastHandOrientation initialisiert ist
+			rotationBuffer->push(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
+			setRotation(smoothRotation(rotationBuffer)); 
 		}
-		lastHandOrientation = currentHandOrientation; // später: Buffer füllen
+		lastHandOrientation = currentHandOrientation;
+		lastHandOrientationInitialized = true;
 		break;
 	}
 	default:
@@ -403,6 +409,10 @@ void KinectControl::stateMachineSwitchState() {
 	case CAMERA_ROTATE:
 		switch (recognizedGesture) {
 		case ROTATE_GESTURE:
+			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
+			for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
+				rotationBuffer->push(Eigen::Quaternionf::Identity());
+			}
 			setTarget(TARGET_CAMERA);
 			setState(CAMERA_ROTATE);
 			break;
@@ -411,7 +421,12 @@ void KinectControl::stateMachineSwitchState() {
 			setState(CAMERA_TRANSLATE);
 			break;
 		case GRAB_GESTURE:
-			controlHand = HAND_LEFT; //fällt später aus der Transition raus
+			lastHandOrientationInitialized = false;
+			controlHand = risenHand;
+			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
+			for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
+				rotationBuffer->push(Eigen::Quaternionf::Identity());
+			}
 			widget->pickModel(0, 0); // löst Ray cast im widget aus
 			setTarget(TARGET_OBJECT);
 			setState(OBJECT_MANIPULATE);
@@ -439,29 +454,28 @@ void KinectControl::init(ControlWidget *_widget) {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //Anzahl Personen?
 	bodyFrameSource->OpenReader(&bodyFrameReader);
-	smoothing_sum = 0;
+	smoothingSum = 0;
 	for (int i = 0; i < POS_BUFFER_SIZE; i++) {
-		smoothing_sum += smoothing_factor[i];
+		smoothingSum += smoothingFactor[i];
 	}
 	//Initialisierung der motionParameters
 	resetMotion();
-	lastHandOrientation = Eigen::Quaternionf(0,-1337,0,0);
 }
 
 /**
-* Glättet gepufferte Parameter
+* Glättet gepufferte Positionen
 *
-* @TODO Doku ergänzen
+* @param buffer Puffer für Positionen
 */
-CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) {
-	CameraSpacePoint speed_point = { 0,0,0 };
+CameraSpacePoint* KinectControl::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
+	CameraSpacePoint speedPoint = { 0,0,0 };
 	// läuft atm vom ältesten zum jüngsten, deshalb schleife absteigend
 	for (int i = buffer->end(); i >= 1; i--) {
 		// von jung zu alt, stoppt eins später für ableitung
 		// ich achte mal noch nich drauf was bei nicht vollem puffer genau passiert
-		CameraSpacePoint *cur_point = buffer->get(i);
-		CameraSpacePoint *next_point = buffer->get(i - 1);
-		float smoothing = smoothing_factor[i-1] / smoothing_sum;
+		CameraSpacePoint *curPoint = buffer->get(i);
+		CameraSpacePoint *nextPoint = buffer->get(i - 1);
+		float smoothing = smoothingFactor[i-1] / smoothingSum;
 
 		/*
 		OutputDebugStringA(std::to_string(smoothing).c_str());
@@ -472,11 +486,27 @@ CameraSpacePoint* KinectControl::smooth_speed(Buffer<CameraSpacePoint>* buffer) 
 		OutputDebugStringA("\n");
 		*/
 
-		speed_point.X += (cur_point->X - next_point->X) * smoothing;
-		speed_point.Y += (cur_point->Y - next_point->Y) * smoothing;
-		speed_point.Z += (cur_point->Z - next_point->Z) * smoothing;
+		speedPoint.X += (curPoint->X - nextPoint->X) * smoothing;
+		speedPoint.Y += (curPoint->Y - nextPoint->Y) * smoothing;
+		speedPoint.Z += (curPoint->Z - nextPoint->Z) * smoothing;
 	}
-	return &speed_point;
+	return &speedPoint;
+}
+
+/**
+* Glättet gepufferte Rotationen (in Form von Quaternions)
+*
+* @param buffer Puffer für Rotationen
+*/
+Eigen::Quaternionf KinectControl::smoothRotation(Buffer<Eigen::Quaternionf> *buffer) {
+	Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity();
+	for (int i = buffer->end(); i >= 0; i--) {
+		Eigen::Quaternionf *cur_rot = buffer->get(i);
+		float smoothing = smoothingFactor[i] / smoothingSum; // verwendet zurzeit dieselben faktoren wie die Positionsglättung
+		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
+		rotation *= downscaled_rot;
+	}
+	return rotation;
 }
 
 /**

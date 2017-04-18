@@ -6,6 +6,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{lmodern}
+\usepackage{tikz-uml}
 
 \newcommand{\Title}{Projektseminar: Gestensteuerung einer 3D-Anwendung mittels Kinect}
 \newcommand{\Authors}{Mario Janke,\\Peter Lindner,\\Patrik Stäblein}
@@ -129,6 +130,7 @@ zusätzlich geplant ist später
 		\item[CAMERA\_ROTATE] Analog wird nun in diesem Zustand die Rotation vorbereitet.
 	\end{description}
 	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt ???? zu finden. %TODO
+	\include{statemachine}
 	\subsection{Robustheit und Pufferung}
 	Wie wir vorangegangen festgestellt haben, sind einige der Mechanismen, die wir implementieren wollen anfällig gegenüber qualitativ niedrigwertigen Kinectdaten. Tests mit der Kinect haben folgende kritische Situtationen ergeben:
 	\begin{itemize}

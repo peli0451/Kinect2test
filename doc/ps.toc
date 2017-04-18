@@ -8,8 +8,8 @@
 \contentsline {subsection}{\numberline {3.1}Der Master}{5}
 \contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{5}
 \contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{6}
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{7}
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{8}
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{8}
-\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{8}
-\contentsline {subsection}{\numberline {4.3}Einbinden}{8}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{9}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{9}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{9}
+\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{9}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{9}

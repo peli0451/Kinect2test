@@ -1,0 +1,66 @@
+\usetikzlibrary{positioning}
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+
+%%IDLE-State
+\umlbasicstate[x=0, name=IDLE, fill=white]{IDLE}
+
+%%INIT-State
+\umlstateinitial[left=2cm of IDLE.west, name=INIT]
+	\umltrans{INIT}{IDLE}
+
+%%Superstate Kamera-Manipulation
+\begin{umlstate}[x=0,y=8,name=CAM, fill=black!20]{Kamera-Manipulation}
+	%%%%%%%%%%%%%%
+	%% Zustände %%
+	%%%%%%%%%%%%%%
+	%%Zustand Kamerabewegung
+	\umlbasicstate[x=0,y=0, name=CAMTRANS, fill=white]{CAMERA\_TRANSLATE}
+	%%Zustand Kameradrehung
+	\umlbasicstate[x=8,y=0, name=CAMROT, fill=white]{CAMERA\_ROTATE}
+	
+	%%%%%%%%%%%%%%%%%%
+	%% Transitionen %%
+	%%%%%%%%%%%%%%%%%%
+	\umlHVHtrans[anchor1=20,anchor2=170,arg={ROT...},pos=1.5]{CAMTRANS}{CAMROT}
+	\umlHVHtrans[anchor1=-170,anchor2=-20,arg={TRA...},pos=1.5]{CAMROT}{CAMTRANS}
+	
+	\umltrans[recursive=-120|-170|3cm, recursive direction=bottom to left, arg={TRANSLATE\_GESTURE},pos=1.3]{CAMTRANS}{CAMTRANS}
+	\umltrans[recursive=-10|-60|3cm, recursive direction=right to bottom, arg={ROTATE\_GESTURE},pos=2.6]{CAMROT}{CAMROT}
+\end{umlstate}
+
+
+%%Superstate Objekt-Manipulation
+\begin{umlstate}[x=8, name=OBJ, fill=black!20]{Objekt-Manipulation}
+	%%%%%%%%%%%%%%
+	%% Zustände %%
+	%%%%%%%%%%%%%%
+	%%Zustand Kamerabewegung
+	\umlbasicstate[y=0,name=OBJMAN, fill=white]{OBJECT\_MANIPULATE}
+	%%%%%%%%%%%%%%%%%%
+	%% Transitionen %%
+	%%%%%%%%%%%%%%%%%%
+	\umltrans[recursive=-40|-140|2cm, recursive direction=bottom to bottom, arg={GRAB\_GESTURE},pos=1.5]{OBJMAN}{OBJMAN}
+\end{umlstate}
+
+\umlVHVtrans[arm1=-1cm,anchor1=-60,anchor2=-150,arg={GRAB\_GESTURE},pos=1.4]{IDLE}{OBJMAN}
+\umlVHVtrans[arm1=-2cm,anchor1=-30,anchor2=-120,arg={UNKNOWN\_GESTURE},pos=1.5]{OBJMAN}{IDLE}
+
+\umlVHVtrans[arm1=4cm,anchor1=130,anchor2=-45,arg={TRANSLATE\_GESTURE},pos=0.5,name=IDLETOCAM]{IDLE}{CAMTRANS}
+\umlVHVtrans[arm2=3.75cm,anchor2=120,anchor1=-40,arg={UNKNOWN\_GESTURE},pos=2.1,name=CAMTOIDLE]{CAMTRANS}{IDLE}
+\umlpoint{CAMTOIDLE-2}
+\umlVHtrans[anchor1=-150]{CAMROT}{CAMTOIDLE-2}
+\umlpoint{IDLETOCAM-1}
+\umlHVHtrans[arm1=-2cm,anchor1=170]{OBJMAN}{IDLETOCAM-1}
+
+\umlVHVtrans[arm1=2.5cm,anchor1=55,anchor2=-145,arg={ROTATE\_GESTURE},pos=0.5,name=IDLETOCAM2]{IDLE}{CAMROT}
+\umlpoint{IDLETOCAM2-1}
+\umlHVHtrans[arm1=-3cm,anchor1=-170]{OBJMAN}{IDLETOCAM2-1}
+
+\umlVHVtrans[anchor1=-140,anchor2=155,arm1=-4cm,arg={GRAB\_GESTURE},pos=0.999,name=CAMTOOBJ]{CAMROT}{OBJMAN}
+\umlpoint{CAMTOOBJ-4}
+\umlVHVtrans[anchor1=-35,arm1=-1cm]{CAMTRANS}{CAMTOOBJ-4}
+%\umltrans[recursive=90|180|5cm,recursive direction=top to left,arg={UNKNOWN\_GESTURE},pos=.5]{IDLE}{OBJMAN}
+%\umlVHtrans{IDLE}{OBJMAN}
+\end{tikzpicture}
+}

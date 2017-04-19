@@ -38,6 +38,22 @@ class KinectControl {
 		IBody *trackedBodies[BODY_COUNT] = { 0,0,0,0,0,0 };
 		Joint joints[JointType_Count];
 
+		struct BodyProperties {
+			// float headHeight;
+			// float neckHeight;
+			float neckToLeftShoulder;
+			float neckToRightShoulder;
+			float rightUpperArmLength;
+			float leftUpperArmLength;
+			float rightUpperLegLength;
+			float leftUpperLegLength;
+			float shoulderWidth;
+			float torsoLength;
+			float ratioBetweenTorsoLengthAndRightLeg;
+			float ratioBetweenTorsoLengthAndLeftLeg;
+			float ratioBetweenTorsoLengthAndShoulderWidth;
+		};
+
 		struct Person {
 			INT32 id;
 
@@ -51,6 +67,8 @@ class KinectControl {
 			HandState rightHandState;
 
 			FLOAT z;
+
+			BodyProperties bodyProperties;
 		};
 		Person master;
 
@@ -130,6 +148,9 @@ class KinectControl {
 		void stateMachineBufferGestureConfidence();
 		void stateMachineCompute();
 		void stateMachineSwitchState();
+
+		void extractBodyProperties(BodyProperties* extractedBodyProperties);
+		int compareToMasterProperties(BodyProperties* propertiesForComparison);
 
 		ControlWidget *widget;
 };

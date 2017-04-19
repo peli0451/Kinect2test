@@ -31,6 +31,7 @@ KinectControl::KinectControl() {
 		HandState_Unknown,		// leftHandState
 		HandState_Unknown,		// rightHandState
 		100.0					// z
+		0.0f
 	};
 
 	// State Machine
@@ -568,6 +569,76 @@ float getSaneValue(float old, float fresh) {
 		return old - MAX_STEP;
 	}
 	return fresh; // Bewegungsdistanz liegt innerhalb der Schwelle
+}
+
+void KinectControl::extractBodyProperties(BodyProperties* extractedBodyProperties)
+{
+	_CameraSpacePoint shoulderLeft = joints[JointType::JointType_ShoulderLeft].Position;
+	_CameraSpacePoint shoulderRight = joints[JointType::JointType_ShoulderRight].Position;
+	_CameraSpacePoint spineShoulder = joints[JointType::spineShoulder].Position;
+	_CameraSpacePoint elbowLeft = joints[JointType::JointType_ElbowLeft].Position;
+	_CameraSpacePoint elbowRight = joints[JointType::JointType_ElbowRight].Position;
+	_CameraSpacePoint neck = joints[JointType::JointType_Neck].Position;
+	_CameraSpacePoint spineBase = joints[JointType::SpineBase].Position;
+	_CameraSpacePoint hipLeft = joints[JointType::JointType_HipLeft].Position;
+	_CameraSpacePoint hipRight = joints[JointType::JointType_HipRight].Position;
+	_CameraSpacePoint kneeLeft = joints[JointType::JointType_KneeLeft].Position;
+	_CameraSpacePoint kneeRight = joints[JointType::JointType_KneeRight].Position;
+
+
+	extractedBodyProperties->neckToLeftShoulder = sqrt(pow(shoulderLeft.X - neck.X, 2) +
+		pow(shoulderLeft.Y - neck.Y, 2) + pow(shoulderLeft.Z - neck.Z, 2));
+	extractedBodyProperties->neckToRightShoulder = sqrt(pow(shoulderRight.X - neck.X, 2) +
+		pow(shoulderRight.Y - neck.Y, 2) + pow(shoulderRight.Z - neck.Z, 2));
+	extractedBodyProperties->leftUpperArmLength = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2) +
+		pow(shoulderLeft.Y - elbowLeft.Y, 2) + pow(shoulderLeft.Z - elbowLeft.Z, 2));
+	extractedBodyProperties->rightUpperArmLength = sqrt(pow(shoulderRight.X - elbowRight.X, 2) +
+		pow(shoulderRight.Y - elbowRight.Y, 2) + pow(shoulderRight.Z - elbowRight.Z, 2));
+	extractedBodyProperties->leftUpperLegLength = sqrt(pow(hipLeft.X - kneeLeft.X, 2) +
+		pow(hipLeft.Y - kneeLeft.Y, 2) + pow(hipLeft.Z - kneeLeft.Z, 2));
+	extractedBodyProperties->leftUpperLegLength = sqrt(pow(hipRight.X - kneeRight.X, 2) +
+		pow(hipRight.Y - kneeRight.Y, 2) + pow(hipRight.Z - kneeRight.Z, 2));
+	extractedBodyProperties->shoulderWidth = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2) +
+		pow(shoulderLeft.Y - shoulderRight.Y, 2) + pow(shoulderLeft.Z - shoulderRight.Z, 2));
+	extractedBodyProperties->torsoLength = sqrt(pow(spineShoulder.X - spineBase.X, 2) +
+		pow(spineShoulder.Y - spineBase.Y, 2) + pow(spineShoulder.Z - spineBase.Z, 2));
+
+	extractedBodyProperties->ratioBetweenTorsoLengthAndLeftLeg =
+		extractedBodyProperties->torsoLength / extractedBodyProperties->leftUpperLegLength;
+	extractedBodyProperties->ratioBetweenTorsoLengthAndRightLeg =
+		extractedBodyProperties->torsoLength / extractedBodyProperties->rightUpperLegLength;
+	extractedBodyProperties->ratioBetweenTorsoLengthAndShoulderWidth =
+		extractedBodyProperties->torsoLength / extractedBodyProperties->shoulderWidth;
+}
+
+int KinectControl::compareToMasterProperties(BodyProperties* propertiesForComparison) {
+	int matchedProperties = 0;
+
+	if (abs(propertiesForComparison->neckToLeftShoulder - master.bodyProperties.neckToLeftShoulder) < ERROR_NTLS)
+		matchedProperties++;
+	if (abs(propertiesForComparison->neckToRightShoulder - master.bodyProperties.neckToRightShoulder) < ERROR_NTRS)
+		matchedProperties++;
+	if (abs(propertiesForComparison->leftUpperArmLength - master.bodyProperties.leftUpperArmLength) < ERROR_LUAL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->rightUpperArmLength - master.bodyProperties.rightUpperArmLength) < ERROR_RUAL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->leftUpperLegLength - master.bodyProperties.leftUpperLegLength) < ERROR_RULL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->shoulderWidth - master.bodyProperties.shoulderWidth) < ERROR_SW)
+		matchedProperties++;
+	if (abs(propertiesForComparison->torsoLength - master.bodyProperties.torsoLength) < ERROR_TL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndLeftLeg -
+		master.bodyProperties.ratioBetweenTorsoLengthAndLeftLeg) < ERROR_RBTLALL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndRightLeg -
+		master.bodyProperties.ratioBetweenTorsoLengthAndRightLeg) < ERROR_RBTLARL)
+		matchedProperties++;
+	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndShoulderWidth -
+		master.bodyProperties.ratioBetweenTorsoLengthAndShoulderWidth) < ERROR_RBTLASW)
+		matchedProperties++;
+
+	return matchedProperties;
 }
 
 /**

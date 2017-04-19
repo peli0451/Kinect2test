@@ -204,21 +204,25 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 	boolean bothHandsOpen = (leftHandOpen && rightHandOpen);
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
-	boolean oneHandUp;
-	boolean oneHandUpAndClosed;
+	boolean handRisen;
+	boolean risenHandOpen;
+	boolean risenHandUnknown;
 	
 	
 	if (master.leftHandCurrentPosition.Y - master.rightHandCurrentPosition.Y > .4) {
 		risenHand = HAND_LEFT;
-		oneHandUp = true;
-		oneHandUpAndClosed = leftHandClosed;
+		handRisen = true;
+		risenHandOpen = (master.leftHandState == HandState_Open);
+		risenHandUnknown = (master.leftHandState == HandState_Unknown);
 	} else if (master.rightHandCurrentPosition.Y - master.leftHandCurrentPosition.Y > .4) {
 		risenHand = HAND_RIGHT;
-		oneHandUp = true;
-		oneHandUpAndClosed = rightHandClosed;
+		handRisen = true;
+		risenHandOpen = (master.rightHandState == HandState_Open);
+		risenHandUnknown = (master.rightHandState == HandState_Unknown);
 	} else {
-		oneHandUp = false;
-		oneHandUpAndClosed = false;
+		handRisen = false;
+		risenHandUnknown = false;
+		risenHandOpen = false;
 	}
 
 
@@ -227,7 +231,7 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 
 	//Zustand IDLE -> alle Gesten werden nur eindeutig betrachtet
 	case KinectControl::CAMERA_IDLE:
-		if (oneHandUpAndClosed) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
+		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
 		else newConfidence = { 1.f,.0f,.0f,.0f }; //Unbekannt
@@ -235,7 +239,7 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 
 	//Zustand TRANSLATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geöffneten Hand vermutlich ein Translate
 	case KinectControl::CAMERA_TRANSLATE :
-		if (oneHandUpAndClosed) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
+		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
 		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
@@ -247,7 +251,7 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 
 	//Zustand ROTATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geschlossenen Hand vermutlich ein Rotate
 	case KinectControl::CAMERA_ROTATE :
-		if (oneHandUpAndClosed) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
+		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
 		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
@@ -259,7 +263,8 @@ void KinectControl::stateMachineBufferGestureConfidence() {
 
 	//Zustand MANIPULATE -> alle Gesten werden nur eindeutig betrachtet
 	case KinectControl::OBJECT_MANIPULATE :
-		if (oneHandUpAndClosed) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
+		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .4f, .0f, .0f, .6f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
 		else newConfidence = { .7f,.1f,.1f,.1f }; //Unbekannt
@@ -386,6 +391,12 @@ void KinectControl::stateMachineCompute() {
 			rotationBuffer->push(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
 			setRotation(smoothRotation(rotationBuffer)); 
 		}
+		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
+		OutputDebugStringA(std::to_string(aa.axis().x()).c_str()); OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(aa.axis().y()).c_str()); OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(aa.axis().z()).c_str()); OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(aa.angle()).c_str());
+		OutputDebugStringA("\n");
 		lastHandOrientation = currentHandOrientation;
 		lastHandOrientationInitialized = true;
 		break;
@@ -421,7 +432,7 @@ void KinectControl::stateMachineSwitchState() {
 			setState(CAMERA_TRANSLATE);
 			break;
 		case GRAB_GESTURE:
-			lastHandOrientationInitialized = false;
+			if(currentState != OBJECT_MANIPULATE) lastHandOrientationInitialized = false;
 			controlHand = risenHand;
 			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
 			for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
@@ -434,6 +445,7 @@ void KinectControl::stateMachineSwitchState() {
 		default:
 			setTarget(TARGET_CAMERA);
 			setState(CAMERA_IDLE);//Zustand nicht wechseln
+			resetMotion();
 			break;
 		}
 		break;

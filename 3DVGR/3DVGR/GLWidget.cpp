@@ -234,14 +234,16 @@ void GLWidget::eventLoop()
 	float time = m_timer.restart() * m_cameraSpeed;
 	DirectGL::Vector3f dir(DirectGL::Vector3f::Zero());
 
-	float strength = time*100;
+	float trans_strength = time*100;
+	float rot_strength = time*50;
 
 	//if (m_pressedKeys[Qt::Key::Key_X])
-		dir += strength * m_camera.getRotation()._transformVector(DirectGL::Vector3f(
+		dir += trans_strength * m_camera.getRotation()._transformVector(DirectGL::Vector3f(
 			motionParameters.translateX,
 			motionParameters.translateY,
 			motionParameters.translateZ)
 		);
+		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.rotate);
 	/*
 	//Debug-Ausgabe
 	if(motionParameters.translateX != 0 || motionParameters.translateY != 0 || motionParameters.translateZ != 0) {
@@ -265,7 +267,7 @@ void GLWidget::eventLoop()
 	}
 	else {
 		picked_model->getTransformation().translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?
-		picked_model->getTransformation().rotateLocal(motionParameters.rotate);
+		picked_model->getTransformation().rotateLocal(rot);
 	}
 	if (m_mouseCapturing || use_special_controls)
 	{

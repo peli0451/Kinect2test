@@ -1,0 +1,33 @@
+\subsection{Gesten und ihre Wirkung}
+	Wie oben erwähnt, entscheidet ein \glqq globaler\grqq\ Modus, ob wir uns bei der Kamera- oder der Objektmanipulation befinden. Daher können wir ein und dieselbe Geste für das Verschieben der Kamera bzw. eines Objekts verwenden (Rotation analog). Die hier angegebenen Gestenbezeichner werden so auch im Quellcode verwendet.
+	\begin{description}
+		\item[TRANSLATE\_GESTURE] Der Benutzer hat beide Hände geöffnet, mit den Handflächen zur Kamera (wichtig ist nur, dass die Kinect beide Hände als offen erkennt, die genaue Haltung ist dabei egal). Ein paralleles Verschieben der beiden Hände in eine Richtung bewirkt ein zur Bewegungsgeschwindigkeit proportionales Verschieben der Kamera bzw. des Objekts in diese Richtung.
+		\item[ROTATE\_GESTURE] Der Benutzer hat beide Fäuste geballt. Dann bewirkt eine gleichzeitige Bewegung der Hände auf einer Kreisbahn eine Rotation der Kamera bzw. des Objekts um die Senkrechte des zugehörigen Kreises.
+		\item[GRAB\_GESTURE] Der Benutzer schließt eine Hand und behält die andere geöffnet.
+		\item[UNKNOWN] Dies enthält alles, was als keine der anderen Gesten erkannt wird.
+	\end{description}
+	Tests mit der Kinect haben ergeben, dass es notwendig ist, bei derartig selbst implementierten Gesten auch eigene Robustheitsmechanismen einzubauen, die die Gestenerkennung gegen Schwankungen der Kinecterkennung (etwa des Status einer Hand) abhärten.
+	\subsection{Zustandsmaschine}
+	Durch die Grundmodi \glqq Kameramanipulation\grqq~und \glqq Objektmanipulation\grqq~werden zwei Superzustände definiert, innerhalb deren die erkannte Geste die Aktionen bestimmt. Da je erkannter Geste andere Arbeit geleistet wird, bietet es sich an, diese wiederum in Zustände zu kapseln. Von außen folgt unser Tool daher dem folgenden groben Schema:
+	\begin{itemize}
+	\item Aufruf aus Hauptprogramm
+	\item Auswertung der Kinectdaten
+	\item Gestenerkennung
+	\item Berechnung im aktuellen Zustand
+	\item Etwaiger Zustandswechsel
+	\end{itemize}
+	Die letztendlichen Zustände und das dazugehörige Zusammenspiel sind ein Ergebnis unserer Überlegungen zusammen mit dem Feedback, das wir aus unseren vielen Tests gewonnen haben. Ursprüunglich war es angedacht, lediglich zwischen einem Kamera- und einem Objektzustand zu unterscheiden, also einem Zustand zur Kamera- und einem zur Objektmanipulation, wobei dann die entsprechende Geste bestimmt, wie manipuliert wird. Die oben genannten Subzustände haben sich dann aus den Betrachtungen zur Einfachheit und Intuitivität ergeben. Im Folgenden stellen wir die Zustände unserer Zustandsmaschine vor und geben dabei an, was jeweils berechnet wird und einen Zustandswechsel herbeiführt.
+	\begin{description} %TODO !
+		\item[CAMERA\_IDLE] Zweck dieses Zustands ist es, eine Art Default-Zustand bereitzustellen, in dem keine Kamera- und auch keine Objektmanipulation vorgenommen wird. Der Zustand wird betreten, wenn keine der vordefinierten Gesten sicher genug erkannt wurde. Durch Ausführung der entsprechenden Gesten gelangt man zurück in die anderen Zustände.
+		\item[CAMERA\_TRANSLATE] In diesem Zustand werden gemäß der oben erklärten Geste die Parameter zur Kamerabewegung bestimmt. Wir berechnen dazu aus den gepufferten Positionswerten von linker und rechter Hand die diskrete Ableitung, die uns ein Maß für die Geschwindigkeit der Bewegung liefert. Ebenso erhält man daraus die Richtung, in die die Hände bewegt wurden. Aus diesen Größen berechnen wir Translationsparameter für die $x$"=, $y$"= und $z$"=Richtungen, die für diesen Zustand unsere \texttt{motionParameters} definieren.
+		\item[CAMERA\_ROTATE] Analog wird nun in diesem Zustand die Rotation vorbereitet.
+	\end{description}
+	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt ???? zu finden. %TODO
+	\include{statemachine}
+	\subsection{Robustheit und Pufferung}
+	Wie wir vorangegangen festgestellt haben, sind einige der Mechanismen, die wir implementieren wollen anfällig gegenüber qualitativ niedrigwertigen Kinectdaten. Tests mit der Kinect haben folgende kritische Situtationen ergeben:
+	\begin{itemize}
+		\item Gelenke und Skelettbestandteile in der Nähe von Objekten und anderen Personen. Diese können falsch oder verzerrt erkannt werden. So kann etwa die erkannte Handposition zwischen zwei Kinectframes Raumunterschiede von mehreren Metern aufweisen und zurückspringen.
+		\item Status der Hände. Auch bei durchgängiger Aufrechterhaltung eines Handzustands kann es passieren, dass die Kinect vereinzelt falsche Zuweisungen trifft oder keine Zuweisung möglich ist.
+	\end{itemize}
+	Beide Situationen lassen sich behandeln, indem Entscheidungen unseres Programms, nicht nur vom augenblicklichen Rückgabewert der Kinect abhängen, sondern auch einige vergangene Werte mit einbeziehen. So kann ermittelt werden, ob der aktuelle Wert (mit hoher Wahrscheinlichkeit) ein zu ignorierender Ausreißer ist. Dazu wird ein Ringpuffer verwendet und an den entsprechenden Stellen im Quellcode ein gewichtetes Mittel über den Pufferinhalt gebildet, wobei neuere Einträge mit deutlich größerem Gewicht eingehen. Für Gesten kann dann mit einer bestimmten Zuverlässigkeit eine Zuordnung getroffen werden, für Raumpositionen stellt dieses Mittel eine Glättung dar. Dies hat den positiven Nebeneffekt, dass die endgültige Anwendung der errechneten Parameter auf die Kamera bzw. das Objekt ebenfalls geschmeidiger werden.

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  19 APR 2017 01:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  24 APR 2017 17:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1042,8 +1042,7 @@ Package: vmargin 2004/07/15 V2.5 set document margins (VK)
 ) (c:/texlive/2016/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2011/12/19 v6.7a set line spacing
 ) (./ps.aux
-No file statemachine.aux.
-)
+(./statemachine.aux))
 \openout1 = `ps.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
@@ -1174,22 +1173,23 @@ LaTeX Font Info:    External font `lmex10' loaded for size
  [1
 
 {c:/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+lmr on input line 51.
-
-(c:/texlive/2016/texmf-dist/tex/latex/lm/omslmr.fd
+(./sections/grundlagen.tex
+LaTeX Font Info:    Try loading font information for OMS+lmr on input line 4.
+ (c:/texlive/2016/texmf-dist/tex/latex/lm/omslmr.fd
 File: omslmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `OMS/lmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 51.
- [2
+(Font)              Font shape `OMS/lmsy/m/n' tried instead on input line 4.
 
-] [3] [4] [5]
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 129.
+[2
 
-
-(c:/texlive/2016/texmf-dist/tex/latex/lm/t1lmtt.fd
+]) (./sections/kinect.tex) [3] [4] (./sections/master.tex)
+(./sections/gesten.tex [5]
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 22.
+ (c:/texlive/2016/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [6] [7]
+)
+[6] [7]
 \openout2 = `statemachine.aux'.
 
  (./statemachine.tex
@@ -1198,27 +1198,29 @@ brarypositioning.code.tex
 File: tikzlibrarypositioning.code.tex 2008/10/06 v3.0.1a (rcs-revision 1.7)
 )) [8
 
-] [9
+]) (./sections/datenstrukturen.tex)
+(./sections/zusammenspiel.tex) (./sections/einbinden.tex) [9
 
-] (./ps.aux (./statemachine.aux)) ) 
+] (./ps.aux
+(./statemachine.aux)) ) 
 Here is how much of TeX's memory you used:
- 19336 strings out of 493014
- 405095 string characters out of 6137001
- 604365 words of memory out of 5000000
- 22457 multiletter control sequences out of 15000+600000
+ 19361 strings out of 493014
+ 405544 string characters out of 6137001
+ 605714 words of memory out of 5000000
+ 22458 multiletter control sequences out of 15000+600000
  64856 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,11n,84p,957b,1367s stack positions out of 5000i,500n,10000p,200000b,80000s
-{c:/texlive/2016/texmf-dist/fonts/enc/dvips/
-lm/lm-ec.enc}{c:/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/t
-exlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}<c:/texlive/2016/texmf-
-dist/fonts/type1/public/lm/lmbx12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/p
-ublic/lm/lmmi12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr10.pfb
-><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/texlive/2016/t
-exmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/texlive/2016/texmf-dist/fonts/typ
-e1/public/lm/lmri10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmri1
-2.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/texlive/
-2016/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
+ 62i,11n,84p,982b,1367s stack positions out of 5000i,500n,10000p,200000b,80000s
+{c:/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc
+}{c:/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/texlive/2016/
+texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}<c:/texlive/2016/texmf-dist/fonts/t
+ype1/public/lm/lmbx12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmm
+i12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/texlive
+/2016/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/texlive/2016/texmf-dist/fo
+nts/type1/public/lm/lmr17.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm
+/lmri10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmri12.pfb><c:/te
+xlive/2016/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/texlive/2016/texmf-d
+ist/fonts/type1/public/lm/lmtt12.pfb>
 Output written on ps.pdf (9 pages, 197069 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)

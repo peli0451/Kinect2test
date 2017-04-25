@@ -7,14 +7,16 @@
 \usepackage{amssymb}
 \usepackage{lmodern}
 \usepackage{tikz-uml}
+\usepackage[backend=bibtex]{biblatex} 
+\addbibresource{literatur.bib}
 
 \newcommand*{\Title}{Projektseminar: Gestensteuerung einer 3D-Anwendung mittels Kinect}
-\newcommand{\Authors}{Mario Janke,\\Peter Lindner,\\Patrik Stäblein}
+\newcommand{\Authors}{Mario Janke,\\Peter Lindner,\\Patrick Stäblein}
 \title{\Title}
 \author{
 	Mario Janke\\
 	Peter Lindner\\
-	Patrik Stäblein}
+	Patrick Stäblein}
 \date{}
 
 \usepackage{fancyhdr}
@@ -50,6 +52,7 @@
 	%
 	%
 \section{Vorüberlegungen}
+
 	Für unser Vorgehen zentral sind die folgenden beiden Bereiche:
 	\begin{enumerate}
 		\item die technische Umsetzung, d.\,h.
@@ -89,4 +92,7 @@
 	\input{sections/datenstrukturen}
 	\input{sections/zusammenspiel}
 	\input{sections/einbinden}
+
+\newpage
+\printbibliography
 \end{document}

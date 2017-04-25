@@ -1,0 +1,41 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.8 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\sortlist[entry]{nty/global/}
+  \entry{skeletal}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         familyi={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/hh973074.aspx}}
+    \field{note}{[Online; accessed 25-April-2017]}
+    \field{title}{{Skeletal Tracking}}
+    \field{year}{2017}
+  \endentry
+\endsortlist
+\endinput

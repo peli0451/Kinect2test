@@ -1,0 +1,17 @@
+\subsection{Zustandsmaschine}
+	Durch die Grundmodi \glqq Kameramanipulation\grqq~und \glqq Objektmanipulation\grqq~werden zwei Superzustände definiert, innerhalb deren die erkannte Geste die Aktionen bestimmt. Da je erkannter Geste andere Arbeit geleistet wird, bietet es sich an, diese wiederum in Zustände zu kapseln. Von außen folgt unser Tool daher dem folgenden groben Schema:
+	\begin{itemize}
+	\item Aufruf aus Hauptprogramm
+	\item Auswertung der Kinectdaten
+	\item Gestenerkennung
+	\item Berechnung im aktuellen Zustand
+	\item Etwaiger Zustandswechsel
+	\end{itemize}
+	Die letztendlichen Zustände und das dazugehörige Zusammenspiel sind ein Ergebnis unserer Überlegungen zusammen mit dem Feedback, das wir aus unseren vielen Tests gewonnen haben. Ursprüunglich war es angedacht, lediglich zwischen einem Kamera- und einem Objektzustand zu unterscheiden, also einem Zustand zur Kamera- und einem zur Objektmanipulation, wobei dann die entsprechende Geste bestimmt, wie manipuliert wird. Die oben genannten Subzustände haben sich dann aus den Betrachtungen zur Einfachheit und Intuitivität ergeben. Im Folgenden stellen wir die Zustände unserer Zustandsmaschine vor und geben dabei an, was jeweils berechnet wird und einen Zustandswechsel herbeiführt.
+	\begin{description} %TODO !
+		\item[CAMERA\_IDLE] Zweck dieses Zustands ist es, eine Art Default-Zustand bereitzustellen, in dem keine Kamera- und auch keine Objektmanipulation vorgenommen wird. Der Zustand wird betreten, wenn keine der vordefinierten Gesten sicher genug erkannt wurde. Durch Ausführung der entsprechenden Gesten gelangt man zurück in die anderen Zustände.
+		\item[CAMERA\_TRANSLATE] In diesem Zustand werden gemäß der oben erklärten Geste die Parameter zur Kamerabewegung bestimmt. Wir berechnen dazu aus den gepufferten Positionswerten von linker und rechter Hand die diskrete Ableitung, die uns ein Maß für die Geschwindigkeit der Bewegung liefert. Ebenso erhält man daraus die Richtung, in die die Hände bewegt wurden. Aus diesen Größen berechnen wir Translationsparameter für die $x$"=, $y$"= und $z$"=Richtungen, die für diesen Zustand unsere \texttt{motionParameters} definieren.
+		\item[CAMERA\_ROTATE] Analog wird nun in diesem Zustand die Rotation vorbereitet.
+	\end{description}
+	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt ???? zu finden. %TODO
+	\input{statemachine}

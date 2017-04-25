@@ -1,36 +1,44 @@
+#include "stdafx.h"
 #include "GestureRecognition.h"
 
-/**
-* Liest die erkannte Geste
-* @return recognizedGesture erkannte Geste
-*/
-GestureRecognition::Gesture GestureRecognition::getRecognizedGesture() {
-	return recognizedGesture;
-}
 
-/**
-* Setzt die erkannte Geste
-*/
-void GestureRecognition::setRecognizedGesture(Gesture gesture) {
-	recognizedGesture = gesture;
-}
 
-/**
-* Gibt den GestureConfidenceBuffer zurück
-* @return gestureConfidenceBuffer Puffer
-*/
-Buffer<GestureRecognition::GestureConfidence>* GestureRecognition::getConfidenceBuffer()
-{
-	return confidenceBuffer;
-}
-/**
-* Konstruktor für GestureRecognition
-*/
+/**********************************************************
+* Konstruktoren
+**********************************************************/
+
 GestureRecognition::GestureRecognition()
 {
 	recognizedGesture = UNKNOWN;
 	confidenceBuffer = new Buffer<GestureConfidence>(GESTURE_BUFFER_SIZE);
 }
+
+
+
+/**********************************************************
+* Getter und Setter
+**********************************************************/
+
+GestureRecognition::Gesture GestureRecognition::getRecognizedGesture() {
+	return recognizedGesture;
+}
+
+void GestureRecognition::setRecognizedGesture(Gesture gesture) {
+	recognizedGesture = gesture;
+}
+
+
+
+Buffer<GestureRecognition::GestureConfidence>* GestureRecognition::getConfidenceBuffer()
+{
+	return confidenceBuffer;
+}
+
+
+
+/**********************************************************
+* Funktionen
+**********************************************************/
 
 /**
 * Wertet den Buffer mit den erkannten Confidence-Werten aus

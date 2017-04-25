@@ -2,50 +2,64 @@
 #include <string>
 #include <iostream>
 #include "StateMachine.h"
-/**
-* Konstruktor für StateMachine
-*/
+
+
+
+/**********************************************************
+* Konstruktoren
+**********************************************************/
+
 StateMachine::StateMachine()
 {
 	setState(IDLE);
 	motionParameters.resetMotion();
 }
 
-/**
-* Wechselt den aktuellen Zustand
-*
-* @param newState neuer Zustand
-*/
+
+
+/**********************************************************
+* Getter und Setter
+**********************************************************/
+
+
 void StateMachine::setState(State newState) {
 	state = newState;
 }
 
-/**
-* Liest den aktuellen Zustand
-*
-* @return state aktueller Zustand
-*/
 StateMachine::State StateMachine::getState() {
 	return state;
 }
 
-/**
-* Setzt aktuelle MotionParameters
-*
-* @param newParameters neue Parameter
-*/
+
+
 void StateMachine::setMotionParameters(MotionParameters newParameters) {
 	motionParameters = newParameters;
 }
 
-/**
-* Liest die aktuellen MotionParameters
-*
-* @return parameters ausgelesene Parameter
-*/
 MotionParameters StateMachine::getMotionParameters() {
 	return motionParameters;
 }
+
+
+
+void StateMachine::setMaster(Person newMaster) {
+	master = newMaster;
+}
+
+Person StateMachine::getMaster() {
+	return master;
+}
+
+
+
+void StateMachine::assignWidget(ControlWidget* _widget) {
+	widget = _widget;
+}
+
+
+/**********************************************************
+* Funktionen
+**********************************************************/
 
 /**
 * Berechnet aus der Trackingrückgabe Konfidenzwerte für die verschiedenen Gesten
@@ -60,31 +74,30 @@ void StateMachine::bufferGestureConfidence() {
 
 
 	//Hilfsvariablen für Kombinationen von von Handstates
-	boolean leftHandOpen = (master.leftHandState == HandState_Open);
-	boolean leftHandClosed = (master.leftHandState == HandState_Closed);
-	boolean rightHandOpen = (master.rightHandState == HandState_Open);
-	boolean rightHandClosed = (master.rightHandState == HandState_Closed);
+	boolean leftHandOpen = (master.getLeftHandState() == HandState_Open);
+	boolean leftHandClosed = (master.getLeftHandState() == HandState_Closed);
+	boolean rightHandOpen = (master.getRightHandState() == HandState_Open);
+	boolean rightHandClosed = (master.getRightHandState() == HandState_Closed);
 
 	boolean bothHandsOpen = (leftHandOpen && rightHandOpen);
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
-	GestureRecognition::ControlHand risenHand;
 	boolean handRisen;
 	boolean risenHandOpen;
 	boolean risenHandUnknown;
 
 
-	if (master.leftHandCurrentPosition.Y - master.rightHandCurrentPosition.Y > .4) {
-		risenHand = GestureRecognition::ControlHand::HAND_LEFT;
+	if (master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y > .4) {
+		master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
 		handRisen = true;
-		risenHandOpen = (master.leftHandState == HandState_Open);
-		risenHandUnknown = (master.leftHandState == HandState_Unknown);
+		risenHandOpen = (master.getLeftHandState() == HandState_Open);
+		risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
 	}
-	else if (master.rightHandCurrentPosition.Y - master.leftHandCurrentPosition.Y > .4) {
-		risenHand = GestureRecognition::ControlHand::HAND_RIGHT;
+	else if (master.getRightHandCurPos().Y - master.getLeftHandCurPos().Y > .4) {
+		master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
 		handRisen = true;
-		risenHandOpen = (master.rightHandState == HandState_Open);
-		risenHandUnknown = (master.rightHandState == HandState_Unknown);
+		risenHandOpen = (master.getRightHandState() == HandState_Open);
+		risenHandUnknown = (master.getRightHandState() == HandState_Unknown);
 	}
 	else {
 		handRisen = false;
@@ -160,6 +173,10 @@ void StateMachine::bufferGestureConfidence() {
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
 */
 void StateMachine::compute() {
+	Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
+	Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
+	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
+
 	State currentState = getState();
 	GestureRecognition::Gesture recognizedGesture = gestureRecognition.getRecognizedGesture();
 
@@ -233,7 +250,7 @@ void StateMachine::compute() {
 	{
 		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
-		if (controlHand == GestureRecognition::ControlHand::HAND_LEFT) { // welche Hand wird zum Bewegen verwendet?
+		if (master.getControlHand() == GestureRecognition::ControlHand::HAND_LEFT) { // welche Hand wird zum Bewegen verwendet?
 			smoothenedHandPosition = *smoothSpeed(leftHandPositionBuffer);
 		}
 		else {
@@ -242,20 +259,18 @@ void StateMachine::compute() {
 		getMotionParameters().setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
 
 		// Rotation
-		JointOrientation joint_orient[JointType::JointType_Count];
-		trackedBodies[master.id]->GetJointOrientations(JointType::JointType_Count, joint_orient); //Ausrichtung der Gelenke holen
 		Eigen::Quaternionf currentHandOrientation = Eigen::Quaternionf::Identity();
 		Vector4 handOrientation;
-		if (controlHand == GestureRecognition::ControlHand::HAND_LEFT) { // welche Hand wird zum Rotieren verwendet?
-			handOrientation = joint_orient[JointType::JointType_HandLeft].Orientation; // Ausrichtung der linken Hand
+		if (master.getControlHand() == GestureRecognition::ControlHand::HAND_LEFT) { // welche Hand wird zum Rotieren verwendet?
+			handOrientation = (master.getJointOrientations())[JointType::JointType_HandLeft].Orientation; // Ausrichtung der linken Hand
 		}
 		else {
-			handOrientation = joint_orient[JointType::JointType_HandRight].Orientation; // Ausrichtung der rechten Hand
+			handOrientation = (master.getJointOrientations())[JointType::JointType_HandRight].Orientation; // Ausrichtung der rechten Hand
 		}
 		// übertrage Werte von Kinect Vector4 in Eigen Quaternion
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
-		if (lastHandOrientationInitialized) { // nur rotieren, wenn lastHandOrientation initialisiert ist
-			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
+		if (master.isLastHandOrientationInitialized()) { // nur rotieren, wenn lastHandOrientation initialisiert ist
+			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
 			orientationDiffAA.angle = max(orientationDiffAA.angle, -0.1); // 0.1 ist größte plausible Rotation für einen Frame (im Bogenmaß)
 			orientationDiffAA.angle = min(orientationDiffAA.angle, 0.1); // in beide Rotationsrichtungen
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
@@ -267,8 +282,8 @@ void StateMachine::compute() {
 		OutputDebugStringA(std::to_string(aa.axis().z()).c_str()); OutputDebugStringA("\t");
 		OutputDebugStringA(std::to_string(aa.angle()).c_str());
 		OutputDebugStringA("\n");
-		lastHandOrientation = currentHandOrientation;
-		lastHandOrientationInitialized = true;
+		master.setLastHandOrientation(currentHandOrientation);
+		master.setLastHandOrientationInitialized = true;
 		break;
 	}
 	default:
@@ -282,6 +297,7 @@ void StateMachine::compute() {
 void StateMachine::switchState() {
 	State currentState = getState();
 	GestureRecognition::Gesture recognizedGesture = gestureRecognition.getRecognizedGesture();
+	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
 
 	switch (currentState) {
 	case IDLE:		//Fallthrough
@@ -291,7 +307,7 @@ void StateMachine::switchState() {
 		switch (recognizedGesture) {
 		case GestureRecognition::Gesture::ROTATE_GESTURE:
 			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
-			for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
+			for (int i = 0; i < Person::ROT_BUFFER_SIZE; i++) {
 				rotationBuffer->push(Eigen::Quaternionf::Identity());
 			}
 			getMotionParameters().setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
@@ -302,10 +318,11 @@ void StateMachine::switchState() {
 			setState(CAMERA_TRANSLATE);
 			break;
 		case GestureRecognition::Gesture::GRAB_GESTURE:
-			if (currentState != OBJECT_MANIPULATE) lastHandOrientationInitialized = false;
-			controlHand = risenHand;
+			if (currentState != OBJECT_MANIPULATE)
+				master.setLastHandOrientationInitialized(false);
+			master.setControlHand(master.getRisenHand());
 			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
-			for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
+			for (int i = 0; i < Person::ROT_BUFFER_SIZE; i++) {
 				rotationBuffer->push(Eigen::Quaternionf::Identity());
 			}
 			widget->pickModel(0, 0); // löst Ray cast im widget aus
@@ -322,4 +339,52 @@ void StateMachine::switchState() {
 	default:
 		break;
 	}
+}
+
+
+/**
+* Glättet gepufferte Positionen
+*
+* @param buffer Puffer für Positionen
+*/
+CameraSpacePoint* StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
+	CameraSpacePoint speedPoint = { 0,0,0 };
+	// läuft atm vom ältesten zum jüngsten, deshalb schleife absteigend
+	for (int i = buffer->end(); i >= 1; i--) {
+		// von jung zu alt, stoppt eins später für ableitung
+		// ich achte mal noch nich drauf was bei nicht vollem puffer genau passiert
+		CameraSpacePoint *curPoint = buffer->get(i);
+		CameraSpacePoint *nextPoint = buffer->get(i - 1);
+		float smoothing = smoothingFactor[i - 1] / smoothingSum;
+
+		/*
+		OutputDebugStringA(std::to_string(smoothing).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(smoothing_factor[i-1]).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string(smoothing_sum).c_str());
+		OutputDebugStringA("\n");
+		*/
+
+		speedPoint.X += (curPoint->X - nextPoint->X) * smoothing;
+		speedPoint.Y += (curPoint->Y - nextPoint->Y) * smoothing;
+		speedPoint.Z += (curPoint->Z - nextPoint->Z) * smoothing;
+	}
+	return &speedPoint;
+}
+
+/**
+* Glättet gepufferte Rotationen (in Form von Quaternions)
+*
+* @param buffer Puffer für Rotationen
+*/
+Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buffer) {
+	Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity();
+	for (int i = buffer->end(); i >= 0; i--) {
+		Eigen::Quaternionf *cur_rot = buffer->get(i);
+		float smoothing = rotationSmoothingFactor[i] / rotationSmoothingSum;
+		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
+		rotation *= downscaled_rot;
+	}
+	return rotation;
 }

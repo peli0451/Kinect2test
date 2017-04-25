@@ -30,9 +30,6 @@ public:
 
 	GestureRecognition();
 private:
-	ControlHand controlHand;
-	ControlHand risenHand;
-
 	const int GESTURE_COUNT = 4;
 	Gesture recognizedGesture;
 	const int GESTURE_BUFFER_SIZE = 10;

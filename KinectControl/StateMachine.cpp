@@ -255,7 +255,10 @@ void StateMachine::compute() {
 		// übertrage Werte von Kinect Vector4 in Eigen Quaternion
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
 		if (lastHandOrientationInitialized) { // nur rotieren, wenn lastHandOrientation initialisiert ist
-			rotationBuffer->push(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
+			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * lastHandOrientation.inverse()); // Quaternion-Mult. ist Rotation von last auf current
+			orientationDiffAA.angle = max(orientationDiffAA.angle, -0.1); // 0.1 ist größte plausible Rotation für einen Frame (im Bogenmaß)
+			orientationDiffAA.angle = min(orientationDiffAA.angle, 0.1); // in beide Rotationsrichtungen
+			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
 			getMotionParameters().setRotation(smoothRotation(rotationBuffer));
 		}
 		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);

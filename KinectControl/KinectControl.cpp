@@ -60,6 +60,10 @@ void KinectControl::init(ControlWidget *_widget) {
 	for (int i = 0; i < POS_BUFFER_SIZE; i++) {
 		smoothingSum += smoothingFactor[i];
 	}
+	rotationSmoothingSum = 0;
+	for (int i = 0; i < ROT_BUFFER_SIZE; i++) {
+		rotationSmoothingSum += rotationSmoothingFactor[i];
+	}
 	//[deprecated] Initialisierung der motionParameters
 	//stateMachine.getMotionParameters().resetMotion();
 }
@@ -104,7 +108,7 @@ Eigen::Quaternionf KinectControl::smoothRotation(Buffer<Eigen::Quaternionf> *buf
 	Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity();
 	for (int i = buffer->end(); i >= 0; i--) {
 		Eigen::Quaternionf *cur_rot = buffer->get(i);
-		float smoothing = smoothingFactor[i] / smoothingSum; // verwendet zurzeit dieselben faktoren wie die Positionsglättung
+		float smoothing = rotationSmoothingFactor[i] / rotationSmoothingSum;
 		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
 		rotation *= downscaled_rot;
 	}

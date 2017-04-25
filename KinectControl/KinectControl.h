@@ -75,6 +75,8 @@ class KinectControl {
 		Buffer<Eigen::Quaternionf> *rotationBuffer; 
 		float smoothingFactor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 		float smoothingSum;
+		float rotationSmoothingFactor[10] = { 1, 1.5, 2.25, 3.375, 5.0625, 7.6, 11.39, 17.086, 25.63, 38.44 };
+		float rotationSmoothingSum;
 
 		CameraSpacePoint* smoothSpeed(Buffer<CameraSpacePoint>* buffer);
 		Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer);

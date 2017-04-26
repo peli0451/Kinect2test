@@ -228,7 +228,7 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::eventLoop()
 {
-	KinectControl::MotionParameters motionParameters = kinectControl.run();
+	MotionParameters motionParameters = kinectControl.run();
 	
 	// TODO speed configurable
 	float time = m_timer.restart() * m_cameraSpeed;
@@ -239,11 +239,11 @@ void GLWidget::eventLoop()
 
 	//if (m_pressedKeys[Qt::Key::Key_X])
 		dir += trans_strength * m_camera.getRotation()._transformVector(DirectGL::Vector3f(
-			motionParameters.translateX,
-			motionParameters.translateY,
-			motionParameters.translateZ)
+			motionParameters.getTranslateX(),
+			motionParameters.getTranslateY(),
+			motionParameters.getTranslateZ())
 		);
-		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.rotate);
+		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.getRotation());
 	/*
 	//Debug-Ausgabe
 	if(motionParameters.translateX != 0 || motionParameters.translateY != 0 || motionParameters.translateZ != 0) {
@@ -261,9 +261,9 @@ void GLWidget::eventLoop()
 	if (m_pressedKeys[Qt::Key::Key_A])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(-time, 0.f, 0.f));
 
-	if (motionParameters.target == KinectControl::MotionTarget::TARGET_CAMERA) {
+	if (motionParameters.getTarget() == MotionParameters::MotionTarget::TARGET_CAMERA) {
 		m_camera.translate(DirectGL::Translation3f(dir));
-		m_camera.rotateLocal(motionParameters.rotate);
+		m_camera.rotateLocal(motionParameters.getRotation());
 	}
 	else {
 		picked_model->getTransformation().translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?

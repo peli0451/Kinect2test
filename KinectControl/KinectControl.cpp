@@ -131,7 +131,7 @@ MotionParameters KinectControl::run() {
 	result = bodyFrame->GetAndRefreshBodyData(numberOfTrackedBodies, trackedBodies); //Update für bodies-Array
 	if (result != S_OK) {
 		bodyFrame->Release();
-		return  motionParameters;
+		return motionParameters;
 	}
 
 	//TODO hier noch alte, primitive Mastererkennung
@@ -166,10 +166,10 @@ MotionParameters KinectControl::run() {
 
 
 		//Hole Gelenkobjekte und wichtige Positionen des Masters
-		Joint* joints;
+		Joint joints[JointType_Count];
 		trackedBodies[master.getId()]->GetJoints(JointType_Count, joints);
 
-		JointOrientation* jointOrientations;
+		JointOrientation jointOrientations[JointType_Count];
 		trackedBodies[master.getId()]->GetJointOrientations(JointType_Count, jointOrientations);
 
 		HandState leftHandState;
@@ -183,7 +183,7 @@ MotionParameters KinectControl::run() {
 		master.setLeftHandState(leftHandState);
 		master.setRightHandState(rightHandState);
 		master.setLeftHandCurPos(joints[JointType::JointType_HandLeft].Position);
-		master.setRightHandCurPos(joints[JointType::JointType_HandLeft].Position);
+		master.setRightHandCurPos(joints[JointType::JointType_HandRight].Position);
 
 		Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
 		Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
@@ -219,6 +219,7 @@ MotionParameters KinectControl::run() {
 
 		
 		//Debug: Ausgabe des Zustands der State-Machine auf der Konsole
+		
 		switch (stateMachine.getState()) {
 		case StateMachine::State::IDLE: OutputDebugStringA("IDLE\n"); break;
 		case StateMachine::State::CAMERA_TRANSLATE: OutputDebugStringA("CAMERA_TRANSLATE\n"); break;
@@ -226,11 +227,18 @@ MotionParameters KinectControl::run() {
 		case StateMachine::State::OBJECT_MANIPULATE: OutputDebugStringA("OBJECT_MANIPULATE\n"); break;
 		default: break; }
 		
+
 		
 	}
 
 	// Frame - Speicher freigeben
 	bodyFrame->Release();
+
+	/*
+	OutputDebugStringA("KINECT CONTROL MP:\t");
+	OutputDebugStringA(std::to_string(stateMachine.getMotionParameters().getTranslateX()).c_str());
+	OutputDebugStringA("\n\n");
+	*/
 
 	return stateMachine.getMotionParameters();
 }

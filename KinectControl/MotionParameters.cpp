@@ -70,3 +70,23 @@ void MotionParameters::resetTranslation() {
 void MotionParameters::resetRotation() {
 	setRotation(Eigen::Quaternionf::Identity());
 }
+
+float MotionParameters::getTranslateX() {
+	return translateX;
+}
+
+float MotionParameters::getTranslateY() {
+	return translateY;
+}
+
+float MotionParameters::getTranslateZ() {
+	return translateZ;
+}
+
+Eigen::Quaternionf MotionParameters::getRotation() {
+	return rotate;
+}
+
+MotionParameters::MotionTarget MotionParameters::getTarget() {
+	return target;
+}

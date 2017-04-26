@@ -9,9 +9,7 @@
 #include "StateMachine.h"
 #include "MotionParameters.h"
 
-class ControlWidget {
-public: virtual void pickModel(float x, float y) {};
-};
+class ControlWidget;
 
 class KinectControl {
 	public:

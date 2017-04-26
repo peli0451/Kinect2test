@@ -16,6 +16,13 @@ public:
 	void resetTranslation();
 	void resetRotation();
 
+	float getTranslateX();
+	float getTranslateY();
+	float getTranslateZ();
+	Eigen::Quaternionf getRotation();
+	MotionTarget getTarget();
+
+	MotionParameters();
 private:
 	float translateX;
 	float translateY;

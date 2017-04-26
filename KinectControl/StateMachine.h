@@ -45,12 +45,12 @@ private:
 	Person master;
 
 	const float smoothingFactor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
-	const float smoothingSum = 511; //Summe obiger Einträge
+	const float smoothingSum = 511.0f; //Summe obiger Einträge
 
 	const float rotationSmoothingFactor[10] = { 1.f, 1.5f, 2.25f, 3.375f, 5.0625f, 7.6f, 11.39f, 17.086f, 25.63f, 38.44f };
-	const float rotationSmoothingSum = 113.3335; //Summe obiger Einträge
+	const float rotationSmoothingSum = 113.3335f; //Summe obiger Einträge
 
-	CameraSpacePoint* smoothSpeed(Buffer<CameraSpacePoint>* buffer);
+	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);
 	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer);
 
 	ControlWidget *widget;

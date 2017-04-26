@@ -153,6 +153,7 @@ void StateMachine::bufferGestureConfidence() {
 	default: break;
 	}
 
+	/*
 	OutputDebugStringA(std::to_string(newConfidence.unknownConfidence).c_str());
 	OutputDebugStringA("\t");
 	OutputDebugStringA(std::to_string(newConfidence.translateCameraConfidence).c_str());
@@ -161,6 +162,7 @@ void StateMachine::bufferGestureConfidence() {
 	OutputDebugStringA("\t");
 	OutputDebugStringA(std::to_string(newConfidence.grabConfidence).c_str());
 	OutputDebugStringA("\t");
+	*/
 
 	//Berechnete Konfidenzien in den Pufferschreiben
 	gestureRecognition.getConfidenceBuffer()->push(newConfidence);
@@ -173,6 +175,7 @@ void StateMachine::bufferGestureConfidence() {
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
 */
 void StateMachine::compute() {
+	//TODO: die folgenden drei "sind konstant", muss man sich nicht ständig holen
 	Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
 	Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
 	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
@@ -187,19 +190,17 @@ void StateMachine::compute() {
 	case State::CAMERA_TRANSLATE:
 		switch (recognizedGesture) {
 		case GestureRecognition::Gesture::ROTATE_GESTURE:
-			getMotionParameters().resetTranslation();
 			break;
 		case GestureRecognition::Gesture::TRANSLATE_GESTURE: {
-			CameraSpacePoint smoothenedLeftHandPosition = *smoothSpeed(leftHandPositionBuffer);
-			CameraSpacePoint smoothenedRightHandPosition = *smoothSpeed(rightHandPositionBuffer);
+			CameraSpacePoint smoothenedLeftHandPosition = smoothSpeed(leftHandPositionBuffer);
+			CameraSpacePoint smoothenedRightHandPosition = smoothSpeed(rightHandPositionBuffer);
 			float translateX = (smoothenedLeftHandPosition.X + smoothenedRightHandPosition.X) / 2;
 			float translateY = (smoothenedLeftHandPosition.Y + smoothenedRightHandPosition.Y) / 2;
 			float translateZ = (smoothenedLeftHandPosition.Z + smoothenedRightHandPosition.Z) / 2;
-			getMotionParameters().setTranslation(translateX, translateY, translateZ);
+			motionParameters.setTranslation(translateX, translateY, translateZ);
 			break;
 		}
 		default:
-			getMotionParameters().resetMotion();
 			break;
 		}
 		break;
@@ -215,6 +216,11 @@ void StateMachine::compute() {
 			origin_axis.normalize();
 			// origin_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im letzten Frame
 
+			OutputDebugStringA(std::to_string(leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->X).c_str());
+			OutputDebugStringA("\t");
+			OutputDebugStringA(std::to_string(rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X).c_str());
+			OutputDebugStringA("\n");
+
 			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
 			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
 			target_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z;
@@ -226,22 +232,12 @@ void StateMachine::compute() {
 			rotation_axis.normalize(); // nicht sicher, ob das notwendig ist, weil die Ursprungsvektoren ja normiert waren
 			Eigen::AngleAxisf rot(std::acos(origin_axis.dot(target_axis)), rotation_axis); // Rotation wird beschrieben durch Winkel und Rotationsachse
 			rotationBuffer->push(Eigen::Quaternionf(rot));
-			getMotionParameters().setRotation(smoothRotation(rotationBuffer));
-
-			/* // ursprünglicher Ansatz
-			Eigen::Matrix3f rot1 = getRotationMatrix(origin_axis).inverse(); // rot1 ist die Rotationsmatrix, die origin_axis auf den 1. Einheitsvektor dreht
-			Eigen::Matrix3f rot2 = getRotationMatrix(target_axis); // rot2 ist die Rotationsmatrix, die den 1. Einheitsvektor auf target_axis dreht
-			Eigen::Matrix3f rot3 = rot2 * rot1.inverse(); // rot3 ist die Gesamtrotation (wenn es genau falsch herum rotiert, rot3 invertieren ;) )
-			// Quelle für den Lösungsansatz: http://matheplanet.com/default3.html?call=viewtopic.php?topic=64323 Antwort 1
-			setRotation(Eigen::Quaternionf(rot3));
-			*/
+			motionParameters.setRotation(smoothRotation(rotationBuffer));
 			break;
 		}
 		case GestureRecognition::Gesture::TRANSLATE_GESTURE:
-			getMotionParameters().resetRotation();
 			break;
 		default:
-			getMotionParameters().resetMotion();
 			break;
 		}
 		break;
@@ -251,12 +247,12 @@ void StateMachine::compute() {
 		// Bewegung
 		CameraSpacePoint smoothenedHandPosition;
 		if (master.getControlHand() == GestureRecognition::ControlHand::HAND_LEFT) { // welche Hand wird zum Bewegen verwendet?
-			smoothenedHandPosition = *smoothSpeed(leftHandPositionBuffer);
+			smoothenedHandPosition = smoothSpeed(leftHandPositionBuffer);
 		}
 		else {
-			smoothenedHandPosition = *smoothSpeed(rightHandPositionBuffer);
+			smoothenedHandPosition = smoothSpeed(rightHandPositionBuffer);
 		}
-		getMotionParameters().setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
+		motionParameters.setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
 
 		// Rotation
 		Eigen::Quaternionf currentHandOrientation = Eigen::Quaternionf::Identity();
@@ -271,24 +267,31 @@ void StateMachine::compute() {
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
 		if (master.isLastHandOrientationInitialized()) { // nur rotieren, wenn lastHandOrientation initialisiert ist
 			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
-			orientationDiffAA.angle = max(orientationDiffAA.angle, -0.1); // 0.1 ist größte plausible Rotation für einen Frame (im Bogenmaß)
-			orientationDiffAA.angle = min(orientationDiffAA.angle, 0.1); // in beide Rotationsrichtungen
+			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -0.1f); // 0.1 ist größte plausible Rotation für einen Frame (im Bogenmaß)
+			orientationDiffAA.angle() = min(orientationDiffAA.angle(), 0.1f); // in beide Rotationsrichtungen
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
-			getMotionParameters().setRotation(smoothRotation(rotationBuffer));
+			motionParameters.setRotation(smoothRotation(rotationBuffer));
 		}
 		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
+		/*
 		OutputDebugStringA(std::to_string(aa.axis().x()).c_str()); OutputDebugStringA("\t");
 		OutputDebugStringA(std::to_string(aa.axis().y()).c_str()); OutputDebugStringA("\t");
 		OutputDebugStringA(std::to_string(aa.axis().z()).c_str()); OutputDebugStringA("\t");
 		OutputDebugStringA(std::to_string(aa.angle()).c_str());
 		OutputDebugStringA("\n");
+		*/
 		master.setLastHandOrientation(currentHandOrientation);
-		master.setLastHandOrientationInitialized = true;
+		master.setLastHandOrientationInitialized(true);
 		break;
 	}
 	default:
 		break;
 	}
+	/*
+	OutputDebugStringA("STATE MACHINE MP:\t");
+	OutputDebugStringA(std::to_string(motionParameters.getTranslateX()).c_str());
+	OutputDebugStringA("\n");
+	*/
 }
 
 /**
@@ -298,6 +301,7 @@ void StateMachine::switchState() {
 	State currentState = getState();
 	GestureRecognition::Gesture recognizedGesture = gestureRecognition.getRecognizedGesture();
 	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
+	State newState = currentState;
 
 	switch (currentState) {
 	case IDLE:		//Fallthrough
@@ -310,12 +314,12 @@ void StateMachine::switchState() {
 			for (int i = 0; i < Person::ROT_BUFFER_SIZE; i++) {
 				rotationBuffer->push(Eigen::Quaternionf::Identity());
 			}
-			getMotionParameters().setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
-			setState(CAMERA_ROTATE);
+			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
+			newState = CAMERA_ROTATE;
 			break;
 		case GestureRecognition::Gesture::TRANSLATE_GESTURE:
-			getMotionParameters().setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
-			setState(CAMERA_TRANSLATE);
+			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
+			newState = CAMERA_TRANSLATE;
 			break;
 		case GestureRecognition::Gesture::GRAB_GESTURE:
 			if (currentState != OBJECT_MANIPULATE)
@@ -326,19 +330,22 @@ void StateMachine::switchState() {
 				rotationBuffer->push(Eigen::Quaternionf::Identity());
 			}
 			widget->pickModel(0, 0); // löst Ray cast im widget aus
-			getMotionParameters().setTarget(MotionParameters::MotionTarget::TARGET_OBJECT);
-			setState(OBJECT_MANIPULATE);
+			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_OBJECT);
+			newState = OBJECT_MANIPULATE;
 			break;
 		default:
-			getMotionParameters().setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
-			setState(IDLE);//Zustand nicht wechseln
-			getMotionParameters().resetMotion();
+			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
+			newState = IDLE;//Zustand nicht wechseln
+			motionParameters.resetMotion();
 			break;
 		}
 		break;
 	default:
 		break;
 	}
+
+	setState(newState);
+	if (newState != currentState) motionParameters.resetMotion();
 }
 
 
@@ -347,7 +354,7 @@ void StateMachine::switchState() {
 *
 * @param buffer Puffer für Positionen
 */
-CameraSpacePoint* StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
+CameraSpacePoint StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
 	CameraSpacePoint speedPoint = { 0,0,0 };
 	// läuft atm vom ältesten zum jüngsten, deshalb schleife absteigend
 	for (int i = buffer->end(); i >= 1; i--) {
@@ -370,7 +377,7 @@ CameraSpacePoint* StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
 		speedPoint.Y += (curPoint->Y - nextPoint->Y) * smoothing;
 		speedPoint.Z += (curPoint->Z - nextPoint->Z) * smoothing;
 	}
-	return &speedPoint;
+	return speedPoint;
 }
 
 /**

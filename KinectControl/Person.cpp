@@ -180,7 +180,7 @@ void Person::setLastHandOrientationInitialized(bool val) {
 }
 
 bool Person::isLastHandOrientationInitialized() {
-	return isLastHandOrientationInitialized;
+	return lastHandOrientationInitialized;
 }
 
 

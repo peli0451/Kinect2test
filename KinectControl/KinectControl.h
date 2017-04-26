@@ -32,6 +32,4 @@ class KinectControl {
 
 		//State-Machine für KinectControl
 		StateMachine stateMachine;
-
-		int compareToMasterProperties(Person::BodyProperties* propertiesForComparison);
 };

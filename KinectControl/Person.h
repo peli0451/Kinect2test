@@ -6,28 +6,12 @@
 
 class Person {
 public:
-	struct BodyProperties {
-		// float headHeight;
-		// float neckHeight;
-		float neckToLeftShoulder;
-		float neckToRightShoulder;
-		float rightUpperArmLength;
-		float leftUpperArmLength;
-		float rightUpperLegLength;
-		float leftUpperLegLength;
-		float shoulderWidth;
-		float torsoLength;
-		float ratioBetweenTorsoLengthAndRightLeg;
-		float ratioBetweenTorsoLengthAndLeftLeg;
-		float ratioBetweenTorsoLengthAndShoulderWidth;
-	};
 
 	static const int POS_BUFFER_SIZE = 10;
 	static const int ROT_BUFFER_SIZE = 10;
+	static const int NUMBER_OF_BODY_PROPERTIES = 11;
 
 	Person();
-
-	void extractBodyProperties(BodyProperties* extractedBodyProperties);
 
 	void setId(int id);
 	int getId();
@@ -63,8 +47,6 @@ public:
 	Buffer<CameraSpacePoint>* getRightHandPosBuffer();
 	Buffer<Eigen::Quaternionf>* getRotationBuffer();
 
-	BodyProperties getBodyProperties();
-
 	void setLastHandOrientation(Eigen::Quaternionf orientation);
 	Eigen::Quaternionf getLastHandOrientation();
 	void setLastHandOrientationInitialized(bool val);
@@ -74,7 +56,20 @@ public:
 	GestureRecognition::ControlHand getControlHand();
 	void setRisenHand(GestureRecognition::ControlHand hand);
 	GestureRecognition::ControlHand getRisenHand();
+
+	void saveBodyProperties();
+	float compareBodyProperties(Joint* inputJoints);
+
 private:
+
+	enum BODY_PROPERTIES {NECK_TO_LEFT_SHOULDER, NECK_TO_RIGHT_SHOULDER, RIGHT_UPPER_ARM_LENGTH, 
+		LEFT_UPPER_ARM_LENGTH, RIGHT_UPPER_LEG_LENGTH, LEFT_UPPER_LEG_LENGTH, SHOULDER_WIDTH, 
+		TORSO_LENGTH, RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG, RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG,
+		RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH
+	};
+
+	void extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints);
+
 	int id;
 
 	_CameraSpacePoint leftHandCurrentPosition;
@@ -88,7 +83,7 @@ private:
 
 	float z;
 
-	BodyProperties bodyProperties;
+	float bodyProperties[NUMBER_OF_BODY_PROPERTIES];
 
 	Joint joints[JointType_Count];
 	JointOrientation jointOrientations[JointType_Count];

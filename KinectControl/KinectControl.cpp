@@ -61,49 +61,6 @@ float getSaneValue(float old, float fresh) {
 	return fresh; // Bewegungsdistanz liegt innerhalb der Schwelle
 }
 
-int KinectControl::compareToMasterProperties(Person::BodyProperties* propertiesForComparison) {
-	int matchedProperties = 0;
-	Person::BodyProperties masterProperties = stateMachine.getMaster().getBodyProperties();
-
-	//TODO Definitionen erstmal nur, damit kompilierbar, später ersetzen und woanders platzieren
-	const int ERROR_NTLS = 0;
-	const int ERROR_NTRS = 0;
-	const int ERROR_LUAL = 0;
-	const int ERROR_RUAL = 0;
-	const int ERROR_RULL = 0;
-	const int ERROR_SW = 0;
-	const int ERROR_TL = 0;
-	const int ERROR_RBTLALL = 0;
-	const int ERROR_RBTLARL = 0;
-	const int ERROR_RBTLASW = 0;
-
-	if (abs(propertiesForComparison->neckToLeftShoulder - masterProperties.neckToLeftShoulder) < ERROR_NTLS)
-		matchedProperties++;
-	if (abs(propertiesForComparison->neckToRightShoulder - masterProperties.neckToRightShoulder) < ERROR_NTRS)
-		matchedProperties++;
-	if (abs(propertiesForComparison->leftUpperArmLength - masterProperties.leftUpperArmLength) < ERROR_LUAL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->rightUpperArmLength - masterProperties.rightUpperArmLength) < ERROR_RUAL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->leftUpperLegLength - masterProperties.leftUpperLegLength) < ERROR_RULL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->shoulderWidth - masterProperties.shoulderWidth) < ERROR_SW)
-		matchedProperties++;
-	if (abs(propertiesForComparison->torsoLength - masterProperties.torsoLength) < ERROR_TL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndLeftLeg -
-		masterProperties.ratioBetweenTorsoLengthAndLeftLeg) < ERROR_RBTLALL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndRightLeg -
-		masterProperties.ratioBetweenTorsoLengthAndRightLeg) < ERROR_RBTLARL)
-		matchedProperties++;
-	if (abs(propertiesForComparison->ratioBetweenTorsoLengthAndShoulderWidth -
-		masterProperties.ratioBetweenTorsoLengthAndShoulderWidth) < ERROR_RBTLASW)
-		matchedProperties++;
-
-	return matchedProperties;
-}
-
 /**
 * Hole und bearbeite Frame, den Kinect liefert
 *

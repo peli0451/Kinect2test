@@ -216,10 +216,12 @@ void StateMachine::compute() {
 			origin_axis.normalize();
 			// origin_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im letzten Frame
 
+			/*
 			OutputDebugStringA(std::to_string(leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->X).c_str());
 			OutputDebugStringA("\t");
 			OutputDebugStringA(std::to_string(rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X).c_str());
 			OutputDebugStringA("\n");
+			*/
 
 			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
 			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
@@ -273,13 +275,7 @@ void StateMachine::compute() {
 			motionParameters.setRotation(smoothRotation(rotationBuffer));
 		}
 		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
-		/*
-		OutputDebugStringA(std::to_string(aa.axis().x()).c_str()); OutputDebugStringA("\t");
-		OutputDebugStringA(std::to_string(aa.axis().y()).c_str()); OutputDebugStringA("\t");
-		OutputDebugStringA(std::to_string(aa.axis().z()).c_str()); OutputDebugStringA("\t");
-		OutputDebugStringA(std::to_string(aa.angle()).c_str());
-		OutputDebugStringA("\n");
-		*/
+		
 		master.setLastHandOrientation(currentHandOrientation);
 		master.setLastHandOrientationInitialized(true);
 		break;
@@ -287,11 +283,6 @@ void StateMachine::compute() {
 	default:
 		break;
 	}
-	/*
-	OutputDebugStringA("STATE MACHINE MP:\t");
-	OutputDebugStringA(std::to_string(motionParameters.getTranslateX()).c_str());
-	OutputDebugStringA("\n");
-	*/
 }
 
 /**
@@ -363,15 +354,6 @@ CameraSpacePoint StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
 		CameraSpacePoint *curPoint = buffer->get(i);
 		CameraSpacePoint *nextPoint = buffer->get(i - 1);
 		float smoothing = smoothingFactor[i - 1] / smoothingSum;
-
-		/*
-		OutputDebugStringA(std::to_string(smoothing).c_str());
-		OutputDebugStringA("\t");
-		OutputDebugStringA(std::to_string(smoothing_factor[i-1]).c_str());
-		OutputDebugStringA("\t");
-		OutputDebugStringA(std::to_string(smoothing_sum).c_str());
-		OutputDebugStringA("\n");
-		*/
 
 		speedPoint.X += (curPoint->X - nextPoint->X) * smoothing;
 		speedPoint.Y += (curPoint->Y - nextPoint->Y) * smoothing;

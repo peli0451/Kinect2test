@@ -147,9 +147,9 @@ MotionParameters KinectControl::run() {
 			result = trackedBodies[i]->GetJoints(JointType_Count, joints);
 			if (SUCCEEDED(result)) {
 				//Falls Gelenke erfolgreich geholt
-				master.setJoints(joints);
-				_CameraSpacePoint headPosition = (stateMachine.getMaster().getJoints())[JointType::JointType_Head].Position;
-				if (headPosition.Z < stateMachine.getMaster().getZ()) {
+				_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
+				if (headPosition.Z < master.getZ()) {
+					master.setJoints(joints);
 					master.setId(i);
 					master.setZ(headPosition.Z);
 				}
@@ -219,7 +219,6 @@ MotionParameters KinectControl::run() {
 
 		
 		//Debug: Ausgabe des Zustands der State-Machine auf der Konsole
-		
 		switch (stateMachine.getState()) {
 		case StateMachine::State::IDLE: OutputDebugStringA("IDLE\n"); break;
 		case StateMachine::State::CAMERA_TRANSLATE: OutputDebugStringA("CAMERA_TRANSLATE\n"); break;
@@ -233,12 +232,6 @@ MotionParameters KinectControl::run() {
 
 	// Frame - Speicher freigeben
 	bodyFrame->Release();
-
-	/*
-	OutputDebugStringA("KINECT CONTROL MP:\t");
-	OutputDebugStringA(std::to_string(stateMachine.getMotionParameters().getTranslateX()).c_str());
-	OutputDebugStringA("\n\n");
-	*/
 
 	return stateMachine.getMotionParameters();
 }

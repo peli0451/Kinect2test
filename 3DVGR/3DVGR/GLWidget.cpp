@@ -244,14 +244,9 @@ void GLWidget::eventLoop()
 			motionParameters.getTranslateZ())
 		);
 		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.getRotation());
-	/*
+
 	//Debug-Ausgabe
-	if(motionParameters.translateX != 0 || motionParameters.translateY != 0 || motionParameters.translateZ != 0) {
-		OutputDebugStringA(("Translate =  " + std::to_string(motionParameters.translateX) + "  /  ").c_str());
-		OutputDebugStringA((std::to_string(motionParameters.translateY) + "  /  ").c_str());
-		OutputDebugStringA((std::to_string(motionParameters.translateZ) + "\n ").c_str());
-	}
-	*/
+
 	if (m_pressedKeys[Qt::Key::Key_W])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(0.f, 0.f, -time));
 	if (m_pressedKeys[Qt::Key::Key_S])

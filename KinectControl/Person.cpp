@@ -32,8 +32,6 @@ Person::Person()
 
 	z = FLT_MAX;
 
-	bodyProperties = { 0.f };
-
 	// Handpositionenbuffer
 	leftHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
 	rightHandPositionBuffer = new Buffer<CameraSpacePoint>(POS_BUFFER_SIZE);
@@ -164,12 +162,6 @@ Buffer<_CameraSpacePoint>* Person::getRightHandPosBuffer() {
 
 Buffer<Eigen::Quaternionf>* Person::getRotationBuffer() {
 	return rotationBuffer;
-}
-
-
-
-Person::BodyProperties Person::getBodyProperties() {
-	return bodyProperties;
 }
 
 

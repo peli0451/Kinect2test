@@ -13,3 +13,4 @@ KinectControl/x64
 .db
 .dvi
 .out
+doc/*.db

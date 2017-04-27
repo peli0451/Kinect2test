@@ -83,7 +83,7 @@ private:
 
 	float z;
 
-	float bodyProperties[NUMBER_OF_BODY_PROPERTIES];
+	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f };
 
 	Joint joints[JointType_Count];
 	JointOrientation jointOrientations[JointType_Count];

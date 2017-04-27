@@ -56,15 +56,18 @@ void GestureRecognition::recognize() {
 
 	//Gehe durch den Puffer und glätte alle Komponenten
 	for (int i = 0; i < GESTURE_BUFFER_SIZE; i++) {
+		float iSmoothFactor = gestureSmooth[i] / gestureSmoothSum;
 		currentConfidence = *confidenceBuffer->get(i);
-		finalConfidence.grabConfidence += currentConfidence.grabConfidence * gestureSmooth[i] / gestureSmoothSum;
-		finalConfidence.translateCameraConfidence += currentConfidence.translateCameraConfidence * gestureSmooth[i] / gestureSmoothSum;
-		finalConfidence.rotateCameraConfidence += currentConfidence.rotateCameraConfidence * gestureSmooth[i] / gestureSmoothSum;
-		finalConfidence.unknownConfidence += currentConfidence.unknownConfidence * gestureSmooth[i] / gestureSmoothSum;
+		finalConfidence.flyConfidence += currentConfidence.flyConfidence * iSmoothFactor;
+		finalConfidence.grabConfidence += currentConfidence.grabConfidence * iSmoothFactor;
+		finalConfidence.translateCameraConfidence += currentConfidence.translateCameraConfidence * iSmoothFactor;
+		finalConfidence.rotateCameraConfidence += currentConfidence.rotateCameraConfidence * iSmoothFactor;
+		finalConfidence.unknownConfidence += currentConfidence.unknownConfidence * iSmoothFactor;
 	}
 
 	//Werte aus, welche Komponente den höchsten Konfidenzwert hat
 	float maxConfidence = finalConfidence.unknownConfidence; Gesture maxConfidenceGesture = UNKNOWN;
+	if (maxConfidence < finalConfidence.flyConfidence) { maxConfidence = finalConfidence.flyConfidence; maxConfidenceGesture = FLY_GESTURE; }
 	if (maxConfidence < finalConfidence.grabConfidence) { maxConfidence = finalConfidence.grabConfidence; maxConfidenceGesture = GRAB_GESTURE; }
 	if (maxConfidence < finalConfidence.translateCameraConfidence) { maxConfidence = finalConfidence.translateCameraConfidence; maxConfidenceGesture = TRANSLATE_GESTURE; }
 	if (maxConfidence < finalConfidence.rotateCameraConfidence) { maxConfidence = finalConfidence.rotateCameraConfidence;  maxConfidenceGesture = ROTATE_GESTURE; }

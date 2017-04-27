@@ -19,7 +19,8 @@ public:
 		IDLE,
 		CAMERA_TRANSLATE,
 		CAMERA_ROTATE,
-		OBJECT_MANIPULATE
+		OBJECT_MANIPULATE,
+		FLY
 	};
 	
 	void setState(State newState);

@@ -234,10 +234,11 @@ void GLWidget::eventLoop()
 	float time = m_timer.restart() * m_cameraSpeed;
 	DirectGL::Vector3f dir(DirectGL::Vector3f::Zero());
 
+	//Zeitabhängige Anpassung
 	float trans_strength = time*100;
 	float rot_strength = time*50;
 
-	//if (m_pressedKeys[Qt::Key::Key_X])
+	//Extraktion Richtung aus MotionParameters
 		dir += trans_strength * m_camera.getRotation()._transformVector(DirectGL::Vector3f(
 			motionParameters.getTranslateX(),
 			motionParameters.getTranslateY(),
@@ -245,8 +246,13 @@ void GLWidget::eventLoop()
 		);
 		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.getRotation());
 
-	//Debug-Ausgabe
-
+	//Kamera-Reset per Leertaste
+	if (m_pressedKeys[Qt::Key::Key_Space]) {
+		m_camera.setPosition(DirectGL::Vector3f(.0f,.2f,.8f));
+		m_camera.setRotation(DirectGL::Rotation3f::Identity());
+	}
+	
+	//Bewegung per Tastatur
 	if (m_pressedKeys[Qt::Key::Key_W])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(0.f, 0.f, -time));
 	if (m_pressedKeys[Qt::Key::Key_S])
@@ -256,14 +262,17 @@ void GLWidget::eventLoop()
 	if (m_pressedKeys[Qt::Key::Key_A])
 		dir += m_camera.getRotation()._transformVector(DirectGL::Vector3f(-time, 0.f, 0.f));
 
+	//Bewegung per Motion-Parameters
 	if (motionParameters.getTarget() == MotionParameters::MotionTarget::TARGET_CAMERA) {
 		m_camera.translate(DirectGL::Translation3f(dir));
 		m_camera.rotateLocal(motionParameters.getRotation());
 	}
 	else {
-		picked_model->getTransformation().translate(DirectGL::Translation3f(dir)); //ist "dir" vernünftig für Models?
+		picked_model->getTransformation().translate(DirectGL::Translation3f(dir));
 		picked_model->getTransformation().rotateLocal(rot);
 	}
+
+	//Bewegung per Maus
 	if (m_mouseCapturing || use_special_controls)
 	{
 		handleCameraMovement();

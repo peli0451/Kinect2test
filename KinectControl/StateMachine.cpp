@@ -69,8 +69,8 @@ void StateMachine::bufferGestureConfidence() {
 	State currentState = getState();
 
 	//Ermittelter Konfidenzwert
-	GestureRecognition::GestureConfidence newConfidence = { 0,0,0,0 };
-	//Erinnerung Konfidenzschema: { unknown, translate, rotate, grab }
+	GestureRecognition::GestureConfidence newConfidence = { 0,0,0,0,0 };
+	//Erinnerung Konfidenzschema: { unknown, translate, rotate, grab, fly }
 
 
 	//Hilfsvariablen für Kombinationen von von Handstates
@@ -82,11 +82,17 @@ void StateMachine::bufferGestureConfidence() {
 	boolean bothHandsOpen = (leftHandOpen && rightHandOpen);
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
+	//Hilfsvariable für FLY_GESTURE
+	boolean handsTogetherInFront = abs(master.getLeftHandCurPos().X - master.getRightHandCurPos().X) < .1f &&
+		abs(master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y) < .1f &&
+		abs(master.getLeftHandCurPos().Z - master.getRightHandCurPos().Z) < .1f &&
+		abs(master.getLeftHandCurPos().Z - master.getJoints()[JointType_SpineMid].Position.Z) > .3f &&
+		abs(master.getRightHandCurPos().Z - master.getJoints()[JointType_SpineMid].Position.Z) > .3f;
+
+	//Hilfsvariablen für GRAB_GESTURE
 	boolean handRisen;
 	boolean risenHandOpen;
 	boolean risenHandUnknown;
-
-
 	if (master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y > .4) {
 		master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
 		handRisen = true;
@@ -109,47 +115,60 @@ void StateMachine::bufferGestureConfidence() {
 	//Je nach Zustand sind die Bewertungen der Trackingergebnisse anders zu bewerten
 	switch (currentState) {
 
-		//Zustand IDLE -> alle Gesten werden nur eindeutig betrachtet
+	//Zustand IDLE -> alle Gesten werden nur eindeutig betrachtet
 	case State::IDLE:
-		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
-		else newConfidence = { 1.f,.0f,.0f,.0f }; //Unbekannt
+		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
+		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
+		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt
 		break;
 
-		//Zustand TRANSLATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geöffneten Hand vermutlich ein Translate
+	//Zustand TRANSLATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geöffneten Hand vermutlich ein Translate
 	case State::CAMERA_TRANSLATE:
-		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
+		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
+		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
-			newConfidence = { .0f,1.f,.0f,.0f }; //sehr wahrscheinlich Translate
+			newConfidence = { .0f,1.f,.0f,.0f,.0f }; //sehr wahrscheinlich Translate
 		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .0f,.75f,.25f,.0f }; //doppeldeutig, halte Translate für wahrscheinlicher
-		else newConfidence = { .7f,.1f,.1f,.1f }; //Unbekannt
+			newConfidence = { .0f,.75f,.25f,.0f,.0f }; //doppeldeutig, halte Translate für wahrscheinlicher
+		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
 		break;
 
-		//Zustand ROTATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geschlossenen Hand vermutlich ein Rotate
+	//Zustand ROTATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geschlossenen Hand vermutlich ein Rotate
 	case State::CAMERA_ROTATE:
-		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
+		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
+		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
-			newConfidence = { .0f,.0f,1.f,.0f }; //sehr wahrscheinlich Rotate
+			newConfidence = { .0f,.0f,1.f,.0f,.0f }; //sehr wahrscheinlich Rotate
 		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .0f,.25f,.75f,.0f }; //doppeldeutig, halte Rotate für wahrscheinlicher
-		else newConfidence = { .7f,.1f,.1f,.1f }; //Unbekannt
+			newConfidence = { .0f,.25f,.75f,.0f,.0f }; //doppeldeutig, halte Rotate für wahrscheinlicher
+		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
 		break;
 
-		//Zustand MANIPULATE -> alle Gesten werden nur eindeutig betrachtet
+	//Zustand MANIPULATE -> alle Gesten werden nur eindeutig betrachtet
 	case State::OBJECT_MANIPULATE:
-		if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .4f, .0f, .0f, .6f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f }; //beide offen
-		else newConfidence = { .7f,.1f,.1f,.1f }; //Unbekannt
+		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
+		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .4f, .0f, .0f, .6f,.0f };
+		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
+		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
 		break;
 
+	//Zustand FLY -> alle Gesten werden nur eindeutig betrachtet
+	case State::FLY: // wie IDLE
+		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
+		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
+		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
+		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt
+		break;
+		break;
 	default: break;
 	}
 
@@ -185,7 +204,7 @@ void StateMachine::compute() {
 
 	switch (currentState) {
 	case State::IDLE:
-		//TODO
+		//keine Berechnung
 		break;
 	case State::CAMERA_TRANSLATE:
 		switch (recognizedGesture) {
@@ -280,6 +299,9 @@ void StateMachine::compute() {
 		master.setLastHandOrientationInitialized(true);
 		break;
 	}
+	case State::FLY:
+		//TODO FLY-Berechnung
+		break;
 	default:
 		break;
 	}
@@ -294,12 +316,7 @@ void StateMachine::switchState() {
 	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
 	State newState = currentState;
 
-	switch (currentState) {
-	case IDLE:		//Fallthrough
-	case CAMERA_TRANSLATE:	//Fallthrough
-	case OBJECT_MANIPULATE: // Fallthrough (TODO Fix)
-	case CAMERA_ROTATE:
-		switch (recognizedGesture) {
+	switch (recognizedGesture) {
 		case GestureRecognition::Gesture::ROTATE_GESTURE:
 			// Initialisiere den Rotationsbuffer mit (0,0,0,1)-Werten
 			for (int i = 0; i < Person::ROT_BUFFER_SIZE; i++) {
@@ -324,15 +341,15 @@ void StateMachine::switchState() {
 			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_OBJECT);
 			newState = OBJECT_MANIPULATE;
 			break;
-		default:
+		case GestureRecognition::Gesture::FLY_GESTURE:
+			newState = FLY;
+			motionParameters.resetMotion();
+			break;
+		default: //Übergang zu IDLE, entspricht UNKNOWN
 			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
 			newState = IDLE;//Zustand nicht wechseln
 			motionParameters.resetMotion();
 			break;
-		}
-		break;
-	default:
-		break;
 	}
 
 	setState(newState);

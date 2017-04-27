@@ -8,6 +8,7 @@ public:
 		TRANSLATE_GESTURE,
 		ROTATE_GESTURE,
 		GRAB_GESTURE,
+		FLY_GESTURE
 	};
 
 	struct GestureConfidence {
@@ -15,6 +16,7 @@ public:
 		float translateCameraConfidence;
 		float rotateCameraConfidence;
 		float grabConfidence;
+		float flyConfidence;
 	};
 
 	enum ControlHand {
@@ -30,7 +32,6 @@ public:
 
 	GestureRecognition();
 private:
-	const int GESTURE_COUNT = 4;
 	Gesture recognizedGesture;
 	const int GESTURE_BUFFER_SIZE = 10;
 	Buffer<GestureConfidence> *confidenceBuffer;

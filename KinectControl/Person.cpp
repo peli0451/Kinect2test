@@ -1,17 +1,6 @@
 #include "stdafx.h"
 #include "Person.h"
-
-
-const int ERROR_NTLS = 0;
-const int ERROR_NTRS = 0;
-const int ERROR_LUAL = 0;
-const int ERROR_RUAL = 0;
-const int ERROR_RULL = 0;
-const int ERROR_SW = 0;
-const int ERROR_TL = 0;
-const int ERROR_RBTLALL = 0;
-const int ERROR_RBTLARL = 0;
-const int ERROR_RBTLASW = 0;
+#include <cmath>
 
 /**********************************************************
 * Konstruktoren
@@ -38,6 +27,32 @@ Person::Person()
 
 	// Rotationenbuffer
 	rotationBuffer = new Buffer<Eigen::Quaternionf>(ROT_BUFFER_SIZE);
+
+	bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].min = 0.1f;
+	bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].max = 0.5f;
+	bodyPropertiesLimits[NECK_TO_RIGHT_SHOULDER].min = bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].min;
+	bodyPropertiesLimits[NECK_TO_RIGHT_SHOULDER].max = bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].max;
+	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min = 0.1f;
+	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max = 0.6f;
+	bodyPropertiesLimits[RIGHT_UPPER_ARM_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min;
+	bodyPropertiesLimits[RIGHT_UPPER_ARM_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max;
+	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min = 0.2f;
+	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max = 0.8f;
+	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min;
+	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max;
+	bodyPropertiesLimits[TORSO_LENGTH].min = 0.2f;
+	bodyPropertiesLimits[TORSO_LENGTH].max = 1.0f;	
+	bodyPropertiesLimits[SHOULDER_WIDTH].min = 0.2f;
+	bodyPropertiesLimits[SHOULDER_WIDTH].max = 0.7f;
+		
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].min = 0.5f;
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].max = 2.0f;
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG].min = bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].min;
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG].max = bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].max;
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH].min = 1.0f;
+	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH].max = 2.0f;
+
+	numberOfWeights = sizeof(bodyPropertiesWeights) / sizeof(float);
 }
 
 
@@ -223,22 +238,22 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint kneeRight = inputJoints[JointType::JointType_KneeRight].Position;
 
 
-	extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = sqrt(pow(shoulderLeft.X - neck.X, 2) +
-		pow(shoulderLeft.Y - neck.Y, 2) + pow(shoulderLeft.Z - neck.Z, 2));
-	extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = sqrt(pow(shoulderRight.X - neck.X, 2) +
-		pow(shoulderRight.Y - neck.Y, 2) + pow(shoulderRight.Z - neck.Z, 2));
-	extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2) +
-		pow(shoulderLeft.Y - elbowLeft.Y, 2) + pow(shoulderLeft.Z - elbowLeft.Z, 2));
-	extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderRight.X - elbowRight.X, 2) +
-		pow(shoulderRight.Y - elbowRight.Y, 2) + pow(shoulderRight.Z - elbowRight.Z, 2));
-	extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = sqrt(pow(hipLeft.X - kneeLeft.X, 2) +
-		pow(hipLeft.Y - kneeLeft.Y, 2) + pow(hipLeft.Z - kneeLeft.Z, 2));
-	extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = sqrt(pow(hipRight.X - kneeRight.X, 2) +
-		pow(hipRight.Y - kneeRight.Y, 2) + pow(hipRight.Z - kneeRight.Z, 2));
-	extractedBodyProperties[SHOULDER_WIDTH] = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2) +
-		pow(shoulderLeft.Y - shoulderRight.Y, 2) + pow(shoulderLeft.Z - shoulderRight.Z, 2));
-	extractedBodyProperties[TORSO_LENGTH] = sqrt(pow(spineShoulder.X - spineBase.X, 2) +
-		pow(spineShoulder.Y - spineBase.Y, 2) + pow(spineShoulder.Z - spineBase.Z, 2));
+	extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = sqrt(pow(shoulderLeft.X - neck.X, 2.0f) +
+		pow(shoulderLeft.Y - neck.Y, 2.0f) + pow(shoulderLeft.Z - neck.Z, 2.0f));
+	extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = sqrt(pow(shoulderRight.X - neck.X, 2.0f) +
+		pow(shoulderRight.Y - neck.Y, 2.0f) + pow(shoulderRight.Z - neck.Z, 2.0f));
+	extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2.0f) +
+		pow(shoulderLeft.Y - elbowLeft.Y, 2.0f) + pow(shoulderLeft.Z - elbowLeft.Z, 2.0f));
+	extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderRight.X - elbowRight.X, 2.0f) +
+		pow(shoulderRight.Y - elbowRight.Y, 2.0f) + pow(shoulderRight.Z - elbowRight.Z, 2.0f));
+	extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = sqrt(pow(hipLeft.X - kneeLeft.X, 2.0f) +
+		pow(hipLeft.Y - kneeLeft.Y, 2.0f) + pow(hipLeft.Z - kneeLeft.Z, 2.0f));
+	extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = sqrt(pow(hipRight.X - kneeRight.X, 2.0f) +
+		pow(hipRight.Y - kneeRight.Y, 2.0f) + pow(hipRight.Z - kneeRight.Z, 2.0f));
+	extractedBodyProperties[SHOULDER_WIDTH] = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2.0f) +
+		pow(shoulderLeft.Y - shoulderRight.Y, 2.0f) + pow(shoulderLeft.Z - shoulderRight.Z, 2.0f));
+	extractedBodyProperties[TORSO_LENGTH] = sqrt(pow(spineShoulder.X - spineBase.X, 2.0f) +
+		pow(spineShoulder.Y - spineBase.Y, 2.0f) + pow(spineShoulder.Z - spineBase.Z, 2.0f));
 
 	extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] =
 		extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[LEFT_UPPER_LEG_LENGTH];
@@ -254,16 +269,46 @@ void Person::saveBodyProperties()
 }
 
 
+
+
 float Person::compareBodyProperties (Joint* inputJoints) {
 	float propertiesForComparison[NUMBER_OF_BODY_PROPERTIES];
 	extractBodyProperties(propertiesForComparison, inputJoints);
-	
-	float confidence;
+	float deviation;
+	int weightIndex;
+
+	float sumOfWeights = 0.0f;
+	float confidence = 0.0f;
 
 	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
-		if (bodyProperties[i] < propertiesForComparison[i])	confidence += bodyProperties[i]/propertiesForComparison[i];
-		else confidence += propertiesForComparison[i]/bodyProperties[i];
+		if (propertiesForComparison[i] < bodyPropertiesLimits[i].min) {
+			deviation = bodyPropertiesLimits[i].min - propertiesForComparison[i];
+		}
+		else if (bodyProperties[i] <= bodyPropertiesLimits[i].max) {
+			deviation = 0.0f;
+		}
+		else {
+			deviation = propertiesForComparison[i] - bodyPropertiesLimits[i].max;
+		}
+
+		weightIndex = static_cast<int>(deviation*10.0f);
+
+		if (weightIndex >= numberOfWeights) {
+			weightIndex = numberOfWeights - 1;
+		}
+
+		sumOfWeights += bodyPropertiesWeights[weightIndex];
+
+		if (bodyProperties[i] < propertiesForComparison[i]) {
+			confidence += (bodyProperties[i] / propertiesForComparison[i]) * bodyPropertiesWeights[weightIndex];
+		}
+		else {
+			confidence += (propertiesForComparison[i] / bodyProperties[i]) * bodyPropertiesWeights[weightIndex];
+		}
 	}
-	
-	return confidence / NUMBER_OF_BODY_PROPERTIES;
+
+	if (sumOfWeights != 0.0f)
+		return confidence / sumOfWeights;
+	else
+		return 0.0f;
 }

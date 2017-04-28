@@ -61,14 +61,22 @@ public:
 	float compareBodyProperties(Joint* inputJoints);
 
 private:
+	struct Limits
+	{
+		float min;
+		float max;
+	};
 
-	enum BODY_PROPERTIES {NECK_TO_LEFT_SHOULDER, NECK_TO_RIGHT_SHOULDER, RIGHT_UPPER_ARM_LENGTH, 
-		LEFT_UPPER_ARM_LENGTH, RIGHT_UPPER_LEG_LENGTH, LEFT_UPPER_LEG_LENGTH, SHOULDER_WIDTH, 
-		TORSO_LENGTH, RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG, RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG,
+	enum BODY_PROPERTIES {NECK_TO_LEFT_SHOULDER, NECK_TO_RIGHT_SHOULDER, LEFT_UPPER_ARM_LENGTH,
+		RIGHT_UPPER_ARM_LENGTH, LEFT_UPPER_LEG_LENGTH, RIGHT_UPPER_LEG_LENGTH, SHOULDER_WIDTH,
+		TORSO_LENGTH, RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG, RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG,
 		RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH
 	};
 
-	void extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints);
+	Limits bodyPropertiesLimits[NUMBER_OF_BODY_PROPERTIES];
+	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f };
+	float bodyPropertiesWeights[6] = { 1.0f, 0.7f, 0.5f, 0.3f, 0.1, 0.0f };
+	int numberOfWeights;
 
 	int id;
 
@@ -83,8 +91,6 @@ private:
 
 	float z;
 
-	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f };
-
 	Joint joints[JointType_Count];
 	JointOrientation jointOrientations[JointType_Count];
 
@@ -98,4 +104,6 @@ private:
 
 	GestureRecognition::ControlHand controlHand;
 	GestureRecognition::ControlHand risenHand;
+
+	void extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints);
 };

@@ -2,30 +2,34 @@
 \defcounter {refsection}{0}\relax 
 \select@language {ngerman}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {1}Rahmenbedingungen}{2}
+\contentsline {section}{\numberline {1}Rahmenbedingungen}{2}{section.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {1.1}Grundlagen \& Technik}{2}
+\contentsline {subsection}{\numberline {1.1}Grundlagen \& Technik}{2}{subsection.1.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {1.2}Aufgabenstellung}{2}
+\contentsline {subsection}{\numberline {1.2}Aufgabenstellung}{2}{subsection.1.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {1.3}Eigenschaften der Kinect}{3}
+\contentsline {subsection}{\numberline {1.3}Eigenschaften der Kinect}{3}{subsection.1.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {2}Vor\IeC {\"u}berlegungen}{4}
+\contentsline {section}{\numberline {2}Vor\IeC {\"u}berlegungen}{4}{section.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {3}Entwurfsentscheidungen}{5}
+\contentsline {subsection}{\numberline {2.1}Priorisierung der Aufgaben}{5}{subsection.2.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.1}Der Master}{5}
+\contentsline {subsection}{\numberline {2.2}Aufgabenverteilung im Team}{5}{subsection.2.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{6}
+\contentsline {section}{\numberline {3}Entwurfsentscheidungen}{6}{section.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{6}
+\contentsline {subsection}{\numberline {3.1}Der Master}{6}{subsection.3.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{9}
+\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{6}{subsection.3.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{9}
+\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{9}{subsection.3.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{9}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{10}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{9}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{12}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{9}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{12}{subsection.4.1}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{12}{subsection.4.2}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.3}Einbinden}{12}{subsection.4.3}

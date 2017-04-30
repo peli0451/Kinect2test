@@ -9,6 +9,7 @@
 \usepackage{tikz-uml}
 \usepackage[backend=bibtex]{biblatex} 
 \addbibresource{literatur.bib}
+\usepackage[colorlinks]{hyperref}
 
 \newcommand*{\Title}{Projektseminar: Gestensteuerung einer 3D-Anwendung mittels Kinect}
 \newcommand{\Authors}{Mario Janke,\\Peter Lindner,\\Patrick Stäblein}
@@ -52,7 +53,6 @@
 	%
 	%
 \section{Vorüberlegungen}
-
 	Für unser Vorgehen zentral sind die folgenden beiden Bereiche:
 	\begin{enumerate}
 		\item die technische Umsetzung, d.\,h.
@@ -81,11 +81,22 @@
 	\end{itemize}
 	Primitive Erkennungsmöglichkeiten eines Masters kann man etwa aus der Entfernung der getrackten Personen zur Kamera und der Position der Personen im Raum gewinnen. Genauere Erklärungen folgen weiter unten.\par 
 	Intuitive Gesten für Verschiebungen imitieren das Verschieben eines großen Gegenstands, etwa einer imaginären Box, sodass hier etwa ein Verschieben der flachen Hand in der Luft naheliegt. Für eine intuitive Drehgeste eignet sich die Vorstellung eines imaginären Lenkrads, genauer gesagt einer Lenkkugel, bei der die Rotation um eine Raumachse nach dem Lenkradprinzip erfolgt. Eine intuitive Geste zur Objektauswahl ist offenbar eine Greifgeste.
+	\subsection{Priorisierung der Aufgaben}
+	%TODO
+	\subsection{Aufgabenverteilung im Team}
+	%TODO
+	Grob:
+		Mario -- Algorithmik und Berechnung;
+		Peter -- Backend, Struktur;
+		Patrick -- Master, Kinect-Basics;
+	Anmerkung, dass wir zu viert angefangen haben.
 	%
 	%
 \section{Entwurfsentscheidungen}
 	\input{sections/master}
 	\input{sections/gesten}
+	\input{sections/zustandsmaschine}
+	\input{sections/robustheit}
 %
 %
 \section{Bemerkungen zum Quellcode}

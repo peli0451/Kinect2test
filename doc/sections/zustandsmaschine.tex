@@ -1,17 +1,16 @@
 \subsection{Zustandsmaschine}
-	Durch die Grundmodi \glqq Kameramanipulation\grqq~und \glqq Objektmanipulation\grqq~werden zwei Superzustände definiert, innerhalb deren die erkannte Geste die Aktionen bestimmt. Da je erkannter Geste andere Arbeit geleistet wird, bietet es sich an, diese wiederum in Zustände zu kapseln. Von außen folgt unser Tool daher dem folgenden groben Schema:
-	\begin{itemize}
-	\item Aufruf aus Hauptprogramm
-	\item Auswertung der Kinectdaten
-	\item Gestenerkennung
-	\item Berechnung im aktuellen Zustand
-	\item Etwaiger Zustandswechsel
-	\end{itemize}
-	Die letztendlichen Zustände und das dazugehörige Zusammenspiel sind ein Ergebnis unserer Überlegungen zusammen mit dem Feedback, das wir aus unseren vielen Tests gewonnen haben. Ursprüunglich war es angedacht, lediglich zwischen einem Kamera- und einem Objektzustand zu unterscheiden, also einem Zustand zur Kamera- und einem zur Objektmanipulation, wobei dann die entsprechende Geste bestimmt, wie manipuliert wird. Die oben genannten Subzustände haben sich dann aus den Betrachtungen zur Einfachheit und Intuitivität ergeben. Im Folgenden stellen wir die Zustände unserer Zustandsmaschine vor und geben dabei an, was jeweils berechnet wird und einen Zustandswechsel herbeiführt.
-	\begin{description} %TODO !
-		\item[CAMERA\_IDLE] Zweck dieses Zustands ist es, eine Art Default-Zustand bereitzustellen, in dem keine Kamera- und auch keine Objektmanipulation vorgenommen wird. Der Zustand wird betreten, wenn keine der vordefinierten Gesten sicher genug erkannt wurde. Durch Ausführung der entsprechenden Gesten gelangt man zurück in die anderen Zustände.
-		\item[CAMERA\_TRANSLATE] In diesem Zustand werden gemäß der oben erklärten Geste die Parameter zur Kamerabewegung bestimmt. Wir berechnen dazu aus den gepufferten Positionswerten von linker und rechter Hand die diskrete Ableitung, die uns ein Maß für die Geschwindigkeit der Bewegung liefert. Ebenso erhält man daraus die Richtung, in die die Hände bewegt wurden. Aus diesen Größen berechnen wir Translationsparameter für die $x$"=, $y$"= und $z$"=Richtungen, die für diesen Zustand unsere \texttt{motionParameters} definieren.
-		\item[CAMERA\_ROTATE] Analog wird nun in diesem Zustand die Rotation vorbereitet.
+	Das Programm besteht aus zwei Grundmodi der Manipulation: Einerseits der Manipulation der Kamera und andererseits jener des Objekts. Wir können diese beide Modi als zwei Superzustände auffassen, innerhalb derer sich wiederum unterscheidet, auf welche Art und Weise wir manipulieren. Die Zustandsmaschine dient einerseits der Kapselung und Modularisierung der von uns bereitgestellten Funktionen und bildet andererseits die Struktur unserer Manipulationsmodi abstrakt ab.\par 
+	Die Zustandsmaschine befindet sich zu jedem Zeitpunkt in einem Zustand. In diesem Zustand findet eine Berechnung der Parameter statt, die unser Programm zurückgibt, die wiederum die Manipulation beschreiben, die ausgeführt werden soll. Dies geschieht durch Auswertung der gesehenen Geste und die Berechnung entscheidender Größen, u.\,U. unter Einbeziehung der Werte vergangener Frames. Schließlich erfolgt basierend auf der präsentierten Geste ein Zustandswechsel am Ende eines Berechnungsschritts. Die Zustandsmaschine ist in Abb. \ref{fig:sm} zu sehen. Im Folgenden erklären wir die Zustände, ihre Semantik und die enthaltenen Berechnungen etwas näher:
+	\begin{description}
+		\item[IDLE] Dieser Zustand entspricht dem Initialzustand unserer Zustandsmachine. Er ist eine Art Default-Zustand, in dem keine Kamera- und auch keine Objektmanipulation (genauer: keine Berechnung überhaupt) vorgenommen wird. Der Zustand wird betreten, wenn keine der vordefinierten Gesten sicher genug erkannt wurde. Durch Ausführung der entsprechenden Gesten gelangt man zurück in die anderen Zustände.
+		\item[CAMERA\_TRANSLATE] Dieser Zustand gehört zur Kameramanipulation. In ihm werden gemäß der oben erklärten Geste die Parameter zur Kamerabewegung bestimmt. Wir berechnen dazu aus den gepufferten Positionswerten von linker und rechter Hand die diskrete Ableitung, die uns ein Maß für die Geschwindigkeit der Bewegung liefert. Ebenso erhält man daraus die Richtung, in die die Hände bewegt wurden. Aus diesen Größen berechnen wir Translationsparameter für die $x$"=, $y$"= und $z$"=Richtungen, die für diesen Zustand unsere \texttt{motionParameters} definieren. %TODO
+		\item[CAMERA\_ROTATE] Dieser Zustand gehört ebenfalls zur Kameramanipulation. Analog zu oben wird hier die Rotation vorbereitet. %TODO
+		\item[FLY] Dieser Zustand wurde nachträglich eingeführt, als die Notwendigkeit eines Flug-Modus deutlich wurde. Er wird mittels Vorführung der FLY"=Geste betreten und analog zu den anderen Zuständen verlassen. %TODO
 	\end{description}
-	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt ???? zu finden. %TODO
+	Zur Verdeutlichung sei darauf hingewiesen, dass von jedem Zustand zu jedem anderen übergegangen werden kann, wobei dieser Übergang lediglich anhand erkannter Gesten erfolgt: Wird eine unserer Gesten erkannt (Details siehe Abschnitt \ref{sec:robustheit}), so wird der zugehörige Zustand betreten. Da unser Programm darauf ausgelegt ist, während des Event-Loops einer Hauptanwendung zu laufen, besteht die Zustandsmaschine ab ihres Starts permanent (bzw. bis zum Ende der Hauptanwendung) und besitzt keinen Finalzustand.\par
+	Genaueres zum Aussehen der State-Machine als Datenstruktur ist in Abschnitt \ref{sec:ds} zu finden.
+	\begin{figure}[h!]\label{fig:sm}
+	\centering
 	\input{statemachine}
+	\caption{Die Zustandsmaschine. Der nachträglich eingefügte Zustand FLY ist mit allen anderen Zuständen über die entsprechende Geste verbunden und wird von allen Zuständen durch Präsentieren der FLY-Geste erreicht. Aus Gründen der Übersichtlichkeit wurde auf das Einzeichnen dieser Kanten verzichtet.}
+	\end{figure}

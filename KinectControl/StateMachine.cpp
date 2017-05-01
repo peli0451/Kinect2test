@@ -56,6 +56,14 @@ void StateMachine::assignWidget(ControlWidget* _widget) {
 	widget = _widget;
 }
 
+Eigen::AngleAxisf getRotationAngleAxis(Eigen::Vector3f originAxis, Eigen::Vector3f targetAxis) {
+	Eigen::Vector3f rotationAxis;
+	rotationAxis = originAxis.cross(targetAxis); // Rotationsachse ist der zur von origin_ und target_axis aufgespannten Ebene orthogonale Vektor
+	rotationAxis.normalize();
+	Eigen::AngleAxisf rot(std::acos(originAxis.dot(targetAxis)), rotationAxis); // Rotation wird beschrieben durch Winkel und Rotationsachse
+	return rot;
+}
+
 
 /**********************************************************
 * Funktionen
@@ -248,10 +256,7 @@ void StateMachine::compute() {
 			target_axis.normalize();
 			// target_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im aktuellen Frame
 
-			Eigen::Vector3f rotation_axis;
-			rotation_axis = origin_axis.cross(target_axis); // Rotationsachse ist der zur von origin_ und target_axis aufgespannten Ebene orthogonale Vektor
-			rotation_axis.normalize(); // nicht sicher, ob das notwendig ist, weil die Ursprungsvektoren ja normiert waren
-			Eigen::AngleAxisf rot(std::acos(origin_axis.dot(target_axis)), rotation_axis); // Rotation wird beschrieben durch Winkel und Rotationsachse
+			Eigen::AngleAxisf rot = getRotationAngleAxis(origin_axis, target_axis);
 			rotationBuffer->push(Eigen::Quaternionf(rot));
 			motionParameters.setRotation(smoothRotation(rotationBuffer));
 			break;
@@ -300,7 +305,29 @@ void StateMachine::compute() {
 		break;
 	}
 	case State::FLY:
-		//TODO FLY-Berechnung
+		motionParameters.setTranslation(0.0f, 0.0f, FLY_TRANSLATION_FACTOR); // immer leichte Bewegung nach vorn
+
+		CameraSpacePoint *leftHandPosition = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
+		CameraSpacePoint *rightHandPosition = rightHandPositionBuffer->get(rightHandPositionBuffer->end());
+		CameraSpacePoint handPosition;
+		handPosition.X = (leftHandPosition->X + rightHandPosition->X) / 2;
+		handPosition.Y = (leftHandPosition->Y + rightHandPosition->Y) / 2;
+		handPosition.Z = (leftHandPosition->Z + rightHandPosition->Z) / 2;
+		CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
+		CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position;
+		CameraSpacePoint shoulderPosition; // mittlere Schulterposition, wenn notwendig puffern und filtern
+		shoulderPosition.X = (leftShoulderPosition.X + rightShoulderPosition.X) / 2;
+		shoulderPosition.Y = (leftShoulderPosition.Y + rightShoulderPosition.Y) / 2;
+		shoulderPosition.Z = (leftShoulderPosition.Z + rightShoulderPosition.Z) / 2;
+		
+		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
+		Eigen::Vector3f targetAxis;
+		targetAxis(0) = handPosition.X - shoulderPosition.X;
+		targetAxis(1) = handPosition.Y - shoulderPosition.Y;
+		targetAxis(2) = handPosition.Z - shoulderPosition.Z;
+		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
+		flyRotation.angle() *= FLY_ROTATION_FACTOR; 
+		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
 		break;
 	default:
 		break;
@@ -342,6 +369,7 @@ void StateMachine::switchState() {
 			newState = OBJECT_MANIPULATE;
 			break;
 		case GestureRecognition::Gesture::FLY_GESTURE:
+			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
 			newState = FLY;
 			motionParameters.resetMotion();
 			break;

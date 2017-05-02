@@ -304,7 +304,8 @@ void StateMachine::compute() {
 		master.setLastHandOrientationInitialized(true);
 		break;
 	}
-	case State::FLY:
+	case State::FLY: 
+	{
 		motionParameters.setTranslation(0.0f, 0.0f, FLY_TRANSLATION_FACTOR); // immer leichte Bewegung nach vorn
 
 		CameraSpacePoint *leftHandPosition = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
@@ -319,16 +320,17 @@ void StateMachine::compute() {
 		shoulderPosition.X = (leftShoulderPosition.X + rightShoulderPosition.X) / 2;
 		shoulderPosition.Y = (leftShoulderPosition.Y + rightShoulderPosition.Y) / 2;
 		shoulderPosition.Z = (leftShoulderPosition.Z + rightShoulderPosition.Z) / 2;
-		
+
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
 		Eigen::Vector3f targetAxis;
 		targetAxis(0) = handPosition.X - shoulderPosition.X;
 		targetAxis(1) = handPosition.Y - shoulderPosition.Y;
 		targetAxis(2) = handPosition.Z - shoulderPosition.Z;
 		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
-		flyRotation.angle() *= FLY_ROTATION_FACTOR; 
+		flyRotation.angle() *= FLY_ROTATION_FACTOR;
 		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
 		break;
+	}
 	default:
 		break;
 	}

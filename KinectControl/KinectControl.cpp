@@ -176,13 +176,15 @@ MotionParameters KinectControl::run() {
 
 		
 		//Debug: Ausgabe des Zustands der State-Machine auf der Konsole
+		/*
 		switch (stateMachine.getState()) {
 		case StateMachine::State::IDLE: OutputDebugStringA("IDLE\n"); break;
 		case StateMachine::State::CAMERA_TRANSLATE: OutputDebugStringA("CAMERA_TRANSLATE\n"); break;
 		case StateMachine::State::CAMERA_ROTATE: OutputDebugStringA("CAMERA_ROTATE\n"); break;
 		case StateMachine::State::OBJECT_MANIPULATE: OutputDebugStringA("OBJECT_MANIPULATE\n"); break;
+		case StateMachine::State::FLY: OutputDebugStringA("FLY\n"); break;
 		default: break; }
-		
+		*/
 
 		
 	}

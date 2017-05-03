@@ -91,11 +91,20 @@ void StateMachine::bufferGestureConfidence() {
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
 	//Hilfsvariable für FLY_GESTURE
+	Eigen::Vector3f leftVector;
+	leftVector(0) = master.getLeftHandCurPos().X - master.getJoints()[JointType_SpineShoulder].Position.X;
+	leftVector(1) = master.getLeftHandCurPos().Y - master.getJoints()[JointType_SpineShoulder].Position.Y;
+	leftVector(2) = master.getLeftHandCurPos().Z - master.getJoints()[JointType_SpineShoulder].Position.Z;
+
+	Eigen::Vector3f rightVector;
+	rightVector(0) = master.getRightHandCurPos().X - master.getJoints()[JointType_SpineShoulder].Position.X;
+	rightVector(1) = master.getRightHandCurPos().Y - master.getJoints()[JointType_SpineShoulder].Position.Y;
+	rightVector(2) = master.getRightHandCurPos().Z - master.getJoints()[JointType_SpineShoulder].Position.Z;
+
 	boolean handsTogetherInFront = abs(master.getLeftHandCurPos().X - master.getRightHandCurPos().X) < .1f &&
 		abs(master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y) < .1f &&
 		abs(master.getLeftHandCurPos().Z - master.getRightHandCurPos().Z) < .1f &&
-		abs(master.getLeftHandCurPos().Z - master.getJoints()[JointType_SpineMid].Position.Z) > .3f &&
-		abs(master.getRightHandCurPos().Z - master.getJoints()[JointType_SpineMid].Position.Z) > .3f;
+		leftVector.norm() > .3f && rightVector.norm() > .3f;
 
 	//Hilfsvariablen für GRAB_GESTURE
 	boolean handRisen;
@@ -323,12 +332,16 @@ void StateMachine::compute() {
 
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
 		Eigen::Vector3f targetAxis;
-		targetAxis(0) = handPosition.X - shoulderPosition.X;
-		targetAxis(1) = handPosition.Y - shoulderPosition.Y;
-		targetAxis(2) = handPosition.Z - shoulderPosition.Z;
+		targetAxis(0) = shoulderPosition.X - handPosition.X;
+		targetAxis(1) = shoulderPosition.Y - handPosition.Y;
+		targetAxis(2) = shoulderPosition.Z - handPosition.Z;
+		targetAxis.normalize();
 		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
 		flyRotation.angle() *= FLY_ROTATION_FACTOR;
 		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
+
+		OutputDebugStringA(std::to_string(flyRotation.angle()).c_str());
+		OutputDebugStringA("\n");
 		break;
 	}
 	default:
@@ -373,7 +386,6 @@ void StateMachine::switchState() {
 		case GestureRecognition::Gesture::FLY_GESTURE:
 			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
 			newState = FLY;
-			motionParameters.resetMotion();
 			break;
 		default: //Übergang zu IDLE, entspricht UNKNOWN
 			motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);

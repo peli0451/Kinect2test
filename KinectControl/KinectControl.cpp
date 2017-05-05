@@ -22,7 +22,9 @@ const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 * Konstruktoren
 **********************************************************/
 
-KinectControl::KinectControl() { }
+KinectControl::KinectControl() { 
+	masterDetermined = false;
+}
 
 
 
@@ -92,30 +94,35 @@ MotionParameters KinectControl::run() {
 	}
 
 	//TODO hier noch alte, primitive Mastererkennung
-	for (int i = 0; i < numberOfTrackedBodies; ++i)
-	{
-		BOOLEAN isTracked;
-		trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
+		for (int i = 0; i < numberOfTrackedBodies; i++)
+		{
+			BOOLEAN isTracked;
+			trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
 
-		//Tracking erkannter Personen, Identifikation des Masters
-		if (isTracked == TRUE) {
-			//Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
-			Joint joints[JointType_Count];
-			result = trackedBodies[i]->GetJoints(JointType_Count, joints);
-			if (SUCCEEDED(result)) {
-				//Falls Gelenke erfolgreich geholt
-				_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
-				if (headPosition.Z < master.getZ()) {
-					master.setJoints(joints);
-					master.setId(i);
-					master.setZ(headPosition.Z);
+			//Tracking erkannter Personen, Identifikation des Masters
+			if (isTracked == TRUE) {
+				//Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
+				Joint joints[JointType_Count];
+				result = trackedBodies[i]->GetJoints(JointType_Count, joints);
+				if (SUCCEEDED(result)) {
+					//Falls Gelenke erfolgreich geholt
+					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
+					if (masterDetermined) {
+						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
+						OutputDebugStringA("\n");
+					} else {
+						if (headPosition.Z < master.getZ()) {
+							master.setJoints(joints);
+							master.setId(i);
+							master.setZ(headPosition.Z);
+						}
+					}
+
 				}
-
 			}
 		}
-	}
 
-	stateMachine.setMaster(master);
+		stateMachine.setMaster(master);
 
 	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
 	//@TODO Mastererkennung mit Confidence, nicht direkt
@@ -193,4 +200,13 @@ MotionParameters KinectControl::run() {
 	bodyFrame->Release();
 
 	return stateMachine.getMotionParameters();
+}
+
+
+void KinectControl::assignMaster() {
+	Person master = stateMachine.getMaster();
+	master.saveBodyProperties();
+	stateMachine.setMaster(master);
+
+	masterDetermined = true;
 }

@@ -292,6 +292,7 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		}
 
 		weightIndex = static_cast<int>(deviation*10.0f);
+		OutputDebugStringA(std::to_string(weightIndex).c_str());
 
 		if (weightIndex >= numberOfWeights) {
 			weightIndex = numberOfWeights - 1;

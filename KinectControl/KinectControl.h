@@ -15,6 +15,7 @@ class KinectControl {
 	public:
 		void init(ControlWidget *_widget);
 		MotionParameters run();
+		void assignMaster();
 		KinectControl();
 	private:
 		//Kinect Basics
@@ -22,6 +23,7 @@ class KinectControl {
 		IBodyFrameSource *bodyFrameSource;
 		IBodyFrameReader *bodyFrameReader;
 
+		boolean masterDetermined;
 
 		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;

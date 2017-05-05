@@ -53,6 +53,8 @@ private:
 
 	const float FLY_TRANSLATION_FACTOR = -0.01f;
 	const float FLY_ROTATION_FACTOR = 0.01f;
+	const float FLY_SEGMENT2_DEGREE = 10.0f;
+	const float FLY_SEGMENT2_FACTOR = 1.5f;
 	const float OBJECT_MAX_ROTATION = 0.1f;
 
 	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);

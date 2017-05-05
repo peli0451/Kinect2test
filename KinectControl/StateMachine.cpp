@@ -3,7 +3,7 @@
 #include <iostream>
 #include "StateMachine.h"
 
-const float Pi = 3.14159;
+const float Pi = 3.14159f;
 
 /**********************************************************
 * Konstruktoren
@@ -332,17 +332,18 @@ void StateMachine::compute() {
 		CameraSpacePoint *rightHandPosition = rightHandPositionBuffer->get(rightHandPositionBuffer->end());
 		Eigen::Vector3f handPosition = (convToVec3(leftHandPosition) + convToVec3(rightHandPosition)) / 2;
 
-		CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
-		CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position; 
-		Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
+		//CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
+		//CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position; 
+		//Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
+		Eigen::Vector3f shoulderPosition = convToVec3(master.getJoints()[JointType::JointType_SpineShoulder].Position);
 
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), sp‰ter vllt Kˆrpernormale
 		Eigen::Vector3f targetAxis = shoulderPosition - handPosition;
 		targetAxis.normalize();
 		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
 		float rotationDegrees = radToDeg(flyRotation.angle());
-		if (rotationDegrees > 10) { // bei recht groﬂem Winkel st‰rkere Drehung als linear
-			rotationDegrees = ((rotationDegrees - 10) * 1.5) + 10;
+		if (rotationDegrees > FLY_SEGMENT2_DEGREE) { // bei recht groﬂem Winkel st‰rkere Drehung als linear
+			rotationDegrees = ((rotationDegrees - FLY_SEGMENT2_DEGREE) * FLY_SEGMENT2_FACTOR) + FLY_SEGMENT2_DEGREE;
 		}
 		flyRotation.angle() = degToRad(rotationDegrees);
 		flyRotation.angle() *= FLY_ROTATION_FACTOR;

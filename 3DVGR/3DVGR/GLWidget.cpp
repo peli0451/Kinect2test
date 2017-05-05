@@ -272,7 +272,9 @@ void GLWidget::eventLoop()
 	}
 	else {
 		picked_model->getTransformation().translate(DirectGL::Translation3f(dir));
-		picked_model->getTransformation().rotateLocal(rot);
+		Eigen::AngleAxisf rot_aa = Eigen::AngleAxisf(rot);
+		rot_aa.axis() = rot_aa.axis() * picked_model->getTransformation().getRotation().inverse();
+		picked_model->getTransformation().rotateLocal(Eigen::Quaternionf(rot_aa));
 	}
 
 	//Bewegung per Maus

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "StateMachine.h"
 
-
+const float Pi = 3.14159;
 
 /**********************************************************
 * Konstruktoren
@@ -64,6 +64,29 @@ Eigen::AngleAxisf getRotationAngleAxis(Eigen::Vector3f originAxis, Eigen::Vector
 	return rot;
 }
 
+float radToDeg(float rad) {
+	return (rad * 180 / Pi);
+}
+
+float degToRad(float deg) {
+	return (deg * Pi / 180);
+}
+
+Eigen::Vector3f convToVec3(CameraSpacePoint csp) {
+	Eigen::Vector3f vec;
+	vec(0) = csp.X;
+	vec(1) = csp.Y;
+	vec(2) = csp.Z;
+	return vec;
+}
+
+Eigen::Vector3f convToVec3(CameraSpacePoint *csp) {
+	Eigen::Vector3f vec;
+	vec(0) = csp->X;
+	vec(1) = csp->Y;
+	vec(2) = csp->Z;
+	return vec;
+}
 
 /**********************************************************
 * Funktionen
@@ -91,15 +114,8 @@ void StateMachine::bufferGestureConfidence() {
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
 	//Hilfsvariable für FLY_GESTURE
-	Eigen::Vector3f leftVector;
-	leftVector(0) = master.getLeftHandCurPos().X - master.getJoints()[JointType_SpineShoulder].Position.X;
-	leftVector(1) = master.getLeftHandCurPos().Y - master.getJoints()[JointType_SpineShoulder].Position.Y;
-	leftVector(2) = master.getLeftHandCurPos().Z - master.getJoints()[JointType_SpineShoulder].Position.Z;
-
-	Eigen::Vector3f rightVector;
-	rightVector(0) = master.getRightHandCurPos().X - master.getJoints()[JointType_SpineShoulder].Position.X;
-	rightVector(1) = master.getRightHandCurPos().Y - master.getJoints()[JointType_SpineShoulder].Position.Y;
-	rightVector(2) = master.getRightHandCurPos().Z - master.getJoints()[JointType_SpineShoulder].Position.Z;
+	Eigen::Vector3f leftVector = convToVec3(master.getLeftHandCurPos()) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
+	Eigen::Vector3f rightVector = convToVec3(master.getRightHandCurPos()) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
 
 	boolean handsTogetherInFront = abs(master.getLeftHandCurPos().X - master.getRightHandCurPos().X) < .1f &&
 		abs(master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y) < .1f &&
@@ -246,9 +262,7 @@ void StateMachine::compute() {
 
 			Eigen::Vector3f origin_axis;
 			Eigen::Vector3f target_axis; //TODO: Smoothing
-			origin_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X;
-			origin_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Y;
-			origin_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->Z;
+			origin_axis = convToVec3(leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)) - convToVec3(rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1));
 			origin_axis.normalize();
 			// origin_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im letzten Frame
 
@@ -258,10 +272,7 @@ void StateMachine::compute() {
 			OutputDebugStringA(std::to_string(rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1)->X).c_str());
 			OutputDebugStringA("\n");
 			*/
-
-			target_axis(0) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X;
-			target_axis(1) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y;
-			target_axis(2) = leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z - rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z;
+			target_axis = convToVec3(leftHandPositionBuffer->get(leftHandPositionBuffer->end())) - convToVec3(rightHandPositionBuffer->get(rightHandPositionBuffer->end()));
 			target_axis.normalize();
 			// target_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im aktuellen Frame
 
@@ -302,8 +313,8 @@ void StateMachine::compute() {
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
 		if (master.isLastHandOrientationInitialized()) { // nur rotieren, wenn lastHandOrientation initialisiert ist
 			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
-			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -0.1f); // 0.1 ist größte plausible Rotation für einen Frame (im Bogenmaß)
-			orientationDiffAA.angle() = min(orientationDiffAA.angle(), 0.1f); // in beide Rotationsrichtungen
+			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -OBJECT_MAX_ROTATION); //größte plausible Rotation für einen Frame (im Bogenmaß)
+			orientationDiffAA.angle() = min(orientationDiffAA.angle(), OBJECT_MAX_ROTATION); //in beide Rotationsrichtungen
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
 			motionParameters.setRotation(smoothRotation(rotationBuffer));
 		}
@@ -319,24 +330,21 @@ void StateMachine::compute() {
 
 		CameraSpacePoint *leftHandPosition = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
 		CameraSpacePoint *rightHandPosition = rightHandPositionBuffer->get(rightHandPositionBuffer->end());
-		CameraSpacePoint handPosition;
-		handPosition.X = (leftHandPosition->X + rightHandPosition->X) / 2;
-		handPosition.Y = (leftHandPosition->Y + rightHandPosition->Y) / 2;
-		handPosition.Z = (leftHandPosition->Z + rightHandPosition->Z) / 2;
+		Eigen::Vector3f handPosition = (convToVec3(leftHandPosition) + convToVec3(rightHandPosition)) / 2;
+
 		CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
-		CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position;
-		CameraSpacePoint shoulderPosition; // mittlere Schulterposition, wenn notwendig puffern und filtern
-		shoulderPosition.X = (leftShoulderPosition.X + rightShoulderPosition.X) / 2;
-		shoulderPosition.Y = (leftShoulderPosition.Y + rightShoulderPosition.Y) / 2;
-		shoulderPosition.Z = (leftShoulderPosition.Z + rightShoulderPosition.Z) / 2;
+		CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position; 
+		Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
 
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
-		Eigen::Vector3f targetAxis;
-		targetAxis(0) = shoulderPosition.X - handPosition.X;
-		targetAxis(1) = shoulderPosition.Y - handPosition.Y;
-		targetAxis(2) = shoulderPosition.Z - handPosition.Z;
+		Eigen::Vector3f targetAxis = shoulderPosition - handPosition;
 		targetAxis.normalize();
 		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
+		float rotationDegrees = radToDeg(flyRotation.angle());
+		if (rotationDegrees > 10) { // bei recht großem Winkel stärkere Drehung als linear
+			rotationDegrees = ((rotationDegrees - 10) * 1.5) + 10;
+		}
+		flyRotation.angle() = degToRad(rotationDegrees);
 		flyRotation.angle() *= FLY_ROTATION_FACTOR;
 		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
 

@@ -52,7 +52,8 @@ private:
 	const float rotationSmoothingSum = 113.3335f; //Summe obiger Einträge
 
 	const float FLY_TRANSLATION_FACTOR = -0.01f;
-	const float FLY_ROTATION_FACTOR = .01f;
+	const float FLY_ROTATION_FACTOR = 0.01f;
+	const float OBJECT_MAX_ROTATION = 0.1f;
 
 	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);
 	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer);

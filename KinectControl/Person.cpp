@@ -2,6 +2,8 @@
 #include "Person.h"
 #include <cmath>
 
+#define DEBUG_BODY_PROPERTIES
+
 /**********************************************************
 * Konstruktoren
 **********************************************************/
@@ -299,6 +301,14 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		}
 
 		sumOfWeights += bodyPropertiesWeights[weightIndex];
+
+#ifdef DEBUG_BODY_PROPERTIES
+		OutputDebugStringA("Confidence for BodyProperty No ");
+		OutputDebugStringA(std::to_string(i).c_str());
+		OutputDebugStringA(": ");
+		OutputDebugStringA(std::to_string(bodyProperties[i] / propertiesForComparison[i]).c_str());
+		OutputDebugStringA("\n");
+#endif
 
 		if (bodyProperties[i] < propertiesForComparison[i]) {
 			confidence += (bodyProperties[i] / propertiesForComparison[i]) * bodyPropertiesWeights[weightIndex];

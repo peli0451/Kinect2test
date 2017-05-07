@@ -3,6 +3,7 @@
 #include "Buffer.h"
 #include "Eigen/Dense"
 #include "GestureRecognition.h"
+#include <list>
 
 class Person {
 public:
@@ -59,6 +60,8 @@ public:
 
 	void saveBodyProperties();
 	float compareBodyProperties(Joint* inputJoints);
+	void collectBodyProperties();
+	void calculateBodyProperties();
 
 private:
 	struct Limits
@@ -74,6 +77,7 @@ private:
 	};
 
 	Limits bodyPropertiesLimits[NUMBER_OF_BODY_PROPERTIES];
+	std::list<float*> bodyPropertiesBuffer;
 	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f };
 	float bodyPropertiesWeights[6] = { 1.0f, 0.7f, 0.5f, 0.3f, 0.1f, 0.0f };
 	int numberOfWeights;

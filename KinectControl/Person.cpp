@@ -270,7 +270,43 @@ void Person::saveBodyProperties()
 	extractBodyProperties(bodyProperties, joints);
 }
 
+void Person::collectBodyProperties()
+{	
+	float* bodyPropertiesTemp = new float[NUMBER_OF_BODY_PROPERTIES];
+	extractBodyProperties(bodyPropertiesTemp, joints);
 
+	bodyPropertiesBuffer.push_back(bodyPropertiesTemp);
+}
+
+void Person::calculateBodyProperties()
+{
+	std::list<float*>::iterator liter;
+	float* bodyPropertiesTemp;
+	int numberOfSamples = static_cast<int>(bodyPropertiesBuffer.size ());
+	int i;
+
+	if (bodyPropertiesBuffer.empty())
+		return;
+
+	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		bodyProperties[i] = 0.0f;
+	}
+
+	for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
+		bodyPropertiesTemp = *liter;
+		
+		for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+			bodyProperties[i] += bodyPropertiesTemp[i];
+		}
+		delete[] bodyPropertiesTemp;
+	}
+
+	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		bodyProperties[i] / numberOfSamples;
+	}
+
+	bodyPropertiesBuffer.clear();
+}
 
 
 float Person::compareBodyProperties (Joint* inputJoints) {

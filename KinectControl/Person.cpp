@@ -302,7 +302,7 @@ void Person::calculateBodyProperties()
 	}
 
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
-		bodyProperties[i] / numberOfSamples;
+		bodyProperties[i] /= numberOfSamples;
 	}
 
 	bodyPropertiesBuffer.clear();

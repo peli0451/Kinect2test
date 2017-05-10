@@ -2,7 +2,7 @@
 #include "Person.h"
 #include <cmath>
 
-#define DEBUG_BODY_PROPERTIES
+//#define DEBUG_BODY_PROPERTIES
 
 /**********************************************************
 * Konstruktoren
@@ -102,46 +102,6 @@ void Person::setJointOrientations(JointOrientation* newOrientations) {
 JointOrientation* Person::getJointOrientations() {
 	return jointOrientations;
 }
-
-
-
-void Person::setLeftHandCurPos(_CameraSpacePoint newPos) { 
-	leftHandCurrentPosition = newPos; 
-};
-
-_CameraSpacePoint Person::getLeftHandCurPos() {
-	return leftHandCurrentPosition; 
-};
-
-
-
-void Person::setLeftHandLastPos(_CameraSpacePoint newPos) { 
-	leftHandLastPosition = newPos; 
-};
-
-_CameraSpacePoint Person::getLeftHandLastPos() { 
-	return leftHandLastPosition; 
-};
-
-
-
-void Person::setRightHandCurPos(_CameraSpacePoint newPos) { 
-	rightHandCurrentPosition = newPos; 
-};
-
-_CameraSpacePoint Person::getRightHandCurPos() {
-	return rightHandCurrentPosition;
-};
-
-
-
-void Person::setRightHandLastPos(_CameraSpacePoint newPos) { 
-	rightHandLastPosition = newPos; 
-};
-
-_CameraSpacePoint Person::getRightHandLastPos() {
-	return rightHandLastPosition; 
-};
 
 
 
@@ -330,7 +290,7 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		}
 
 		weightIndex = static_cast<int>(deviation*10.0f);
-		OutputDebugStringA(std::to_string(weightIndex).c_str());
+		//OutputDebugStringA(std::to_string(weightIndex).c_str());
 
 		if (weightIndex >= numberOfWeights) {
 			weightIndex = numberOfWeights - 1;
@@ -342,7 +302,7 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		OutputDebugStringA("Confidence for BodyProperty No ");
 		OutputDebugStringA(std::to_string(i).c_str());
 		OutputDebugStringA(": ");
-		OutputDebugStringA(std::to_string(bodyProperties[i] / propertiesForComparison[i]).c_str());
+		OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] /bodyProperties[i])).c_str());
 		OutputDebugStringA("\n");
 #endif
 

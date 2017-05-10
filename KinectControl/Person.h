@@ -26,18 +26,6 @@ public:
 	void setJointOrientations(JointOrientation* newOrientations);
 	JointOrientation* getJointOrientations();
 
-	void setLeftHandCurPos(_CameraSpacePoint newPos);
-	_CameraSpacePoint getLeftHandCurPos();
-
-	void setLeftHandLastPos(_CameraSpacePoint newPos);
-	_CameraSpacePoint getLeftHandLastPos();
-
-	void setRightHandCurPos(_CameraSpacePoint newPos);
-	_CameraSpacePoint getRightHandCurPos();
-
-	void setRightHandLastPos(_CameraSpacePoint newPos);
-	_CameraSpacePoint getRightHandLastPos();
-
 	void setLeftHandState(HandState newState);
 	HandState getLeftHandState();
 

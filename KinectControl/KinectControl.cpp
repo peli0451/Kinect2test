@@ -68,6 +68,9 @@ float getSaneValue(float old, float fresh) {
 *
 * @return motionParameters Transformationsparameter
 */
+
+bool collectFrames = false;
+int collectedFrames = 0;
 MotionParameters KinectControl::run() {
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
@@ -107,10 +110,22 @@ MotionParameters KinectControl::run() {
 				if (SUCCEEDED(result)) {
 					//Falls Gelenke erfolgreich geholt
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
-					if (masterDetermined) {
+					if (masterDetermined && !collectFrames) {
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
-						OutputDebugStringA("\n");
-					} else {
+						OutputDebugStringA("------------------------------------------\n");
+					}
+					else if (masterDetermined && collectFrames){
+						if (collectedFrames < 20) {
+							master.collectBodyProperties();
+							collectedFrames++;
+						}
+						else {
+							master.calculateBodyProperties();
+							collectedFrames = 0;
+							collectFrames = false;
+						}
+					}
+					else {
 						if (headPosition.Z < master.getZ()) {
 							master.setJoints(joints);
 							master.setId(i);
@@ -132,7 +147,7 @@ MotionParameters KinectControl::run() {
 		//Hole Gelenkobjekte und wichtige Positionen des Masters
 		Joint joints[JointType_Count];
 		trackedBodies[master.getId()]->GetJoints(JointType_Count, joints);
-
+		
 		JointOrientation jointOrientations[JointType_Count];
 		trackedBodies[master.getId()]->GetJointOrientations(JointType_Count, jointOrientations);
 
@@ -146,8 +161,8 @@ MotionParameters KinectControl::run() {
 		master.setJointOrientations(jointOrientations);
 		master.setLeftHandState(leftHandState);
 		master.setRightHandState(rightHandState);
-		master.setLeftHandCurPos(joints[JointType::JointType_HandLeft].Position);
-		master.setRightHandCurPos(joints[JointType::JointType_HandRight].Position);
+		CameraSpacePoint leftHandCurPos = joints[JointType::JointType_HandLeft].Position;
+		CameraSpacePoint rightHandCurPos = joints[JointType::JointType_HandRight].Position;
 
 		Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
 		Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
@@ -157,16 +172,16 @@ MotionParameters KinectControl::run() {
 		CameraSpacePoint sane_value_right;
 		
 		if (leftHandPositionBuffer->get(leftHandPositionBuffer->end()) != NULL && rightHandPositionBuffer->get(rightHandPositionBuffer->end()) != NULL) {
-			sane_value_left.X = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X, master.getLeftHandCurPos().X);
-			sane_value_left.Y = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y, master.getLeftHandCurPos().Y);
-			sane_value_left.Z = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z, master.getLeftHandCurPos().Z);
-			sane_value_right.X = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X, master.getRightHandCurPos().X);
-			sane_value_right.Y = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y, master.getRightHandCurPos().Y);
-			sane_value_right.Z = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z, master.getRightHandCurPos().Z);
+			sane_value_left.X = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->X,leftHandCurPos.X);
+			sane_value_left.Y = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Y,leftHandCurPos.Y);
+			sane_value_left.Z = getSaneValue(leftHandPositionBuffer->get(leftHandPositionBuffer->end())->Z,leftHandCurPos.Z);
+			sane_value_right.X = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->X, rightHandCurPos.X);
+			sane_value_right.Y = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Y, rightHandCurPos.Y);
+			sane_value_right.Z = getSaneValue(rightHandPositionBuffer->get(rightHandPositionBuffer->end())->Z, rightHandCurPos.Z);
 		}
 		else {
-			sane_value_left = master.getLeftHandCurPos();
-			sane_value_right = master.getRightHandCurPos();
+			sane_value_left = leftHandCurPos;
+			sane_value_right = rightHandCurPos;
 		}
 
 		// Neue Werte in die Buffer schreiben
@@ -202,11 +217,8 @@ MotionParameters KinectControl::run() {
 	return stateMachine.getMotionParameters();
 }
 
-
 void KinectControl::assignMaster() {
-	Person master = stateMachine.getMaster();
-	master.saveBodyProperties();
-	stateMachine.setMaster(master);
-
 	masterDetermined = true;
+	collectFrames = true;
+	collectedFrames = 0;
 }

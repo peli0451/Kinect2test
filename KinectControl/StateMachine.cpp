@@ -113,26 +113,31 @@ void StateMachine::bufferGestureConfidence() {
 	boolean bothHandsOpen = (leftHandOpen && rightHandOpen);
 	boolean bothHandsClosed = (leftHandClosed && rightHandClosed);
 
-	//Hilfsvariable für FLY_GESTURE
-	Eigen::Vector3f leftVector = convToVec3(master.getLeftHandCurPos()) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
-	Eigen::Vector3f rightVector = convToVec3(master.getRightHandCurPos()) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
+	Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
+	Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
+	CameraSpacePoint* leftHandCurPos = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
+	CameraSpacePoint* rightHandCurPos = rightHandPositionBuffer->get(leftHandPositionBuffer->end());
 
-	boolean handsTogetherInFront = abs(master.getLeftHandCurPos().X - master.getRightHandCurPos().X) < .1f &&
-		abs(master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y) < .1f &&
-		abs(master.getLeftHandCurPos().Z - master.getRightHandCurPos().Z) < .1f &&
+	//Hilfsvariable für FLY_GESTURE
+	Eigen::Vector3f leftVector = convToVec3(leftHandCurPos) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
+	Eigen::Vector3f rightVector = convToVec3(rightHandCurPos) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
+
+	boolean handsTogetherInFront = abs(leftHandCurPos->X - rightHandCurPos->X) < .1f &&
+		abs(leftHandCurPos->Y - rightHandCurPos->Y) < .1f &&
+		abs(leftHandCurPos->Z - rightHandCurPos->Z) < .1f &&
 		leftVector.norm() > .3f && rightVector.norm() > .3f;
 
 	//Hilfsvariablen für GRAB_GESTURE
 	boolean handRisen;
 	boolean risenHandOpen;
 	boolean risenHandUnknown;
-	if (master.getLeftHandCurPos().Y - master.getRightHandCurPos().Y > .4) {
+	if (leftHandCurPos->Y - rightHandCurPos->Y > .4) {
 		master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
 		handRisen = true;
 		risenHandOpen = (master.getLeftHandState() == HandState_Open);
 		risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
 	}
-	else if (master.getRightHandCurPos().Y - master.getLeftHandCurPos().Y > .4) {
+	else if (rightHandCurPos->Y - leftHandCurPos->Y > .4) {
 		master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
 		handRisen = true;
 		risenHandOpen = (master.getRightHandState() == HandState_Open);
@@ -341,16 +346,17 @@ void StateMachine::compute() {
 		Eigen::Vector3f targetAxis = shoulderPosition - handPosition;
 		targetAxis.normalize();
 		Eigen::AngleAxisf flyRotation = getRotationAngleAxis(originAxis, targetAxis);
+		
 		float rotationDegrees = radToDeg(flyRotation.angle());
 		if (rotationDegrees > FLY_SEGMENT2_DEGREE) { // bei recht großem Winkel stärkere Drehung als linear
 			rotationDegrees = ((rotationDegrees - FLY_SEGMENT2_DEGREE) * FLY_SEGMENT2_FACTOR) + FLY_SEGMENT2_DEGREE;
 		}
 		flyRotation.angle() = degToRad(rotationDegrees);
+
 		flyRotation.angle() *= FLY_ROTATION_FACTOR;
 		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
 
-		OutputDebugStringA(std::to_string(flyRotation.angle()).c_str());
-		OutputDebugStringA("\n");
+		
 		break;
 	}
 	default:

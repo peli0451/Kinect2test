@@ -199,30 +199,105 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint kneeLeft = inputJoints[JointType::JointType_KneeLeft].Position;
 	_CameraSpacePoint kneeRight = inputJoints[JointType::JointType_KneeRight].Position;
 
+	JointTrackingState shoulderLeftState = inputJoints[JointType::JointType_ShoulderLeft].TrackingState;
+	JointTrackingState shoulderRightState = inputJoints[JointType::JointType_ShoulderRight].TrackingState;
+	JointTrackingState spineShoulderState = inputJoints[JointType::JointType_SpineShoulder].TrackingState;
+	JointTrackingState elbowLeftState = inputJoints[JointType::JointType_ElbowLeft].TrackingState;
+	JointTrackingState elbowRightState = inputJoints[JointType::JointType_ElbowRight].TrackingState;
+	JointTrackingState neckState = inputJoints[JointType::JointType_Neck].TrackingState;
+	JointTrackingState spineBaseState = inputJoints[JointType::JointType_SpineBase].TrackingState;
+	JointTrackingState hipLeftState = inputJoints[JointType::JointType_HipLeft].TrackingState;
+	JointTrackingState hipRightState = inputJoints[JointType::JointType_HipRight].TrackingState;
+	JointTrackingState kneeLeftState = inputJoints[JointType::JointType_KneeLeft].TrackingState;
+	JointTrackingState kneeRightState = inputJoints[JointType::JointType_KneeRight].TrackingState;
 
-	extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = sqrt(pow(shoulderLeft.X - neck.X, 2.0f) +
-		pow(shoulderLeft.Y - neck.Y, 2.0f) + pow(shoulderLeft.Z - neck.Z, 2.0f));
-	extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = sqrt(pow(shoulderRight.X - neck.X, 2.0f) +
-		pow(shoulderRight.Y - neck.Y, 2.0f) + pow(shoulderRight.Z - neck.Z, 2.0f));
-	extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2.0f) +
-		pow(shoulderLeft.Y - elbowLeft.Y, 2.0f) + pow(shoulderLeft.Z - elbowLeft.Z, 2.0f));
-	extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderRight.X - elbowRight.X, 2.0f) +
-		pow(shoulderRight.Y - elbowRight.Y, 2.0f) + pow(shoulderRight.Z - elbowRight.Z, 2.0f));
-	extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = sqrt(pow(hipLeft.X - kneeLeft.X, 2.0f) +
-		pow(hipLeft.Y - kneeLeft.Y, 2.0f) + pow(hipLeft.Z - kneeLeft.Z, 2.0f));
-	extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = sqrt(pow(hipRight.X - kneeRight.X, 2.0f) +
-		pow(hipRight.Y - kneeRight.Y, 2.0f) + pow(hipRight.Z - kneeRight.Z, 2.0f));
-	extractedBodyProperties[SHOULDER_WIDTH] = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2.0f) +
-		pow(shoulderLeft.Y - shoulderRight.Y, 2.0f) + pow(shoulderLeft.Z - shoulderRight.Z, 2.0f));
-	extractedBodyProperties[TORSO_LENGTH] = sqrt(pow(spineShoulder.X - spineBase.X, 2.0f) +
-		pow(spineShoulder.Y - spineBase.Y, 2.0f) + pow(spineShoulder.Z - spineBase.Z, 2.0f));
+	if (shoulderLeftState == Tracked && neckState == Tracked) {
+		extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = sqrt(pow(shoulderLeft.X - neck.X, 2.0f) +
+			pow(shoulderLeft.Y - neck.Y, 2.0f) + pow(shoulderLeft.Z - neck.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = 0.0f;
+	}
 
-	extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] =
-		extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[LEFT_UPPER_LEG_LENGTH];
-	extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG] =
-		extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH];
-	extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH] =
-		extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[SHOULDER_WIDTH];
+	if (shoulderRightState == Tracked && neckState == Tracked) {
+		extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = sqrt(pow(shoulderRight.X - neck.X, 2.0f) +
+			pow(shoulderRight.Y - neck.Y, 2.0f) + pow(shoulderRight.Z - neck.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = 0.0f;
+	}
+
+	if (shoulderLeftState == Tracked && elbowLeftState == Tracked) {
+		extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2.0f) +
+			pow(shoulderLeft.Y - elbowLeft.Y, 2.0f) + pow(shoulderLeft.Z - elbowLeft.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = 0.0f;
+	}
+
+	if (shoulderRightState == Tracked && elbowRightState == Tracked) {
+		extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderRight.X - elbowRight.X, 2.0f) +
+			pow(shoulderRight.Y - elbowRight.Y, 2.0f) + pow(shoulderRight.Z - elbowRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = 0.0f;
+	}
+
+	if (hipLeftState == Tracked && kneeLeftState == Tracked) {
+		extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = sqrt(pow(hipLeft.X - kneeLeft.X, 2.0f) +
+			pow(hipLeft.Y - kneeLeft.Y, 2.0f) + pow(hipLeft.Z - kneeLeft.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = 0.0f;
+	}
+
+	if (hipRightState == Tracked && kneeRightState == Tracked) {
+		extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = sqrt(pow(hipRight.X - kneeRight.X, 2.0f) +
+			pow(hipRight.Y - kneeRight.Y, 2.0f) + pow(hipRight.Z - kneeRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = 0.0f;
+	}
+
+	if (shoulderLeftState == Tracked && shoulderRightState == Tracked) {
+		extractedBodyProperties[SHOULDER_WIDTH] = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2.0f) +
+			pow(shoulderLeft.Y - shoulderRight.Y, 2.0f) + pow(shoulderLeft.Z - shoulderRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[SHOULDER_WIDTH] = 0.0f;
+	}
+
+	if (spineShoulderState == Tracked && spineBaseState == Tracked) {
+		extractedBodyProperties[TORSO_LENGTH] = sqrt(pow(spineShoulder.X - spineBase.X, 2.0f) +
+			pow(spineShoulder.Y - spineBase.Y, 2.0f) + pow(spineShoulder.Z - spineBase.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[TORSO_LENGTH] = 0.0f;
+	}
+
+	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] != 0.0f) {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] =
+			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[LEFT_UPPER_LEG_LENGTH];
+	}
+	else {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] = 0.0f;
+	}
+
+	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] != 0.0f) {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG] =
+			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH];
+	}
+	else {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG] = 0.0f;
+	}
+
+	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[SHOULDER_WIDTH] != 0.0f) {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH] =
+			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[SHOULDER_WIDTH];
+	}
+	else {
+		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH] = 0.0f;
+	}
 }
 
 void Person::saveBodyProperties()
@@ -242,7 +317,7 @@ void Person::calculateBodyProperties()
 {
 	std::list<float*>::iterator liter;
 	float* bodyPropertiesTemp;
-	int numberOfSamples = static_cast<int>(bodyPropertiesBuffer.size ());
+	int numberOfSamples[NUMBER_OF_BODY_PROPERTIES];
 	int i;
 
 	if (bodyPropertiesBuffer.empty())
@@ -252,17 +327,27 @@ void Person::calculateBodyProperties()
 		bodyProperties[i] = 0.0f;
 	}
 
+	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		numberOfSamples[i] = 0;
+	}
+
+
 	for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
 		bodyPropertiesTemp = *liter;
 		
 		for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
-			bodyProperties[i] += bodyPropertiesTemp[i];
+			if (bodyPropertiesTemp[i] != 0.0f) {
+				bodyProperties[i] += bodyPropertiesTemp[i];
+				numberOfSamples[i]++;
+			}
 		}
 		delete[] bodyPropertiesTemp;
 	}
 
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
-		bodyProperties[i] /= numberOfSamples;
+		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
+			bodyProperties[i] /= numberOfSamples[i];
+		}
 	}
 
 	bodyPropertiesBuffer.clear();
@@ -293,6 +378,10 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		//OutputDebugStringA(std::to_string(weightIndex).c_str());
 
 		if (weightIndex >= numberOfWeights) {
+			weightIndex = numberOfWeights - 1;
+		}
+
+		if (bodyProperties[i] == 0.0f || propertiesForComparison[i] == 0.0f) {
 			weightIndex = numberOfWeights - 1;
 		}
 

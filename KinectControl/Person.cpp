@@ -30,29 +30,27 @@ Person::Person()
 	// Rotationenbuffer
 	rotationBuffer = new Buffer<Eigen::Quaternionf>(ROT_BUFFER_SIZE);
 
-	bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].min = 0.1f;
-	bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].max = 0.5f;
-	bodyPropertiesLimits[NECK_TO_RIGHT_SHOULDER].min = bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].min;
-	bodyPropertiesLimits[NECK_TO_RIGHT_SHOULDER].max = bodyPropertiesLimits[NECK_TO_LEFT_SHOULDER].max;
+
 	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min = 0.1f;
 	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max = 0.6f;
 	bodyPropertiesLimits[RIGHT_UPPER_ARM_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min;
 	bodyPropertiesLimits[RIGHT_UPPER_ARM_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max;
+	bodyPropertiesLimits[LEFT_LOWER_ARM_LENGTH].min = 0.1f;
+	bodyPropertiesLimits[LEFT_LOWER_ARM_LENGTH].max = 0.6f;
+	bodyPropertiesLimits[RIGHT_LOWER_ARM_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min;
+	bodyPropertiesLimits[RIGHT_LOWER_ARM_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max;
 	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min = 0.2f;
 	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max = 0.8f;
 	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min;
 	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max;
-	bodyPropertiesLimits[TORSO_LENGTH].min = 0.2f;
-	bodyPropertiesLimits[TORSO_LENGTH].max = 1.0f;	
 	bodyPropertiesLimits[SHOULDER_WIDTH].min = 0.2f;
 	bodyPropertiesLimits[SHOULDER_WIDTH].max = 0.7f;
-		
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].min = 0.5f;
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].max = 2.0f;
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG].min = bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].min;
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG].max = bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG].max;
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH].min = 1.0f;
-	bodyPropertiesLimits[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH].max = 2.0f;
+	bodyPropertiesLimits[HIP_WIDTH].min = 0.2f;
+	bodyPropertiesLimits[HIP_WIDTH].max = 0.7f;
+	bodyPropertiesLimits[TORSO_LENGTH].min = 0.2f;
+	bodyPropertiesLimits[TORSO_LENGTH].max = 1.0f;
+	bodyPropertiesLimits[HEIGHT_OF_HEAD].min = 1.0f;
+	bodyPropertiesLimits[HEIGHT_OF_HEAD].max = 2.5f;
 
 	numberOfWeights = sizeof(bodyPropertiesWeights) / sizeof(float);
 }
@@ -67,29 +65,29 @@ void Person::setId(int newId) {
 	id = newId;
 }
 
-int Person::getId() { 
-	return id; 
+int Person::getId() {
+	return id;
 }
 
 
 
 void Person::setZ(float newZ) {
-	z = newZ; 
+	z = newZ;
 }
 
-float Person::getZ() { 
-	return z; 
+float Person::getZ() {
+	return z;
 }
 
 
 
 void Person::setJoints(Joint* newJoints) {
-	for(int i = 0; i<JointType_Count; i++)
+	for (int i = 0; i<JointType_Count; i++)
 		joints[i] = newJoints[i];
 }
 
-Joint* Person::getJoints() { 
-	return joints; 
+Joint* Person::getJoints() {
+	return joints;
 }
 
 
@@ -106,21 +104,21 @@ JointOrientation* Person::getJointOrientations() {
 
 
 void Person::setLeftHandState(HandState newState) {
-	leftHandState = newState; 
+	leftHandState = newState;
 };
 
-HandState Person::getLeftHandState() { 
-	return leftHandState; 
+HandState Person::getLeftHandState() {
+	return leftHandState;
 };
 
 
 
-void Person::setRightHandState(HandState newState) { 
-	rightHandState = newState; 
+void Person::setRightHandState(HandState newState) {
+	rightHandState = newState;
 };
 
 HandState Person::getRightHandState() {
-	return rightHandState; 
+	return rightHandState;
 };
 
 
@@ -189,6 +187,8 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 {
 	_CameraSpacePoint shoulderLeft = inputJoints[JointType::JointType_ShoulderLeft].Position;
 	_CameraSpacePoint shoulderRight = inputJoints[JointType::JointType_ShoulderRight].Position;
+	_CameraSpacePoint handLeft = inputJoints[JointType::JointType_HandLeft].Position;
+	_CameraSpacePoint handRight = inputJoints[JointType::JointType_HandRight].Position;
 	_CameraSpacePoint spineShoulder = inputJoints[JointType::JointType_SpineShoulder].Position;
 	_CameraSpacePoint elbowLeft = inputJoints[JointType::JointType_ElbowLeft].Position;
 	_CameraSpacePoint elbowRight = inputJoints[JointType::JointType_ElbowRight].Position;
@@ -198,9 +198,12 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint hipRight = inputJoints[JointType::JointType_HipRight].Position;
 	_CameraSpacePoint kneeLeft = inputJoints[JointType::JointType_KneeLeft].Position;
 	_CameraSpacePoint kneeRight = inputJoints[JointType::JointType_KneeRight].Position;
+	_CameraSpacePoint head = inputJoints[JointType::JointType_Head].Position;
 
 	JointTrackingState shoulderLeftState = inputJoints[JointType::JointType_ShoulderLeft].TrackingState;
 	JointTrackingState shoulderRightState = inputJoints[JointType::JointType_ShoulderRight].TrackingState;
+	JointTrackingState handLeftState = inputJoints[JointType::JointType_HandLeft].TrackingState;
+	JointTrackingState handRightState = inputJoints[JointType::JointType_HandRight].TrackingState;
 	JointTrackingState spineShoulderState = inputJoints[JointType::JointType_SpineShoulder].TrackingState;
 	JointTrackingState elbowLeftState = inputJoints[JointType::JointType_ElbowLeft].TrackingState;
 	JointTrackingState elbowRightState = inputJoints[JointType::JointType_ElbowRight].TrackingState;
@@ -210,22 +213,8 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	JointTrackingState hipRightState = inputJoints[JointType::JointType_HipRight].TrackingState;
 	JointTrackingState kneeLeftState = inputJoints[JointType::JointType_KneeLeft].TrackingState;
 	JointTrackingState kneeRightState = inputJoints[JointType::JointType_KneeRight].TrackingState;
+	JointTrackingState headState = inputJoints[JointType::JointType_Head].TrackingState;
 
-	if (shoulderLeftState == Tracked && neckState == Tracked) {
-		extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = sqrt(pow(shoulderLeft.X - neck.X, 2.0f) +
-			pow(shoulderLeft.Y - neck.Y, 2.0f) + pow(shoulderLeft.Z - neck.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[NECK_TO_LEFT_SHOULDER] = 0.0f;
-	}
-
-	if (shoulderRightState == Tracked && neckState == Tracked) {
-		extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = sqrt(pow(shoulderRight.X - neck.X, 2.0f) +
-			pow(shoulderRight.Y - neck.Y, 2.0f) + pow(shoulderRight.Z - neck.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[NECK_TO_RIGHT_SHOULDER] = 0.0f;
-	}
 
 	if (shoulderLeftState == Tracked && elbowLeftState == Tracked) {
 		extractedBodyProperties[LEFT_UPPER_ARM_LENGTH] = sqrt(pow(shoulderLeft.X - elbowLeft.X, 2.0f) +
@@ -241,6 +230,22 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	}
 	else {
 		extractedBodyProperties[RIGHT_UPPER_ARM_LENGTH] = 0.0f;
+	}
+
+	if (elbowLeftState == Tracked && handLeftState == Tracked) {
+		extractedBodyProperties[LEFT_LOWER_ARM_LENGTH] = sqrt(pow(handLeft.X - elbowLeft.X, 2.0f) +
+			pow(handLeft.Y - elbowLeft.Y, 2.0f) + pow(handLeft.Z - elbowLeft.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[LEFT_LOWER_ARM_LENGTH] = 0.0f;
+	}
+
+	if (elbowRightState == Tracked && handRightState == Tracked) {
+		extractedBodyProperties[RIGHT_LOWER_ARM_LENGTH] = sqrt(pow(handRight.X - elbowRight.X, 2.0f) +
+			pow(handRight.Y - elbowRight.Y, 2.0f) + pow(handRight.Z - elbowRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[RIGHT_LOWER_ARM_LENGTH] = 0.0f;
 	}
 
 	if (hipLeftState == Tracked && kneeLeftState == Tracked) {
@@ -267,6 +272,14 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 		extractedBodyProperties[SHOULDER_WIDTH] = 0.0f;
 	}
 
+	if (hipLeftState == Tracked && hipRightState == Tracked) {
+		extractedBodyProperties[HIP_WIDTH] = sqrt(pow(hipLeft.X - hipRight.X, 2.0f) +
+			pow(hipLeft.Y - hipRight.Y, 2.0f) + pow(hipLeft.Z - hipRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[HIP_WIDTH] = 0.0f;
+	}
+
 	if (spineShoulderState == Tracked && spineBaseState == Tracked) {
 		extractedBodyProperties[TORSO_LENGTH] = sqrt(pow(spineShoulder.X - spineBase.X, 2.0f) +
 			pow(spineShoulder.Y - spineBase.Y, 2.0f) + pow(spineShoulder.Z - spineBase.Z, 2.0f));
@@ -275,28 +288,11 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 		extractedBodyProperties[TORSO_LENGTH] = 0.0f;
 	}
 
-	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] != 0.0f) {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] =
-			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[LEFT_UPPER_LEG_LENGTH];
+	if (headState == Tracked) {
+		extractedBodyProperties[HEIGHT_OF_HEAD] = head.Y;
 	}
 	else {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_LEFT_LEG] = 0.0f;
-	}
-
-	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] != 0.0f) {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG] =
-			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH];
-	}
-	else {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_RIGHT_LEG] = 0.0f;
-	}
-
-	if (extractedBodyProperties[TORSO_LENGTH] != 0.0f && extractedBodyProperties[SHOULDER_WIDTH] != 0.0f) {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH] =
-			extractedBodyProperties[TORSO_LENGTH] / extractedBodyProperties[SHOULDER_WIDTH];
-	}
-	else {
-		extractedBodyProperties[RATIO_BETWEEN_TORSO_LENGTH_AND_SHOULDER_WIDTH] = 0.0f;
+		extractedBodyProperties[HEIGHT_OF_HEAD] = 0.0f;
 	}
 }
 
@@ -306,7 +302,7 @@ void Person::saveBodyProperties()
 }
 
 void Person::collectBodyProperties()
-{	
+{
 	float* bodyPropertiesTemp = new float[NUMBER_OF_BODY_PROPERTIES];
 	extractBodyProperties(bodyPropertiesTemp, joints);
 
@@ -334,7 +330,7 @@ void Person::calculateBodyProperties()
 
 	for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
 		bodyPropertiesTemp = *liter;
-		
+
 		for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 			if (bodyPropertiesTemp[i] != 0.0f) {
 				bodyProperties[i] += bodyPropertiesTemp[i];
@@ -354,7 +350,7 @@ void Person::calculateBodyProperties()
 }
 
 
-float Person::compareBodyProperties (Joint* inputJoints) {
+float Person::compareBodyProperties(Joint* inputJoints) {
 	float propertiesForComparison[NUMBER_OF_BODY_PROPERTIES];
 	extractBodyProperties(propertiesForComparison, inputJoints);
 	float deviation;
@@ -391,7 +387,7 @@ float Person::compareBodyProperties (Joint* inputJoints) {
 		OutputDebugStringA("Confidence for BodyProperty No ");
 		OutputDebugStringA(std::to_string(i).c_str());
 		OutputDebugStringA(": ");
-		OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] /bodyProperties[i])).c_str());
+		OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] / bodyProperties[i])).c_str());
 		OutputDebugStringA("\n");
 #endif
 

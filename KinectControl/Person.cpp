@@ -30,7 +30,10 @@ Person::Person()
 	// Rotationenbuffer
 	rotationBuffer = new Buffer<Eigen::Quaternionf>(ROT_BUFFER_SIZE);
 
-
+	// Grenzen (Minimum und Maximum) für jede einzelne Körperproportion festlegen,
+	// innerhalb derer sich die "vernünftigen" Werte für eine Proportion befinden sollten,
+	// falls der Wert nicht durch einen Messfehler auf einen unglaubwürdig zu kleinen oder zu
+	// grossen Wert springt
 	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min = 0.1f;
 	bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max = 0.6f;
 	bodyPropertiesLimits[RIGHT_UPPER_ARM_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min;
@@ -183,6 +186,19 @@ GestureRecognition::ControlHand Person::getRisenHand() {
 * Funktionen
 **********************************************************/
 
+/** Berechnet aus den übergebenen Gelenkpunkten durch Ermittlung der euklidische Distanz
+* zwischen zwei Punkten die Körperproportionen gemäß dem BODY_PROPERTIES enum und speichert
+* diese in einem Array (jeder Eintrag im Array entspricht einer Konstante aus dem genannten enum)
+*
+* Die errechnete Distanz wird hierbei auf 0.0f gesetzt, falls einer der beiden Endpunkte
+* der Distanz nicht den TrackingState "Tracked" haben (also "NotTracked" oder "Inferred" sind)
+* und somit für unsere Zwecke nicht von der Kinect mit genügend großer Konfidenz erkannt werden
+* bsplsweise: Berechnung der linken Oberarmlänge aus der Distanz zwischen den Gelenkpunkten
+* von linker Schulter und linkem Elbogen
+*
+* @param extractedBodyProperties Zeiger auf den Array in dem die Körperproportionen gespeichert werden
+* @param inputJoints Zeiger auf den Array mit den Gelenkpunkten
+*/
 void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints)
 {
 	_CameraSpacePoint shoulderLeft = inputJoints[JointType::JointType_ShoulderLeft].Position;
@@ -296,11 +312,18 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	}
 }
 
+/** extrahiert die Körperproportionen aus der der Person-Klasse zu eigenen Gelenkpunkten
+* und speichert diese wiederum in einem Attribut der Person-Klasse
+*/
 void Person::saveBodyProperties()
 {
 	extractBodyProperties(bodyProperties, joints);
 }
 
+/**
+* extrahiert die Körperproportionen aus den Person-eigenen Gelenken in ein neu angelegtes Array und 
+* speichert einen Zeiger auf dieses Array in einem Buffer ab 
+*/
 void Person::collectBodyProperties()
 {
 	float* bodyPropertiesTemp = new float[NUMBER_OF_BODY_PROPERTIES];
@@ -309,13 +332,23 @@ void Person::collectBodyProperties()
 	bodyPropertiesBuffer.push_back(bodyPropertiesTemp);
 }
 
+/*
+* Berechnet aus allen im Buffer für die Körperproportionen gespeicherten Werten 
+* jeweils für eine Proportion den Durchschnitt aus allen Werten für diese Proportion
+* und speichert diese im eigenen bodyProperties-Array der Person-Klasse 
+*/
 void Person::calculateBodyProperties()
 {
+	// Iterator um durch den Buffer (verkettete Liste aus der STL) zu iterieren
 	std::list<float*>::iterator liter;
+	// temporärer Zeiger auf ein Buffer-Element, welches ein Array für einen Frame alle Proportionen enthält
 	float* bodyPropertiesTemp;
+	// Anzahl der gültigen Samples pro Proportion (Messungen bei denen für eine Proportion einer beiden Endpunkte
+	// nicht "Tracked" war, wurden auf 0.0f gesetzt und zählen somit nicht hinein)
 	int numberOfSamples[NUMBER_OF_BODY_PROPERTIES];
 	int i;
 
+	// Fertig, falls Buffer leer
 	if (bodyPropertiesBuffer.empty())
 		return;
 
@@ -327,19 +360,26 @@ void Person::calculateBodyProperties()
 		numberOfSamples[i] = 0;
 	}
 
-
+	// Gehe durch den Buffer und...
 	for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
 		bodyPropertiesTemp = *liter;
 
+		// ...gehe für jedes Element einzeln durch die Proportionen und...
 		for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+			//... beziehe, falls der Wert ungleich 0.0f und damit gültig war, in den Durchschnitt für 
+			// diese Proportion mit ein
 			if (bodyPropertiesTemp[i] != 0.0f) {
 				bodyProperties[i] += bodyPropertiesTemp[i];
 				numberOfSamples[i]++;
 			}
 		}
+
+		// Wenn fertig mit diesem Buffer-Element lösche dieses
 		delete[] bodyPropertiesTemp;
 	}
 
+	// Berechne Durchschnitt für jede Proportion einzeln mittels Quotient aus Summe der
+	// der gültigen Samples durch die Anzahl der gültigen Samples für diese Proportion
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
 			bodyProperties[i] /= numberOfSamples[i];
@@ -349,6 +389,23 @@ void Person::calculateBodyProperties()
 	bodyPropertiesBuffer.clear();
 }
 
+/** Extrahiert aus den übergebenen Gelenkpunkten (einer zu vergleichenden Person)
+* die Körperproportionen und vergleicht diese mit den eigenen (der der Person Klasse)
+*
+* Hierbei wird zunächst für jede einzelne Proportion ein Wert (die Konfidenz) zwischen 0.0f und 1.0f
+* berechnet der umso grösser sein soll je ähnlicher der aus den übergegebenen 
+* Gelenken berechnete Wert dem gespeicherten Wert für diese Proportion ist
+* Über alle Proportionen wird schließlich ein gewichteter Durchschnitt der Konfidenzen erstellt und zurück-
+* gegeben, wobei die Gewichtung einer Körperproportion davon abhängt, wie weit 
+* die aus den übergebenen Gelenken berechneten Proportionen von denen im Konstruktor
+* festgelegten Min-Max-Grenzen abweicht (falls der Wert innerhalb der Grenzen liegt ist die Gewichtung 1.0f;
+* je weiter ausserhalb er liegt desto geringer ist die Gewichtung)
+*
+*@param inputJoints Gelenke der zu vergleichenden Person
+*@return float gibt einen Konfidenzwert zwischen 0.0f und 1.0f der umso größer ist
+* je ähnlicher sich die Körperproportionen der übergebenen Gelenkpunkte und die eigenen
+* Proportionen sind
+*/
 
 float Person::compareBodyProperties(Joint* inputJoints) {
 	float propertiesForComparison[NUMBER_OF_BODY_PROPERTIES];
@@ -360,27 +417,41 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 	float confidence = 0.0f;
 
 	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+
+		// schaue nach inwie weit der gemesse Wert für diese Proportion von den im Konstruktor
+		// festgelegten "sinnvollen" Min-Max-Grenzen liegt (falls dieser ausserhalb liegt, ist von
+		// einem Messfehler auszugehen) und speichere die Abweichung von den Grenzen in der deviation Variable
 		if (propertiesForComparison[i] < bodyPropertiesLimits[i].min) {
 			deviation = bodyPropertiesLimits[i].min - propertiesForComparison[i];
 		}
-		else if (bodyProperties[i] <= bodyPropertiesLimits[i].max) {
+		else if (propertiesForComparison[i] <= bodyPropertiesLimits[i].max) {
 			deviation = 0.0f;
 		}
 		else {
 			deviation = propertiesForComparison[i] - bodyPropertiesLimits[i].max;
 		}
 
+		// Entscheide welches Gewicht für diese Proportion zu verwenden ist
+		// (Es ist davon auszugehen das am Index 0 das Gewicht 1.0f steht und je höher der Index desto kleiner
+		// das Gewicht; Die Abweichung wird mit 10.0f multipliziert, um den Index zu erhalten, wodurch
+		// das Gewicht 1.0f ist, falls der Wert innerhalb der Grenzen lag und pro 10cm Abweichung
+		// von den Grenzen das Gewicht um eine Stufeim Gewichte-Array abnimmt)
 		weightIndex = static_cast<int>(deviation*10.0f);
 		//OutputDebugStringA(std::to_string(weightIndex).c_str());
 
+		// Falls der berechnete Index für den Gewichte-Array die Größe des Arrays übersteigt
+		// verwende höchsten Index an dessen Stelle für gewöhnlich das Gewicht 0.0f steht
 		if (weightIndex >= numberOfWeights) {
 			weightIndex = numberOfWeights - 1;
 		}
 
+		// Prüfe, ob entweder die Person-eigene Proportion oder die übergebene ungültig war
+		// Falls ja setze das Gewicht auf das kleinstmögliche (für gewöhnlich 0.0f)
 		if (bodyProperties[i] == 0.0f || propertiesForComparison[i] == 0.0f) {
 			weightIndex = numberOfWeights - 1;
 		}
 
+		// berechne den Nenner für den gewichteten Durchschnitt
 		sumOfWeights += bodyPropertiesWeights[weightIndex];
 
 #ifdef DEBUG_BODY_PROPERTIES
@@ -391,6 +462,9 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 		OutputDebugStringA("\n");
 #endif
 
+		// Berechne den Zähler für den gewichteten Durchschnitt, wobei die Konfidenz für den Vergleich
+		// der übergebenen Proportion mit der eigenen berechnet wird indem der kleinere Wert durch größeren Wert
+		// geteilt wird
 		if (bodyProperties[i] < propertiesForComparison[i]) {
 			confidence += (bodyProperties[i] / propertiesForComparison[i]) * bodyPropertiesWeights[weightIndex];
 		}
@@ -399,6 +473,7 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 		}
 	}
 
+	// Berechne gewichteten Durchschnitt über alle Proportionen
 	if (sumOfWeights != 0.0f)
 		return confidence / sumOfWeights;
 	else

@@ -111,11 +111,13 @@ MotionParameters KinectControl::run() {
 					//Falls Gelenke erfolgreich geholt
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
 					if (masterDetermined && !collectFrames) {
+						OutputDebugStringA("Abweichung:\t");
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
-						OutputDebugStringA("------------------------------------------\n");
+						OutputDebugStringA("\n");
 					}
 					else if (masterDetermined && collectFrames){
 						if (collectedFrames < 20) {
+							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
 							master.collectBodyProperties();
 							collectedFrames++;
 						}
@@ -142,7 +144,6 @@ MotionParameters KinectControl::run() {
 	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
 	//@TODO Mastererkennung mit Confidence, nicht direkt
 	if (master.getId() != -1) {
-
 
 		//Hole Gelenkobjekte und wichtige Positionen des Masters
 		Joint joints[JointType_Count];

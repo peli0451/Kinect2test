@@ -246,7 +246,7 @@ void GLWidget::eventLoop()
 		);
 		Eigen::Quaternionf rot = Eigen::Quaternionf::Identity().slerp(rot_strength,motionParameters.getRotation());
 
-		if (m_pressedKeys[Qt::Key::Key_M])
+		if (m_pressedKeys[Qt::Key::Key_X])
 			kinectControl.assignMaster();
 
 	//Kamera-Reset per Leertaste

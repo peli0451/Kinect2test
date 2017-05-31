@@ -348,21 +348,21 @@ void Person::calculateBodyProperties()
 	int numberOfSamples[NUMBER_OF_BODY_PROPERTIES];
 	int i;
 
+	float smallest_val[NUMBER_OF_BODY_PROPERTIES];
+	float greatest_val[NUMBER_OF_BODY_PROPERTIES];
+
 	// Fertig, falls Buffer leer
 	if (bodyPropertiesBuffer.empty())
 		return;
 
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		bodyProperties[i] = 0.0f;
-	}
-
-	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		numberOfSamples[i] = 0;
+		smallest_val[i] = FLT_MAX;
+		greatest_val[i] = -FLT_MAX;
 	}
 
 	// Bestimmung des kleinsten und größten Werts pro Property über alle Frames, werden später gestrichen
-	float smallest_val[NUMBER_OF_BODY_PROPERTIES] = { -1 };
-	float greatest_val[NUMBER_OF_BODY_PROPERTIES] = { 9000 };
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		std::list<float*>::iterator frame;
 		for (frame = bodyPropertiesBuffer.begin(); frame != bodyPropertiesBuffer.end(); frame++) {
@@ -380,14 +380,18 @@ void Person::calculateBodyProperties()
 		for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 			//... beziehe, falls der Wert ungleich 0.0f und damit gültig war, in den Durchschnitt für 
 			// diese Proportion mit ein, streiche auch kleinsten und größten Wert
+			
+			//OutputDebugStringA(std::to_string(smallest_val[i]).c_str());
+			//OutputDebugStringA("\n");
 			if (bodyPropertiesTemp[i] != 0.0f && bodyPropertiesTemp[i] != smallest_val[i] && bodyPropertiesTemp[i] != greatest_val[i]) {
 				bodyProperties[i] += bodyPropertiesTemp[i];
 				numberOfSamples[i]++;
 			}
 		}
+		//OutputDebugStringA("nächste Bufferposition---\n");
 
 		// Wenn fertig mit diesem Buffer-Element lösche dieses
-		delete[] bodyPropertiesTemp;
+		//delete[] bodyPropertiesTemp;
 	}
 
 	// Berechne Durchschnitt für jede Proportion einzeln mittels Quotient aus Summe der
@@ -434,7 +438,7 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 	int weightIndex;
 
 	float sumOfWeights = 0.0f;
-	float accumulatedError = 0.0f;
+	double accumulatedError = 0.0;
 
 	float sumOfAccuracy = 0.0f;
 	float sumOfFactors = 0.0f;
@@ -476,6 +480,8 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 
 		// Summen für die Normierung der Wichtung berechnen
 		sumOfWeights += bodyPropertiesWeights[weightIndex];
+		//OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
+		if (standardDeviations[i] == 0.0f) standardDeviations[i] = .001f; //`@TODO?
 		sumOfAccuracy += 1 / standardDeviations[i];
 		sumOfFactors += bodyPropertiesFactors[i];
 
@@ -487,12 +493,14 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 		OutputDebugStringA("\n");
 #endif
 		// Quadratische Abweichung, normiert, gewichtet mit Glaubwürdigkeitsfaktor und 1/Standardabweichung
-		accumulatedError += pow(bodyProperties[i] - propertiesForComparison[i], 2) / bodyProperties[i]
-					  * bodyPropertiesWeights[weightIndex] * bodyPropertiesFactors[i] / standardDeviations[i];
+		
+		if (bodyProperties[i] != 0.0f) {
+			accumulatedError += pow((double) bodyProperties[i] - (double) propertiesForComparison[i], 2) / (double) bodyProperties[i]
+				* (double) bodyPropertiesWeights[weightIndex] * (double) bodyPropertiesFactors[i] / (double) standardDeviations[i];
+		}
 	}
-
 	if (sumOfWeights * sumOfAccuracy * sumOfFactors != 0.0f)
-		return accumulatedError / (sumOfWeights * sumOfAccuracy * sumOfFactors);
+		return 1000000.0 * accumulatedError / (sumOfWeights * sumOfAccuracy * sumOfFactors);
 	else
 		return 0.0f;
 }

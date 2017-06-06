@@ -409,6 +409,7 @@ void Person::calculateBodyProperties()
 			}
 		}
 		standardDeviations[i] = sqrt(1 / (numberOfSamples[i] - 1) * sum);
+		standardDeviations[i] = max(standardDeviations[i], 0.001f);
 	}
 	bodyPropertiesBuffer.clear();
 }
@@ -481,7 +482,6 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 		// Summen für die Normierung der Wichtung berechnen
 		sumOfWeights += bodyPropertiesWeights[weightIndex];
 		//OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
-		if (standardDeviations[i] == 0.0f) standardDeviations[i] = .001f; //`@TODO?
 		sumOfAccuracy += 1 / standardDeviations[i];
 		sumOfFactors += bodyPropertiesFactors[i];
 

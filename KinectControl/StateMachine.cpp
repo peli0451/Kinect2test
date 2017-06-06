@@ -340,7 +340,8 @@ void StateMachine::compute() {
 		//CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
 		//CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position; 
 		//Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
-		Eigen::Vector3f shoulderPosition = convToVec3(master.getJoints()[JointType::JointType_SpineShoulder].Position);
+		Eigen::Vector3f shoulderPosition = (convToVec3(master.getJoints()[JointType::JointType_SpineBase].Position) + 
+											3 * convToVec3(master.getJoints()[JointType::JointType_Head].Position)) / 4;
 
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
 		Eigen::Vector3f targetAxis = shoulderPosition - handPosition;

@@ -74,6 +74,8 @@ int collectedFrames = 0;
 MotionParameters KinectControl::run() {
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
+	float identificationError, identificationErrorMin = FLT_MAX;;
+
 	//[deprecated]
 	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
 	master.setId(-1);
@@ -110,7 +112,18 @@ MotionParameters KinectControl::run() {
 				if (SUCCEEDED(result)) {
 					//Falls Gelenke erfolgreich geholt
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
+
 					if (masterDetermined && !collectFrames) {
+
+						identificationError = master.compareBodyProperties(joints);
+						if (identificationError < identificationErrorMin) {
+							master.setId(i);
+							identificationError = identificationErrorMin;
+							OutputDebugStringA("Neue Master-Id:\t");
+							OutputDebugStringA(std::to_string(i).c_str());
+							OutputDebugStringA("\n");
+						}
+
 						OutputDebugStringA("Abweichung:\t");
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
 						OutputDebugStringA("\n");

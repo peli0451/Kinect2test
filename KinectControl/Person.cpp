@@ -2,7 +2,13 @@
 #include "Person.h"
 #include <cmath>
 
-//#define DEBUG_BODY_PROPERTIES
+#define DEBUG_BODY_PROPERTIES //Debugausgaben Körpermerkmale
+#define DEBUG_ARM_DIFFERENCE //Debugmeldung über Oberarmlängendifferenz
+#define DEBUG_LEG_DIFFERENCE //Debugmeldung über Schenkellängendifferenz
+#define DEBUG_ACCUMULATED_ERROR //Debugmeldung über errechnete Abweichung
+#define DEBUG_NOTIFY_BAD_PROPERTY //Debugbenachrichtigungen für schlechte Werte
+#define DEBUG_COLLECTING //Debugmeldung über Standardabweichung bei Masterfestlegung
+#define DEBUG_VERBOSE //Debugmeldungen über Funktionsaufrufe und berechnungen
 
 /**********************************************************
 * Konstruktoren
@@ -201,6 +207,9 @@ GestureRecognition::ControlHand Person::getRisenHand() {
 */
 void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints)
 {
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: extractBodyProperties aufgerufen.\n");
+#endif
 	_CameraSpacePoint shoulderLeft = inputJoints[JointType::JointType_ShoulderLeft].Position;
 	_CameraSpacePoint shoulderRight = inputJoints[JointType::JointType_ShoulderRight].Position;
 	_CameraSpacePoint handLeft = inputJoints[JointType::JointType_HandLeft].Position;
@@ -310,6 +319,27 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	else {
 		extractedBodyProperties[HEIGHT_OF_HEAD] = 0.0f;
 	}
+
+#ifdef DEBUG_NOTIFY_BAD_PROPERTY
+	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		if (extractedBodyProperties[i] == 0.0f) {
+			switch (i)
+			{
+			case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Linker Oberarm\n"); break;
+			case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Rechter Oberarm\n"); break;
+			case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Linker Unterarm\n"); break;
+			case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Rechter Unterarm\n"); break;
+			case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Linker Oberschenkel\n"); break;
+			case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Rechter Oberschenkel\n"); break;
+			case SHOULDER_WIDTH:         OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Schulterbreite\n"); break;
+			case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Hüftbreite\n"); break;
+			case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Torsolänge\n"); break;
+			case HEIGHT_OF_HEAD:         OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Höhe des Kopfes\n"); break;
+			default: break;
+			}
+		}
+	}
+#endif
 }
 
 /** extrahiert die Körperproportionen aus der der Person-Klasse zu eigenen Gelenkpunkten
@@ -317,7 +347,13 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 */
 void Person::saveBodyProperties()
 {
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: saveBodyProperties aufgerufen.\n");
+#endif
 	extractBodyProperties(bodyProperties, joints);
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: Neue bodyProperties in aus joints gelesen.\n");
+#endif
 }
 
 /**
@@ -326,10 +362,18 @@ void Person::saveBodyProperties()
 */
 void Person::collectBodyProperties()
 {
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: collectBodyProperties aufgerufen.\n");
+#endif
+
 	float* bodyPropertiesTemp = new float[NUMBER_OF_BODY_PROPERTIES];
 	extractBodyProperties(bodyPropertiesTemp, joints);
 
 	bodyPropertiesBuffer.push_back(bodyPropertiesTemp);
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: Temporäre bodyProperties aus joints gelesen und auf Puffer gelegt.\n");
+#endif
+
 }
 
 /*
@@ -339,6 +383,10 @@ void Person::collectBodyProperties()
 */
 void Person::calculateBodyProperties()
 {
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: calculateBodyProperties aufgerufen.\n");
+#endif
+
 	// Iterator um durch den Buffer (verkettete Liste aus der STL) zu iterieren
 	std::list<float*>::iterator liter;
 	// temporärer Zeiger auf ein Buffer-Element, welches ein Array für einen Frame alle Proportionen enthält
@@ -401,17 +449,50 @@ void Person::calculateBodyProperties()
 			bodyProperties[i] /= numberOfSamples[i];
 		}
 		// Standardabweichung für jede Property berechnen
-		float sum = 0;
+		float sum = 0; //Summe der quadratischen Abstände für Merkmal i
 		for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
 			bodyPropertiesTemp = *liter;
 			if (bodyPropertiesTemp[i] != 0.0f && bodyPropertiesTemp[i] != smallest_val[i] && bodyPropertiesTemp[i] != greatest_val[i]) {
 				sum += pow(bodyPropertiesTemp[i] - bodyProperties[i], 2);
 			}
 		}
-		standardDeviations[i] = sqrt(1 / (numberOfSamples[i] - 1) * sum);
-		standardDeviations[i] = max(standardDeviations[i], 0.001f);
+		standardDeviations[i] = .0001f;
+		if (numberOfSamples[i] > 1) {
+			standardDeviations[i] = max(sqrt(1.0f / (numberOfSamples[i] - 1) * sum), standardDeviations[i]);
+		}
+#ifdef DEBUG_COLLECTING
+		OutputDebugStringA("Standardabweichung (Masterfestlegung), ");
+		switch (i)
+		{
+		case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("Linker Oberarm:        "); break;
+		case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("Rechter Oberarm:       "); break;
+		case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("Linker Unterarm:       "); break;
+		case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("Rechter Unterarm:      "); break;
+		case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("Linker Oberschenkel:   "); break;
+		case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("Rechter Oberschenkel:  "); break;
+		case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
+		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
+		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
+		case HEIGHT_OF_HEAD:         OutputDebugStringA("Höhe des Kopfes:       "); break;
+		default: break;
+		}
+		OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
+		OutputDebugStringA("\t");
+		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
+			OutputDebugStringA("Mittel ");
+			OutputDebugStringA(std::to_string(bodyProperties[i] /= numberOfSamples[i]).c_str());
+			OutputDebugStringA(" über ");
+			OutputDebugStringA(std::to_string(numberOfSamples[i]).c_str());
+			OutputDebugStringA(" Samples.\n");
+		}
+
+#endif
 	}
 	bodyPropertiesBuffer.clear();
+
+#ifdef DEBUG_VERBOSE
+	OutputDebugStringA("DEBUG: Mittel der Samples und Standardabweichung bestimmt.\n");
+#endif
 }
 
 /** Extrahiert aus den übergebenen Gelenkpunkten (einer zu vergleichenden Person)
@@ -485,22 +566,93 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 		sumOfAccuracy += 1 / standardDeviations[i];
 		sumOfFactors += bodyPropertiesFactors[i];
 
-#ifdef DEBUG_BODY_PROPERTIES
-		OutputDebugStringA("Confidence for BodyProperty No ");
-		OutputDebugStringA(std::to_string(i).c_str());
-		OutputDebugStringA(": ");
-		OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] / bodyProperties[i])).c_str());
-		OutputDebugStringA("\n");
-#endif
 		// Quadratische Abweichung, normiert, gewichtet mit Glaubwürdigkeitsfaktor und 1/Standardabweichung
-		
 		if (bodyProperties[i] != 0.0f) {
 			accumulatedError += pow((double) bodyProperties[i] - (double) propertiesForComparison[i], 2) / (double) bodyProperties[i]
 				* (double) bodyPropertiesWeights[weightIndex] * (double) bodyPropertiesFactors[i] / (double) standardDeviations[i];
 		}
+
+		//Debugausgaben Körpermerkmale
+		#ifdef DEBUG_BODY_PROPERTIES
+			switch (i)
+			{
+			case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("Linker Oberarm:        "); break;
+			case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("Rechter Oberarm:       "); break;
+			case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("Linker Unterarm:       "); break;
+			case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("Rechter Unterarm:      "); break;
+			case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("Linker Oberschenkel:   "); break;
+			case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("Rechter Oberschenkel:  "); break;
+			case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
+			case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
+			case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
+			case HEIGHT_OF_HEAD:         OutputDebugStringA("Höhe des Kopfes:       "); break;
+			default: break;
+			}
+			
+			OutputDebugStringA("Rohwert = ");
+			OutputDebugStringA(std::to_string(bodyProperties[i]).c_str());
+			OutputDebugStringA("\t\t");
+
+			OutputDebugStringA("Vergleichswert = ");
+			OutputDebugStringA(std::to_string(propertiesForComparison[i]).c_str());
+			OutputDebugStringA("\t\t");
+
+			OutputDebugStringA("Konfidenz = ");
+			OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] / bodyProperties[i])).c_str());
+			OutputDebugStringA("\n");
+		#endif
+
+		//Debugbenachrichtigungen für schlechte Werte
+		#ifdef DEBUG_NOTIFY_BAD_PROPERTY
+			if(bodyProperties[i] == 0.0f) {
+				switch (i)
+				{
+				case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("SCHLECHTER WERT  Linker Oberarm\n"); break;
+				case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("SCHLECHTER WERT  Rechter Oberarm\n"); break;
+				case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("SCHLECHTER WERT  Linker Unterarm\n"); break;
+				case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("SCHLECHTER WERT  Rechter Unterarm\n"); break;
+				case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("SCHLECHTER WERT  Linker Oberschenkel\n"); break;
+				case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("SCHLECHTER WERT  Rechter Oberschenkel\n"); break;
+				case SHOULDER_WIDTH:         OutputDebugStringA("SCHLECHTER WERT  Schulterbreite\n"); break;
+				case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT  Hüftbreite\n"); break;
+				case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT  Torsolänge\n"); break;
+				case HEIGHT_OF_HEAD:         OutputDebugStringA("SCHLECHTER WERT  Höhe des Kopfes\n"); break;
+				default: break;
+				}
+			}
+		#endif
 	}
 	if (sumOfWeights * sumOfAccuracy * sumOfFactors != 0.0f)
-		return 1000000.0 * accumulatedError / (sumOfWeights * sumOfAccuracy * sumOfFactors);
+		accumulatedError = 1000000.0 * accumulatedError / (sumOfWeights * sumOfAccuracy * sumOfFactors);
 	else
-		return 0.0f;
+		accumulatedError = 0.0f;
+
+//Debugmeldung über Oberarmlängendifferenz
+#ifdef DEBUG_ARM_DIFFERENCE
+	OutputDebugStringA("Messunterschied Oberarmlänge:      ");
+	OutputDebugStringA(std::to_string(abs(bodyProperties[LEFT_UPPER_ARM_LENGTH]-bodyProperties[RIGHT_UPPER_ARM_LENGTH])).c_str());
+	OutputDebugStringA("\t");
+	OutputDebugStringA("Mittel: ");
+	OutputDebugStringA(std::to_string((bodyProperties[LEFT_UPPER_ARM_LENGTH] + bodyProperties[RIGHT_UPPER_ARM_LENGTH])/2.0f).c_str());
+	OutputDebugStringA("\n");
+#endif
+
+//Debugmeldung über Schenkellängendifferenz
+#ifdef DEBUG_LEG_DIFFERENCE
+	OutputDebugStringA("Messunterschied Oberschenkellänge: ");
+	OutputDebugStringA(std::to_string(abs(bodyProperties[LEFT_UPPER_LEG_LENGTH] - bodyProperties[RIGHT_UPPER_LEG_LENGTH])).c_str());
+	OutputDebugStringA("\n");
+	OutputDebugStringA("Mittel: ");
+	OutputDebugStringA(std::to_string((bodyProperties[LEFT_UPPER_LEG_LENGTH] + bodyProperties[RIGHT_UPPER_LEG_LENGTH]) / 2.0f).c_str());
+	OutputDebugStringA("\n");
+#endif
+
+//Debugmeldung über errechnete Abweichung
+#ifdef DEBUG_ACCUMULATED_ERROR
+	OutputDebugStringA("Berechnete Abweichung: ");
+	OutputDebugStringA(std::to_string(accumulatedError).c_str());
+	OutputDebugStringA("\n\n");
+#endif
+
+	return accumulatedError;
 }

@@ -103,6 +103,7 @@ MotionParameters KinectControl::run() {
 		{
 			BOOLEAN isTracked;
 			trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
+			//trackedBodies[i]->get_TrackingId(&trackingId); //Tracking ID der i-ten getrackten Person
 
 			//Tracking erkannter Personen, Identifikation des Masters
 			if (isTracked == TRUE) {
@@ -114,19 +115,23 @@ MotionParameters KinectControl::run() {
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
 
 					if (masterDetermined && !collectFrames) {
-
+						master.compareBodyProperties(joints);
+						/*
 						identificationError = master.compareBodyProperties(joints);
 						if (identificationError < identificationErrorMin) {
 							master.setId(i);
 							identificationError = identificationErrorMin;
+							
 							OutputDebugStringA("Neue Master-Id:\t");
 							OutputDebugStringA(std::to_string(i).c_str());
 							OutputDebugStringA("\n");
+							
 						}
-
+						
 						OutputDebugStringA("Abweichung:\t");
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
 						OutputDebugStringA("\n");
+						*/
 					}
 					else if (masterDetermined && collectFrames){
 						if (collectedFrames < 20) {

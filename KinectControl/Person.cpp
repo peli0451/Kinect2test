@@ -58,8 +58,12 @@ Person::Person()
 	bodyPropertiesLimits[HIP_WIDTH].max = 0.7f;
 	bodyPropertiesLimits[TORSO_LENGTH].min = 0.2f;
 	bodyPropertiesLimits[TORSO_LENGTH].max = 1.0f;
-	bodyPropertiesLimits[HEIGHT_OF_HEAD].min = -2.5f;
-	bodyPropertiesLimits[HEIGHT_OF_HEAD].max = 2.5f;
+	bodyPropertiesLimits[RIGHT_HAND_TO_WRIST].min = 0.01f;
+	bodyPropertiesLimits[RIGHT_HAND_TO_WRIST].max = 0.5f;
+	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].min = 0.01f;
+	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].max = 0.5f;
+	bodyPropertiesLimits[NECK_TO_HEAD].min = 0.01f;
+	bodyPropertiesLimits[NECK_TO_HEAD].max = 0.5f
 
 	numberOfWeights = sizeof(bodyPropertiesWeights) / sizeof(float);
 }
@@ -214,6 +218,8 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint shoulderRight = inputJoints[JointType::JointType_ShoulderRight].Position;
 	_CameraSpacePoint handLeft = inputJoints[JointType::JointType_HandLeft].Position;
 	_CameraSpacePoint handRight = inputJoints[JointType::JointType_HandRight].Position;
+	_CameraSpacePoint wristLeft = inputJoints[JointType::JointType_WristLeft].Position;
+	_CameraSpacePoint wristRight = inputJoints[JointType::JointType_WristRight].Position;
 	_CameraSpacePoint spineShoulder = inputJoints[JointType::JointType_SpineShoulder].Position;
 	_CameraSpacePoint elbowLeft = inputJoints[JointType::JointType_ElbowLeft].Position;
 	_CameraSpacePoint elbowRight = inputJoints[JointType::JointType_ElbowRight].Position;
@@ -229,6 +235,8 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	TrackingState shoulderRightState = inputJoints[JointType::JointType_ShoulderRight].TrackingState;
 	TrackingState handLeftState = inputJoints[JointType::JointType_HandLeft].TrackingState;
 	TrackingState handRightState = inputJoints[JointType::JointType_HandRight].TrackingState;
+	TrackingState wristLeftState = inputJoints[JointType::JointType_WristLeft].TrackingState;
+	TrackingState wristRightState = inputJoints[JointType::JointType_WristRight].TrackingState;
 	TrackingState spineShoulderState = inputJoints[JointType::JointType_SpineShoulder].TrackingState;
 	TrackingState elbowLeftState = inputJoints[JointType::JointType_ElbowLeft].TrackingState;
 	TrackingState elbowRightState = inputJoints[JointType::JointType_ElbowRight].TrackingState;
@@ -313,12 +321,30 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 		extractedBodyProperties[TORSO_LENGTH] = 0.0f;
 	}
 
-	if (headState == TrackingState::TrackingState_Tracked) {
-		extractedBodyProperties[HEIGHT_OF_HEAD] = head.Y;
+	if (neckState == TrackingState::TrackingState_Tracked && headState == TrackingState::TrackingState_Tracked) {
+		extractedBodyProperties[NECK_TO_HEAD] = sqrt(pow(neck.X - head.X, 2.0f) +
+			pow(neck.Y - head.Y, 2.0f) + pow(neck.Z - head.Z, 2.0f));
 	}
 	else {
-		extractedBodyProperties[HEIGHT_OF_HEAD] = 0.0f;
+		extractedBodyProperties[NECK_TO_HEAD] = 0.0f;
 	}
+
+	if (wristRightState == TrackingState::TrackingState_Tracked && handRightState == TrackingState::TrackingState_Tracked) {
+		extractedBodyProperties[RIGHT_HAND_TO_WRIST] = sqrt(pow(wristRight.X - handRight.X, 2.0f) +
+			pow(wristRight.Y - handRight.Y, 2.0f) + pow(wristRight.Z - handRight.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[RIGHT_HAND_TO_WRIST] = 0.0f;
+	}
+
+	if (wristLeftState == TrackingState::TrackingState_Tracked && handLeftState == TrackingState::TrackingState_Tracked) {
+		extractedBodyProperties[LEFT_HAND_TO_WRIST] = sqrt(pow(wristLeft.X - handLeft.X, 2.0f) +
+			pow(wristLeft.Y - handLeft.Y, 2.0f) + pow(wristLeft.Z - handLeft.Z, 2.0f));
+	}
+	else {
+		extractedBodyProperties[LEFT_HAND_TO_WRIST] = 0.0f;
+	}
+
 
 #ifdef DEBUG_NOTIFY_BAD_PROPERTY
 	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
@@ -334,7 +360,10 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 			case SHOULDER_WIDTH:         OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Schulterbreite\n"); break;
 			case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Hüftbreite\n"); break;
 			case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Torsolänge\n"); break;
-			case HEIGHT_OF_HEAD:         OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Höhe des Kopfes\n"); break;
+			case NECK_TO_HEAD:           OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Hals zu Kopf\n"); break;
+			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   rechte Handlänge\n"); break;
+			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   linke Handlänge\n"); break;
+
 			default: break;
 			}
 		}
@@ -473,7 +502,10 @@ void Person::calculateBodyProperties()
 		case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
 		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
-		case HEIGHT_OF_HEAD:         OutputDebugStringA("Höhe des Kopfes:       "); break;
+		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:            "); break;
+		case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:            "); break;
+		case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:            "); break;
+		
 		default: break;
 		}
 		OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
@@ -578,8 +610,10 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 			case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
 			case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 			case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
-			case HEIGHT_OF_HEAD:         OutputDebugStringA("Höhe des Kopfes:       "); break;
-			default: break;
+			case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:            "); break;
+			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:            "); break;
+			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:            "); break;
+
 			}
 			
 			if (i != LEFT_UPPER_LEG_LENGTH && i != RIGHT_UPPER_LEG_LENGTH) {
@@ -611,7 +645,9 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 				case SHOULDER_WIDTH:         OutputDebugStringA("SCHLECHTER WERT  Schulterbreite\n"); break;
 				case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT  Hüftbreite\n"); break;
 				case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT  Torsolänge\n"); break;
-				case HEIGHT_OF_HEAD:         OutputDebugStringA("SCHLECHTER WERT  Höhe des Kopfes\n"); break;
+				case NECK_TO_HEAD:         OutputDebugStringA("SCHLECHTER WERT  Hals zu Kopf\n"); break;
+				case RIGHT_HAND_TO_WRIST:         OutputDebugStringA("SCHLECHTER WERT  rechte Handlänge\n"); break;
+				case LEFT_HAND_TO_WRIST:         OutputDebugStringA("SCHLECHTER WERT  linke Handlänge\n"); break;
 				default: break;
 				}
 			}

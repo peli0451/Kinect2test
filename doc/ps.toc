@@ -24,7 +24,7 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{9}{subsection.3.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{11}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{12}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{12}{section.4}
 \defcounter {refsection}{0}\relax 

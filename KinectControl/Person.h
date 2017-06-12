@@ -49,6 +49,8 @@ public:
 	float compareBodyProperties(Joint* inputJoints);
 	void collectBodyProperties();
 	void calculateBodyProperties();
+	
+	bool isInConfigurationPose();
 
 private:
 	struct Limits

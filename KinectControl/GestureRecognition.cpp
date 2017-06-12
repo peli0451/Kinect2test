@@ -1,3 +1,7 @@
+/**
+* GestureRecognition.cpp
+* Stellt Strukturen zur Gestenerkennung bereit, v. A. Konfidenzstruktur, Gestenpuffer und Pufferauswertung
+*/
 #include "stdafx.h"
 #include "GestureRecognition.h"
 

@@ -116,6 +116,7 @@ MotionParameters KinectControl::run() {
 
 					if (masterDetermined && !collectFrames) {
 						master.compareBodyProperties(joints);
+						OutputDebugStringA(std::to_string(master.isInConfigurationPose()).c_str());
 						/*
 						identificationError = master.compareBodyProperties(joints);
 						if (identificationError < identificationErrorMin) {
@@ -236,6 +237,9 @@ MotionParameters KinectControl::run() {
 	return stateMachine.getMotionParameters();
 }
 
+/** 
+* Bereitet die Mastererfassung vor
+*/
 void KinectControl::assignMaster() {
 	masterDetermined = true;
 	collectFrames = true;

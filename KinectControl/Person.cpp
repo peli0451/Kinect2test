@@ -527,6 +527,7 @@ void Person::calculateBodyProperties()
 #endif
 }
 
+
 /** Extrahiert aus den übergebenen Gelenkpunkten (einer zu vergleichenden Person)
 * die Körperproportionen und vergleicht diese mit den eigenen (der der Person Klasse)
 *
@@ -686,4 +687,25 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 #endif
 
 	return accumulatedError;
+}
+
+/**
+* Prüft, ob die Person die vordefinierte Konfigurationspose eingenommen hat
+*/
+
+bool Person::isInConfigurationPose()
+{
+	return (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HandRight].Position.Y) < .1f) // Hände etwa auf gleicher Höhe
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HandRight].Position.Z) < .1f) // Hände etwa in gleicher Entfernung
+		&& (abs(joints[JointType::JointType_HipLeft].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HipLeft].Position.Y) < .15f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Y - joints[JointType::JointType_HipRight].Position.Y) < .15f) // Hände ungefähr auf Hüfthöhe
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HipLeft].Position.Z) < .1f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hände ungefähr auf Hüftentfernung
+		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
+			< 4.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand < 4*Hüftabstand (x-Werte)
+		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
+			> 2.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand > 2*Hüftabstand (x-Werte)
+		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
+		&& (joints[JointType::JointType_HipLeft].Position.X < joints[JointType::JointType_HipRight].Position.X); // richtig herum vor der Kamera
 }

@@ -63,7 +63,7 @@ Person::Person()
 	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].min = 0.01f;
 	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].max = 0.5f;
 	bodyPropertiesLimits[NECK_TO_HEAD].min = 0.01f;
-	bodyPropertiesLimits[NECK_TO_HEAD].max = 0.5f
+	bodyPropertiesLimits[NECK_TO_HEAD].max = 0.5f;
 
 	numberOfWeights = sizeof(bodyPropertiesWeights) / sizeof(float);
 }

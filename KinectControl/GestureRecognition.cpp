@@ -46,7 +46,7 @@ Buffer<GestureRecognition::GestureConfidence>* GestureRecognition::getConfidence
 *
 * Setzt die private Variable recognizedGesture
 */
-void GestureRecognition::recognize() {
+void GestureRecognition::evaluateBuffer() {
 
 	//Konfidenz aus dem Puffer
 	GestureRecognition::GestureConfidence currentConfidence;

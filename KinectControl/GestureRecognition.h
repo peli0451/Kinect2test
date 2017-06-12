@@ -28,7 +28,7 @@ public:
 	void setRecognizedGesture(Gesture gesture);
 
 	Buffer<GestureConfidence> *getConfidenceBuffer();
-	void recognize();
+	void evaluateBuffer();
 
 	GestureRecognition();
 private:

@@ -171,7 +171,7 @@ void StateMachine::bufferGestureConfidence() {
 		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
 			newConfidence = { .0f,1.f,.0f,.0f,.0f }; //sehr wahrscheinlich Translate
 		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .0f,.75f,.25f,.0f,.0f }; //doppeldeutig, halte Translate für wahrscheinlicher
+			newConfidence = { .8f,.1f,.1f,.0f,.0f }; //doppeldeutig
 		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
 		break;
 
@@ -184,7 +184,7 @@ void StateMachine::bufferGestureConfidence() {
 		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
 			newConfidence = { .0f,.0f,1.f,.0f,.0f }; //sehr wahrscheinlich Rotate
 		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .0f,.25f,.75f,.0f,.0f }; //doppeldeutig, halte Rotate für wahrscheinlicher
+			newConfidence = { .8f,.1f,.1f,.0f,.0f }; //doppeldeutig
 		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
 		break;
 
@@ -225,7 +225,7 @@ void StateMachine::bufferGestureConfidence() {
 	gestureRecognition.getConfidenceBuffer()->push(newConfidence);
 
 	//Puffer auswerten
-	gestureRecognition.recognize();
+	gestureRecognition.evaluateBuffer();
 }
 
 /**

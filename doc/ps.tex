@@ -7,7 +7,12 @@
 \usepackage{amssymb}
 \usepackage{lmodern}
 \usepackage{tikz-uml}
+\usepackage[singlelinecheck=off, list=off]{caption}
+\usepackage{enumitem}
 \usepackage[backend=bibtex]{biblatex} 
+\makeatletter
+\def\blx@maxline{77}
+\makeatother
 \addbibresource{literatur.bib}
 \usepackage[colorlinks]{hyperref}
 
@@ -103,6 +108,9 @@
 	\input{sections/datenstrukturen}
 	\input{sections/zusammenspiel}
 	\input{sections/einbinden}
+%
+%
+\section{Schlussbemerkungen}
 
 \newpage
 \printbibliography

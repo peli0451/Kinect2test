@@ -1,5 +1,5 @@
 % $ biblatex auxiliary file $
-% $ biblatex bbl format version 2.8 $
+% $ biblatex bbl format version 2.7 $
 % Do not modify the above lines!
 %
 % This is an auxiliary file used by the 'biblatex' package.
@@ -17,13 +17,118 @@
 \endgroup
 
 \sortlist[entry]{nty/global/}
+  \entry{biomid}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=ARM}{%
+         family={Araujo},
+         family_i={A\bibinitperiod},
+         given={Ricardo\bibnamedelima M},
+         given_i={R\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=GG}{%
+         family={Gra{\~n}a},
+         family_i={G\bibinitperiod},
+         given={Gustavo},
+         given_i={G\bibinitperiod},
+      }}%
+      {{hash=AV}{%
+         family={Andersson},
+         family_i={A\bibinitperiod},
+         given={Virginia},
+         given_i={V\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {ACM}%
+    }
+    \strng{namehash}{ARMGGAV1}
+    \strng{fullhash}{ARMGGAV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{booktitle}{Proceedings of the 28th Annual ACM Symposium on Applied
+  Computing}
+    \field{note}{Zugriff 12.6.17}
+    \field{pages}{21\bibrangedash 26}
+    \field{title}{Towards skeleton biometric identification using the microsoft
+  kinect sensor}
+    \verb{url}
+    \verb https://www.researchgate.net/profile/Ricardo_Araujo2/publication/2370
+    \verb 64051_Towards_Skeleton_Biometric_Identification_Using_the_Microsoft_K
+    \verb inect_Sensor/links/0046351b1d1cc4c5a0000000.pdf
+    \endverb
+    \field{year}{2013}
+  \endentry
+
+  \entry{bodyprop}{article}{}
+    \name{author}{4}{}{%
+      {{hash=BG}{%
+         family={Blumrosen},
+         family_i={B\bibinitperiod},
+         given={G.},
+         given_i={G\bibinitperiod},
+      }}%
+      {{hash=MY}{%
+         family={Miron},
+         family_i={M\bibinitperiod},
+         given={Y.},
+         given_i={Y\bibinitperiod},
+      }}%
+      {{hash=IN}{%
+         family={Intrator},
+         family_i={I\bibinitperiod},
+         given={N.},
+         given_i={N\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Plotnik},
+         family_i={P\bibinitperiod},
+         given={M.},
+         given_i={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BG+1}
+    \strng{fullhash}{BGMYINPM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{note}{Zugriff 12.6.17}
+    \field{title}{A Real-Time Kinect Signature-Based Patient Home-Monitoring
+  System}
+    \verb{url}
+    \verb https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5134624/
+    \endverb
+    \field{journaltitle}{Sensors (Basel)}
+    \field{year}{2016}
+  \endentry
+
+  \entry{kinectsdk}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=M}{%
+         family={Microsoft},
+         family_i={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{M1}
+    \strng{fullhash}{M1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+  \field{howpublished}{\url{https://developer.microsoft.com/de-de/windows/kinect/tools}}
+    \field{note}{Zugriff 12.6.17}
+    \field{title}{Kinect f\"ur Windows 2.0 SDK}
+  \endentry
+
   \entry{tracking}{misc}{}
     \name{author}{1}{}{%
       {{hash=NMD}{%
          family={Network},
-         familyi={N\bibinitperiod},
+         family_i={N\bibinitperiod},
          given={Microsoft\bibnamedelima Developer},
-         giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
       }}%
     }
     \strng{namehash}{NMD1}
@@ -33,9 +138,114 @@
     \field{sortinit}{N}
     \field{sortinithash}{N}
   \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/jj131025.aspx}}
-    \field{note}{[Online; accessed 25-April-2017]}
+    \field{note}{Zugriff 25.4.2017}
     \field{title}{{Tracking Users with Kinect Skeletal Tracking}}
     \field{year}{2017}
+  \endentry
+
+  \entry{trackingstate}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         family_i={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/microsoft.kinect.kinect.trackingstate.aspx}}
+    \field{note}{Zugriff 12.6.17}
+    \field{title}{TrackingState Enumeration}
+    \field{year}{2017}
+  \endentry
+
+  \entry{kinectlight}{thesis}{}
+    \name{author}{1}{}{%
+      {{hash=SR}{%
+         family={Seggers},
+         family_i={S\bibinitperiod},
+         given={Ruben},
+         given_i={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SR1}
+    \strng{fullhash}{SR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{note}{Zugriff 12.6.17}
+    \field{title}{People Tracking in Outdoor Environments: Evaluating the
+  Kinect 2 Performance in Differend Lighting Conditions}
+    \verb{url}
+    \verb https://staff.fnwi.uva.nl/a.visser/education/bachelorAI/thesisSeggers
+    \verb .pdf
+    \endverb
+    \list{institution}{1}{%
+      {University of Amsterdam}%
+    }
+    \field{type}{Bachelorarbeit}
+    \field{year}{2015}
+  \endentry
+
+  \entry{thermalsens}{article}{}
+    \name{author}{6}{}{%
+      {{hash=SL}{%
+         family={Susperregi},
+         family_i={S\bibinitperiod},
+         given={L.},
+         given_i={L\bibinitperiod},
+      }}%
+      {{hash=SB}{%
+         family={Sierra},
+         family_i={S\bibinitperiod},
+         given={B.},
+         given_i={B\bibinitperiod},
+      }}%
+      {{hash=CM}{%
+         family={Castrillón},
+         family_i={C\bibinitperiod},
+         given={M.},
+         given_i={M\bibinitperiod},
+      }}%
+      {{hash=LJ}{%
+         family={Lorenzo},
+         family_i={L\bibinitperiod},
+         given={J.},
+         given_i={J\bibinitperiod},
+      }}%
+      {{hash=MOJM}{%
+         family={Martínez-Otzeta},
+         family_i={M\bibinitperiod-O\bibinitperiod},
+         given={J.\bibnamedelima M.},
+         given_i={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=LE}{%
+         family={Lazkano},
+         family_i={L\bibinitperiod},
+         given={E.},
+         given_i={E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SL+1}
+    \strng{fullhash}{SLSBCMLJMOJMLE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{note}{Zugriff 12.6.17}
+    \field{title}{On the Use of a Low-Cost Thermal Sensor to Improve Kinect
+  People Detection in a Mobile Robot}
+    \verb{url}
+    \verb https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3871095/
+    \endverb
+    \field{journaltitle}{Sensors (Basel)}
+    \field{year}{2013}
   \endentry
 \endsortlist
 \endinput

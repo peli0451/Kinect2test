@@ -50,7 +50,6 @@ public:
 	void collectBodyProperties();
 	void calculateBodyProperties();
 	
-	bool isInConfigurationPose();
 
 private:
 	struct Limits

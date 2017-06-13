@@ -28,9 +28,12 @@ class KinectControl {
 		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;
 		IBody *trackedBodies[BODY_COUNT] = { 0,0,0,0,0,0 };
+		UINT64 trackingId[BODY_COUNT];
+		bool collectDeviation[BODY_COUNT];
 		Buffer<float> *deviations[BODY_COUNT];
 		const int NUMBER_OF_COLLECTED_FRAMES = 20;
 		float evaluateDeviationBuffer(Buffer<float> *deviationBuffer);
+		bool isInConfigurationPose(Joint* joints);
 
 		//@TODO in die .cpp?
 		HRESULT result;

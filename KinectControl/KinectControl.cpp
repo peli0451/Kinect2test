@@ -48,6 +48,10 @@ void KinectControl::init(ControlWidget *_widget) {
 	for (int i = 0; i < BODY_COUNT; i++) {
 		deviations[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
 	}
+
+	for (int i = 0; i < BODY_COUNT; i++) {
+		collectDeviation[i] = false;
+	}
 }
 
 /**
@@ -81,6 +85,27 @@ float getSaneValue(float old, float fresh) {
 }
 
 /**
+* Prüft, ob eine Person die vordefinierte Konfigurationspose eingenommen hat
+*/
+
+bool KinectControl::isInConfigurationPose(Joint* joints)
+{
+	return (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HandRight].Position.Y) < .1f) // Hände etwa auf gleicher Höhe
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HandRight].Position.Z) < .1f) // Hände etwa in gleicher Entfernung
+		&& (abs(joints[JointType::JointType_HipLeft].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HipLeft].Position.Y) < .15f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Y - joints[JointType::JointType_HipRight].Position.Y) < .15f) // Hände ungefähr auf Hüfthöhe
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HipLeft].Position.Z) < .1f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hände ungefähr auf Hüftentfernung
+		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
+			< 4.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand < 4*Hüftabstand (x-Werte)
+		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
+			> 2.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand > 2*Hüftabstand (x-Werte)
+		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
+		&& (joints[JointType::JointType_HipLeft].Position.X < joints[JointType::JointType_HipRight].Position.X); // richtig herum vor der Kamera
+}
+
+/**
 * Hole und bearbeite Frame, den Kinect liefert
 *
 * @return motionParameters Transformationsparameter
@@ -91,7 +116,6 @@ int collectedFrames = 0;
 MotionParameters KinectControl::run() {
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
-	float identificationError, identificationErrorMin = FLT_MAX;;
 
 	//[deprecated]
 	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
@@ -115,12 +139,23 @@ MotionParameters KinectControl::run() {
 		return motionParameters;
 	}
 
+	bool searchForMaster;
+	BOOLEAN isTracked;
+	UINT64 currentTrackingId;
+
+	trackedBodies[master.getId()]->get_IsTracked(&isTracked);
+	trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
+
+	if (masterDetermined && isTracked && currentTrackingId == trackingId[master.getId()])
+		searchForMaster = false;
+	else
+		searchForMaster = true;
+
 	//TODO hier noch alte, primitive Mastererkennung
 		for (int i = 0; i < numberOfTrackedBodies; i++)
 		{
-			BOOLEAN isTracked;
 			trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
-			//trackedBodies[i]->get_TrackingId(&trackingId); //Tracking ID der i-ten getrackten Person
+			trackedBodies[i]->get_TrackingId(&currentTrackingId); //Tracking ID der i-ten getrackten Person
 
 			//Tracking erkannter Personen, Identifikation des Masters
 			if (isTracked == TRUE) {
@@ -132,20 +167,31 @@ MotionParameters KinectControl::run() {
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
 
 					if (masterDetermined && !collectFrames) {
-						master.compareBodyProperties(joints);
-						OutputDebugStringA(std::to_string(master.isInConfigurationPose()).c_str());
-						/*
-						identificationError = master.compareBodyProperties(joints);
-						if (identificationError < identificationErrorMin) {
-							master.setId(i);
-							identificationError = identificationErrorMin;
-							
-							OutputDebugStringA("Neue Master-Id:\t");
-							OutputDebugStringA(std::to_string(i).c_str());
-							OutputDebugStringA("\n");
-							
-						}
 						
+						master.compareBodyProperties(joints);
+						OutputDebugStringA("isInConfigurationPose: ");
+						OutputDebugStringA(std::to_string(isInConfigurationPose(joints)).c_str());
+
+						if (searchForMaster && isInConfigurationPose (joints)) {
+							if (collectDeviation[i] == false) {
+								collectDeviation[i] = true;
+								trackingId[i] = currentTrackingId;
+							}
+							else if (collectDeviation[i] == true && currentTrackingId == trackingId[i]) {
+								if (deviationBuffer[i]->isFull()) {
+									evaluateDeviationBuffer(deviationBuffer[i]);
+									deviationBuffer[i]->empty();
+									collectDeviation[i] == false;
+								}
+								else {
+									deviationBuffer[i]->push(master.compareBodyProperties(joints));
+								}
+							}
+							else {
+								collectDeviation = false;
+							}
+						}
+						/*												
 						OutputDebugStringA("Abweichung:\t");
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
 						OutputDebugStringA("\n");
@@ -153,6 +199,7 @@ MotionParameters KinectControl::run() {
 					}
 					else if (masterDetermined && collectFrames){
 						if (collectedFrames < 20) {
+							trackingId[master.getId()] = currentTrackingId;
 							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
 							master.collectBodyProperties();
 							collectedFrames++;
@@ -262,3 +309,4 @@ void KinectControl::assignMaster() {
 	collectFrames = true;
 	collectedFrames = 0;
 }
+

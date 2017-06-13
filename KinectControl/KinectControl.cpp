@@ -44,6 +44,23 @@ void KinectControl::init(ControlWidget *_widget) {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //Anzahl Personen?
 	bodyFrameSource->OpenReader(&bodyFrameReader);
+
+	for (int i = 0; i < BODY_COUNT; i++) {
+		deviations[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
+	}
+}
+
+/**
+* Bestimmt ein Mittel aus allen Abweichungen einer Person
+* @param deviationBuffer Zeiger auf einen Buffer
+* @return arrithmetisches Mittel aller Abweichungen
+*/
+float KinectControl::evaluateDeviationBuffer(Buffer<float> *deviationBuffer) {
+	float arrithmetic_mean = 0;
+	for (int i = 0; i < NUMBER_OF_COLLECTED_FRAMES; i++) {
+		arrithmetic_mean += *deviationBuffer->get(i);
+	}
+	return arrithmetic_mean / NUMBER_OF_COLLECTED_FRAMES;
 }
 
 /**

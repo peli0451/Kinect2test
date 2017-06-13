@@ -28,6 +28,9 @@ class KinectControl {
 		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;
 		IBody *trackedBodies[BODY_COUNT] = { 0,0,0,0,0,0 };
+		Buffer<float> *deviations[BODY_COUNT];
+		const int NUMBER_OF_COLLECTED_FRAMES = 20;
+		float evaluateDeviationBuffer(Buffer<float> *deviationBuffer);
 
 		//@TODO in die .cpp?
 		HRESULT result;

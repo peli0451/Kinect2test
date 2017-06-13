@@ -48,5 +48,14 @@ public:
 		}
 		return &array[(index + first_index) % size];
 	}
+
+	void empty() {
+		element_count = 0;
+		first_index = 0;
+	}
+
+	bool isFull() {
+		return element_count == size;
+	}
 };
 

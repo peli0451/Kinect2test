@@ -70,7 +70,7 @@ private:
 	float bodyPropertiesWeights[6] = { 1.0f, 0.7f, 0.5f, 0.3f, 0.1f, 0.0f };
 	int numberOfWeights;
 	float standardDeviations[NUMBER_OF_BODY_PROPERTIES];
-	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, .0f, .0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, .0f, .0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f};
 
 	int id;
 

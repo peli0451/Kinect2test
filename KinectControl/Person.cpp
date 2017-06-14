@@ -5,10 +5,11 @@
 //#define DEBUG_BODY_PROPERTIES //Debugausgaben Körpermerkmale
 //#define DEBUG_ARM_DIFFERENCE //Debugmeldung über Oberarmlängendifferenz
 //#define DEBUG_LEG_DIFFERENCE //Debugmeldung über Schenkellängendifferenz
-#define DEBUG_ACCUMULATED_ERROR //Debugmeldung über errechnete Abweichung
+//#define DEBUG_ACCUMULATED_ERROR //Debugmeldung über errechnete Abweichung
 //#define DEBUG_NOTIFY_BAD_PROPERTY //Debugbenachrichtigungen für schlechte Werte
 #define DEBUG_COLLECTING //Debugmeldung über Standardabweichung bei Masterfestlegung
 //#define DEBUG_VERBOSE //Debugmeldungen über Funktionsaufrufe und berechnungen
+//#define DEBUG_MASTER //Debugmeldung, ob Master erkannt
 
 /**********************************************************
 * Konstruktoren
@@ -502,9 +503,9 @@ void Person::calculateBodyProperties()
 		case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
 		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
-		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:            "); break;
-		case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:            "); break;
-		case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:            "); break;
+		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
+		case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:      "); break;
+		case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:       "); break;
 		
 		default: break;
 		}
@@ -611,9 +612,9 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 			case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
 			case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 			case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
-			case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:            "); break;
-			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:            "); break;
-			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:            "); break;
+			case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
+			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:      "); break;
+			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:       "); break;
 
 			}
 			
@@ -684,6 +685,14 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 	OutputDebugStringA("Berechnete Abweichung: ");
 	OutputDebugStringA(std::to_string(accumulatedError).c_str());
 	OutputDebugStringA("\n\n");
+#endif
+#ifdef DEBUG_MASTER
+	if (accumulatedError < 50.0f) {
+		OutputDebugStringA("MASTER ERKANNT\n");
+	}
+	else {
+		OutputDebugStringA("--------------\n");
+	}
 #endif
 
 	return accumulatedError;

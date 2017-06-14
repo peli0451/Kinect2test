@@ -46,7 +46,7 @@ void KinectControl::init(ControlWidget *_widget) {
 	bodyFrameSource->OpenReader(&bodyFrameReader);
 
 	for (int i = 0; i < BODY_COUNT; i++) {
-		deviations[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
+		deviationBuffer[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
 	}
 
 	for (int i = 0; i < BODY_COUNT; i++) {
@@ -86,6 +86,8 @@ float getSaneValue(float old, float fresh) {
 
 /**
 * Prüft, ob eine Person die vordefinierte Konfigurationspose eingenommen hat
+*
+* @return Angabe (boolesch), ob in Pose (true) oder nicht (false)
 */
 
 bool KinectControl::isInConfigurationPose(Joint* joints)
@@ -93,12 +95,12 @@ bool KinectControl::isInConfigurationPose(Joint* joints)
 	return (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HandRight].Position.Y) < .1f) // Hände etwa auf gleicher Höhe
 		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HandRight].Position.Z) < .1f) // Hände etwa in gleicher Entfernung
 		&& (abs(joints[JointType::JointType_HipLeft].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
-		&& (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HipLeft].Position.Y) < .15f)
-		&& (abs(joints[JointType::JointType_HandRight].Position.Y - joints[JointType::JointType_HipRight].Position.Y) < .15f) // Hände ungefähr auf Hüfthöhe
-		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HipLeft].Position.Z) < .1f)
-		&& (abs(joints[JointType::JointType_HandRight].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hände ungefähr auf Hüftentfernung
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HipLeft].Position.Y) < .2f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Y - joints[JointType::JointType_HipRight].Position.Y) < .2f) // Hände ungefähr auf Hüfthöhe
+		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HipLeft].Position.Z) < .15f)
+		&& (abs(joints[JointType::JointType_HandRight].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .15f) // Hände ungefähr auf Hüftentfernung
 		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
-			< 4.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand < 4*Hüftabstand (x-Werte)
+			< 5.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand < 4*Hüftabstand (x-Werte)
 		&& (abs(joints[JointType::JointType_HandLeft].Position.X - joints[JointType::JointType_HandRight].Position.X)
 			> 2.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand > 2*Hüftabstand (x-Werte)
 		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
@@ -119,9 +121,10 @@ MotionParameters KinectControl::run() {
 
 	//[deprecated]
 	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
-	master.setId(-1);
-	master.setZ(FLT_MAX);
-
+	if (!masterDetermined) {
+		master.setId(-1);
+		master.setZ(FLT_MAX);
+	}
 	IBodyFrame *bodyFrame;
 
 	//Hole aktuellen Kinect-Frame (falls möglich)
@@ -143,8 +146,10 @@ MotionParameters KinectControl::run() {
 	BOOLEAN isTracked;
 	UINT64 currentTrackingId;
 
-	trackedBodies[master.getId()]->get_IsTracked(&isTracked);
-	trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
+	if (masterDetermined) {
+		trackedBodies[master.getId()]->get_IsTracked(&isTracked);
+		trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
+	}
 
 	if (masterDetermined && isTracked && currentTrackingId == trackingId[master.getId()])
 		searchForMaster = false;
@@ -168,9 +173,12 @@ MotionParameters KinectControl::run() {
 
 					if (masterDetermined && !collectFrames) {
 						
-						master.compareBodyProperties(joints);
+						//master.compareBodyProperties(joints);
+						/*
 						OutputDebugStringA("isInConfigurationPose: ");
 						OutputDebugStringA(std::to_string(isInConfigurationPose(joints)).c_str());
+						OutputDebugStringA("\t");
+						*/
 
 						if (searchForMaster && isInConfigurationPose (joints)) {
 							if (collectDeviation[i] == false) {
@@ -179,16 +187,35 @@ MotionParameters KinectControl::run() {
 							}
 							else if (collectDeviation[i] == true && currentTrackingId == trackingId[i]) {
 								if (deviationBuffer[i]->isFull()) {
-									evaluateDeviationBuffer(deviationBuffer[i]);
-									deviationBuffer[i]->empty();
-									collectDeviation[i] == false;
+									float deviation = evaluateDeviationBuffer(deviationBuffer[i]);
+									if (deviation < 50.0f) {
+										searchForMaster = false;
+										master.setId(i);
+										for (int j = 0; j < numberOfTrackedBodies; j++) {
+											collectDeviation[j] = false;
+											deviationBuffer[j]->empty();
+										}
+										OutputDebugStringA("Master gefunden.\t");
+										OutputDebugStringA(std::to_string(deviation).c_str());
+										OutputDebugStringA("\n");
+									} else { 
+										deviationBuffer[i]->empty();
+										OutputDebugStringA("----------------\t");
+										OutputDebugStringA(std::to_string(deviation).c_str());
+										OutputDebugStringA("\n");
+									}
+									//OutputDebugStringA(std::to_string(blub).c_str());
+									//OutputDebugStringA("\n");
 								}
 								else {
+									OutputDebugStringA("Collecting [");
+									OutputDebugStringA(std::to_string(i).c_str());
+									OutputDebugStringA("]\n");
 									deviationBuffer[i]->push(master.compareBodyProperties(joints));
 								}
 							}
 							else {
-								collectDeviation = false;
+								collectDeviation[i] = false;
 							}
 						}
 						/*												

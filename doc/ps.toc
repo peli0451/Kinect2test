@@ -20,18 +20,18 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.1}Der Master}{6}{subsection.3.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{6}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{7}{subsection.3.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{9}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{10}{subsection.3.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{12}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{11}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{16}{section.4}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{17}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{16}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{17}{subsection.4.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{16}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{17}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{16}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{17}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{16}{section.5}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{17}{section.5}

@@ -47,8 +47,8 @@ public:
 
 	void saveBodyProperties();
 	float compareBodyProperties(Joint* inputJoints);
-	void collectBodyProperties();
-	void calculateBodyProperties();
+	bool collectBodyProperties();
+	bool calculateBodyProperties();
 	
 
 private:
@@ -60,17 +60,16 @@ private:
 
 	enum BODY_PROPERTIES {
 		LEFT_UPPER_ARM_LENGTH, RIGHT_UPPER_ARM_LENGTH, LEFT_LOWER_ARM_LENGTH, RIGHT_LOWER_ARM_LENGTH,
-		LEFT_UPPER_LEG_LENGTH, RIGHT_UPPER_LEG_LENGTH, SHOULDER_WIDTH, HIP_WIDTH, TORSO_LENGTH,	RIGHT_HAND_TO_WRIST, 
-		LEFT_HAND_TO_WRIST, NECK_TO_HEAD, NUMBER_OF_BODY_PROPERTIES
+		SHOULDER_WIDTH, HIP_WIDTH, TORSO_LENGTH, NECK_TO_HEAD, NUMBER_OF_BODY_PROPERTIES
 	};
 
 	Limits bodyPropertiesLimits[NUMBER_OF_BODY_PROPERTIES];
 	std::list<float*> bodyPropertiesBuffer;
-	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.0f, 0.0f, 0.0f, 0.f, 0.f,0.f};
+	float bodyProperties[NUMBER_OF_BODY_PROPERTIES] = { 0.f, 0.f, 0.0f, 0.0f, 0.0f, 0.f, 0.f,0.f};
 	float bodyPropertiesWeights[6] = { 1.0f, 0.7f, 0.5f, 0.3f, 0.1f, 0.0f };
 	int numberOfWeights;
 	float standardDeviations[NUMBER_OF_BODY_PROPERTIES];
-	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, .0f, .0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f};
+	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
 	int id;
 
@@ -99,5 +98,6 @@ private:
 	GestureRecognition::ControlHand controlHand;
 	GestureRecognition::ControlHand risenHand;
 
-	void extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints);
+	bool extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints);
+	bool isTracked(float* testBodyProperties);
 };

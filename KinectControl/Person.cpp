@@ -49,20 +49,12 @@ Person::Person()
 	bodyPropertiesLimits[LEFT_LOWER_ARM_LENGTH].max = 0.6f;
 	bodyPropertiesLimits[RIGHT_LOWER_ARM_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].min;
 	bodyPropertiesLimits[RIGHT_LOWER_ARM_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_ARM_LENGTH].max;
-	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min = 0.2f;
-	bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max = 0.8f;
-	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].min = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].min;
-	bodyPropertiesLimits[RIGHT_UPPER_LEG_LENGTH].max = bodyPropertiesLimits[LEFT_UPPER_LEG_LENGTH].max;
 	bodyPropertiesLimits[SHOULDER_WIDTH].min = 0.2f;
 	bodyPropertiesLimits[SHOULDER_WIDTH].max = 0.7f;
 	bodyPropertiesLimits[HIP_WIDTH].min = 0.2f;
 	bodyPropertiesLimits[HIP_WIDTH].max = 0.7f;
 	bodyPropertiesLimits[TORSO_LENGTH].min = 0.2f;
 	bodyPropertiesLimits[TORSO_LENGTH].max = 1.0f;
-	bodyPropertiesLimits[RIGHT_HAND_TO_WRIST].min = 0.01f;
-	bodyPropertiesLimits[RIGHT_HAND_TO_WRIST].max = 0.5f;
-	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].min = 0.01f;
-	bodyPropertiesLimits[LEFT_HAND_TO_WRIST].max = 0.5f;
 	bodyPropertiesLimits[NECK_TO_HEAD].min = 0.01f;
 	bodyPropertiesLimits[NECK_TO_HEAD].max = 0.5f;
 
@@ -197,6 +189,17 @@ GestureRecognition::ControlHand Person::getRisenHand() {
 * Funktionen
 **********************************************************/
 
+bool Person::isTracked(float* testBodyProperties)
+{
+	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		if (testBodyProperties[i] == 0.0f) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 /** Berechnet aus den übergebenen Gelenkpunkten durch Ermittlung der euklidische Distanz
 * zwischen zwei Punkten die Körperproportionen gemäß dem BODY_PROPERTIES enum und speichert
 * diese in einem Array (jeder Eintrag im Array entspricht einer Konstante aus dem genannten enum)
@@ -209,8 +212,9 @@ GestureRecognition::ControlHand Person::getRisenHand() {
 *
 * @param extractedBodyProperties Zeiger auf den Array in dem die Körperproportionen gespeichert werden
 * @param inputJoints Zeiger auf den Array mit den Gelenkpunkten
+* @return gibt false zurück falls einer der relevanten Gelenkpunkte nicht getrackt war
 */
-void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints)
+bool Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJoints)
 {
 #ifdef DEBUG_VERBOSE
 	OutputDebugStringA("DEBUG: extractBodyProperties aufgerufen.\n");
@@ -219,8 +223,6 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint shoulderRight = inputJoints[JointType::JointType_ShoulderRight].Position;
 	_CameraSpacePoint handLeft = inputJoints[JointType::JointType_HandLeft].Position;
 	_CameraSpacePoint handRight = inputJoints[JointType::JointType_HandRight].Position;
-	_CameraSpacePoint wristLeft = inputJoints[JointType::JointType_WristLeft].Position;
-	_CameraSpacePoint wristRight = inputJoints[JointType::JointType_WristRight].Position;
 	_CameraSpacePoint spineShoulder = inputJoints[JointType::JointType_SpineShoulder].Position;
 	_CameraSpacePoint elbowLeft = inputJoints[JointType::JointType_ElbowLeft].Position;
 	_CameraSpacePoint elbowRight = inputJoints[JointType::JointType_ElbowRight].Position;
@@ -228,16 +230,12 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	_CameraSpacePoint spineBase = inputJoints[JointType::JointType_SpineBase].Position;
 	_CameraSpacePoint hipLeft = inputJoints[JointType::JointType_HipLeft].Position;
 	_CameraSpacePoint hipRight = inputJoints[JointType::JointType_HipRight].Position;
-	_CameraSpacePoint kneeLeft = inputJoints[JointType::JointType_KneeLeft].Position;
-	_CameraSpacePoint kneeRight = inputJoints[JointType::JointType_KneeRight].Position;
 	_CameraSpacePoint head = inputJoints[JointType::JointType_Head].Position;
 
 	TrackingState shoulderLeftState = inputJoints[JointType::JointType_ShoulderLeft].TrackingState;
 	TrackingState shoulderRightState = inputJoints[JointType::JointType_ShoulderRight].TrackingState;
 	TrackingState handLeftState = inputJoints[JointType::JointType_HandLeft].TrackingState;
 	TrackingState handRightState = inputJoints[JointType::JointType_HandRight].TrackingState;
-	TrackingState wristLeftState = inputJoints[JointType::JointType_WristLeft].TrackingState;
-	TrackingState wristRightState = inputJoints[JointType::JointType_WristRight].TrackingState;
 	TrackingState spineShoulderState = inputJoints[JointType::JointType_SpineShoulder].TrackingState;
 	TrackingState elbowLeftState = inputJoints[JointType::JointType_ElbowLeft].TrackingState;
 	TrackingState elbowRightState = inputJoints[JointType::JointType_ElbowRight].TrackingState;
@@ -245,8 +243,6 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 	TrackingState spineBaseState = inputJoints[JointType::JointType_SpineBase].TrackingState;
 	TrackingState hipLeftState = inputJoints[JointType::JointType_HipLeft].TrackingState;
 	TrackingState hipRightState = inputJoints[JointType::JointType_HipRight].TrackingState;
-	TrackingState kneeLeftState = inputJoints[JointType::JointType_KneeLeft].TrackingState;
-	TrackingState kneeRightState = inputJoints[JointType::JointType_KneeRight].TrackingState;
 	TrackingState headState = inputJoints[JointType::JointType_Head].TrackingState;
 
 
@@ -282,22 +278,6 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 		extractedBodyProperties[RIGHT_LOWER_ARM_LENGTH] = 0.0f;
 	}
 
-	if (hipLeftState == TrackingState::TrackingState_Tracked && kneeLeftState == TrackingState::TrackingState_Tracked) {
-		extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = sqrt(pow(hipLeft.X - kneeLeft.X, 2.0f) +
-			pow(hipLeft.Y - kneeLeft.Y, 2.0f) + pow(hipLeft.Z - kneeLeft.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[LEFT_UPPER_LEG_LENGTH] = 0.0f;
-	}
-
-	if (hipRightState == TrackingState::TrackingState_Tracked && kneeRightState == TrackingState::TrackingState_Tracked) {
-		extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = sqrt(pow(hipRight.X - kneeRight.X, 2.0f) +
-			pow(hipRight.Y - kneeRight.Y, 2.0f) + pow(hipRight.Z - kneeRight.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[RIGHT_UPPER_LEG_LENGTH] = 0.0f;
-	}
-
 	if (shoulderLeftState == TrackingState::TrackingState_Tracked && shoulderRightState == TrackingState::TrackingState_Tracked) {
 		extractedBodyProperties[SHOULDER_WIDTH] = sqrt(pow(shoulderLeft.X - shoulderRight.X, 2.0f) +
 			pow(shoulderLeft.Y - shoulderRight.Y, 2.0f) + pow(shoulderLeft.Z - shoulderRight.Z, 2.0f));
@@ -330,21 +310,6 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 		extractedBodyProperties[NECK_TO_HEAD] = 0.0f;
 	}
 
-	if (wristRightState == TrackingState::TrackingState_Tracked && handRightState == TrackingState::TrackingState_Tracked) {
-		extractedBodyProperties[RIGHT_HAND_TO_WRIST] = sqrt(pow(wristRight.X - handRight.X, 2.0f) +
-			pow(wristRight.Y - handRight.Y, 2.0f) + pow(wristRight.Z - handRight.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[RIGHT_HAND_TO_WRIST] = 0.0f;
-	}
-
-	if (wristLeftState == TrackingState::TrackingState_Tracked && handLeftState == TrackingState::TrackingState_Tracked) {
-		extractedBodyProperties[LEFT_HAND_TO_WRIST] = sqrt(pow(wristLeft.X - handLeft.X, 2.0f) +
-			pow(wristLeft.Y - handLeft.Y, 2.0f) + pow(wristLeft.Z - handLeft.Z, 2.0f));
-	}
-	else {
-		extractedBodyProperties[LEFT_HAND_TO_WRIST] = 0.0f;
-	}
 
 
 #ifdef DEBUG_NOTIFY_BAD_PROPERTY
@@ -362,14 +327,14 @@ void Person::extractBodyProperties(float* extractedBodyProperties, Joint* inputJ
 			case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Hüftbreite\n"); break;
 			case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Torsolänge\n"); break;
 			case NECK_TO_HEAD:           OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   Hals zu Kopf\n"); break;
-			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   rechte Handlänge\n"); break;
-			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("SCHLECHTER WERT (MASTERFESTLEGUNG)   linke Handlänge\n"); break;
 
 			default: break;
 			}
 		}
 	}
 #endif
+
+	return isTracked (extractedBodyProperties);
 }
 
 /** extrahiert die Körperproportionen aus der der Person-Klasse zu eigenen Gelenkpunkten
@@ -390,28 +355,34 @@ void Person::saveBodyProperties()
 * extrahiert die Körperproportionen aus den Person-eigenen Gelenken in ein neu angelegtes Array und 
 * speichert einen Zeiger auf dieses Array in einem Buffer ab 
 */
-void Person::collectBodyProperties()
+bool Person::collectBodyProperties()
 {
 #ifdef DEBUG_VERBOSE
 	OutputDebugStringA("DEBUG: collectBodyProperties aufgerufen.\n");
 #endif
-
 	float* bodyPropertiesTemp = new float[NUMBER_OF_BODY_PROPERTIES];
-	extractBodyProperties(bodyPropertiesTemp, joints);
+	bool isTracked = extractBodyProperties(bodyPropertiesTemp, joints);
 
-	bodyPropertiesBuffer.push_back(bodyPropertiesTemp);
+	if (isTracked) {
+		bodyPropertiesBuffer.push_back(bodyPropertiesTemp);
+	}
+	else {
+		delete[] bodyPropertiesTemp;
+	}
 #ifdef DEBUG_VERBOSE
 	OutputDebugStringA("DEBUG: Temporäre bodyProperties aus joints gelesen und auf Puffer gelegt.\n");
 #endif
 
+	return isTracked;
 }
 
 /*
 * Berechnet aus allen im Buffer für die Körperproportionen gespeicherten Werten 
 * jeweils für eine Proportion den Durchschnitt aus allen Werten für diese Proportion
 * und speichert diese im eigenen bodyProperties-Array der Person-Klasse 
+* return gibt false zurück, falls einer der berechneten Körperproportionen durchgehend inferred war
 */
-void Person::calculateBodyProperties()
+bool Person::calculateBodyProperties()
 {
 #ifdef DEBUG_VERBOSE
 	OutputDebugStringA("DEBUG: calculateBodyProperties aufgerufen.\n");
@@ -504,8 +475,6 @@ void Person::calculateBodyProperties()
 		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
 		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
-		case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:      "); break;
-		case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:       "); break;
 		
 		default: break;
 		}
@@ -526,6 +495,8 @@ void Person::calculateBodyProperties()
 #ifdef DEBUG_VERBOSE
 	OutputDebugStringA("DEBUG: Mittel der Samples und Standardabweichung bestimmt.\n");
 #endif
+
+	return isTracked (bodyProperties);
 }
 
 
@@ -542,19 +513,19 @@ void Person::calculateBodyProperties()
 * je weiter ausserhalb er liegt desto geringer ist die Gewichtung)
 *
 *@param inputJoints Gelenke der zu vergleichenden Person
-*@return float gibt einen Konfidenzwert zwischen 0.0f und 1.0f der umso größer ist
-* je ähnlicher sich die Körperproportionen der übergebenen Gelenkpunkte und die eigenen
-* Proportionen sind
+*@return float gibt durchschnittliche Abweichung der Körperproportionen an
 */
 
 float Person::compareBodyProperties(Joint* inputJoints) {
 	float propertiesForComparison[NUMBER_OF_BODY_PROPERTIES];
-	extractBodyProperties(propertiesForComparison, inputJoints);
 	float deviation;
 	int weightIndex;
 
 	float normalizationFactor = 0.0f;
 	double accumulatedError = 0.0; 
+
+	if (extractBodyProperties(propertiesForComparison, inputJoints) == false)
+		return FLT_MAX;
 
 	for (int i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 
@@ -613,12 +584,10 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 			case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
 			case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
 			case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
-			case RIGHT_HAND_TO_WRIST:    OutputDebugStringA("rechte Handlänge:      "); break;
-			case LEFT_HAND_TO_WRIST:     OutputDebugStringA("linke Handlänge:       "); break;
 
 			}
 			
-			if (i != LEFT_UPPER_LEG_LENGTH && i != RIGHT_UPPER_LEG_LENGTH) {
+			
 				OutputDebugStringA("eingespeichert = ");
 				OutputDebugStringA(std::to_string(bodyProperties[i]).c_str());
 				OutputDebugStringA("\t\t");
@@ -630,7 +599,7 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 				OutputDebugStringA("Konfidenz = ");
 				OutputDebugStringA(std::to_string(min(bodyProperties[i] / propertiesForComparison[i], propertiesForComparison[i] / bodyProperties[i])).c_str());
 				OutputDebugStringA("\n");
-			}
+			
 		#endif
 
 		//Debugbenachrichtigungen für schlechte Werte
@@ -648,8 +617,6 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 				case HIP_WIDTH:              OutputDebugStringA("SCHLECHTER WERT  Hüftbreite\n"); break;
 				case TORSO_LENGTH:           OutputDebugStringA("SCHLECHTER WERT  Torsolänge\n"); break;
 				case NECK_TO_HEAD:         OutputDebugStringA("SCHLECHTER WERT  Hals zu Kopf\n"); break;
-				case RIGHT_HAND_TO_WRIST:         OutputDebugStringA("SCHLECHTER WERT  rechte Handlänge\n"); break;
-				case LEFT_HAND_TO_WRIST:         OutputDebugStringA("SCHLECHTER WERT  linke Handlänge\n"); break;
 				default: break;
 				}
 			}

@@ -211,7 +211,13 @@ MotionParameters KinectControl::run() {
 									OutputDebugStringA("Collecting [");
 									OutputDebugStringA(std::to_string(i).c_str());
 									OutputDebugStringA("]\n");
-									deviationBuffer[i]->push(master.compareBodyProperties(joints));
+									float deviation = master.compareBodyProperties(joints);
+									if (deviation != FLT_MAX) {
+										deviationBuffer[i]->push(deviation);
+									}
+									else {
+										deviationBuffer[i]->empty();
+									}
 								}
 							}
 							else {
@@ -228,7 +234,10 @@ MotionParameters KinectControl::run() {
 						if (collectedFrames < 20) {
 							trackingId[master.getId()] = currentTrackingId;
 							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
-							master.collectBodyProperties();
+							
+							if (master.collectBodyProperties() == false) {
+								collectedFrames = 0;
+							}
 							collectedFrames++;
 						}
 						else {

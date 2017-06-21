@@ -336,12 +336,13 @@ void StateMachine::compute() {
 		CameraSpacePoint *leftHandPosition = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
 		CameraSpacePoint *rightHandPosition = rightHandPositionBuffer->get(rightHandPositionBuffer->end());
 		Eigen::Vector3f handPosition = (convToVec3(leftHandPosition) + convToVec3(rightHandPosition)) / 2;
+ 
+		//Eigen::Vector3f shoulderPosition = (convToVec3(master.getJoints()[JointType::JointType_SpineBase].Position) + 
+		//									3 * convToVec3(master.getJoints()[JointType::JointType_Head].Position)) / 4;
 
-		//CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
-		//CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position; 
-		//Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
-		Eigen::Vector3f shoulderPosition = (convToVec3(master.getJoints()[JointType::JointType_SpineBase].Position) + 
-											3 * convToVec3(master.getJoints()[JointType::JointType_Head].Position)) / 4;
+		CameraSpacePoint leftShoulderPosition = master.getJoints()[JointType::JointType_ShoulderLeft].Position;
+		CameraSpacePoint rightShoulderPosition = master.getJoints()[JointType::JointType_ShoulderRight].Position;
+		Eigen::Vector3f shoulderPosition = (convToVec3(leftShoulderPosition) + convToVec3(rightShoulderPosition)) / 2; // mittlere Schulterposition, wenn notwendig puffern und filtern
 
 		Eigen::Vector3f originAxis(0.0f, 0.0f, 1.0f); // im Moment immer (0,0,1), später vllt Körpernormale
 		Eigen::Vector3f targetAxis = shoulderPosition - handPosition;
@@ -355,7 +356,16 @@ void StateMachine::compute() {
 		flyRotation.angle() = degToRad(rotationDegrees);
 
 		flyRotation.angle() *= FLY_ROTATION_FACTOR;
-		motionParameters.setRotation(Eigen::Quaternionf(flyRotation));
+
+		// Barrel roll modus
+		Eigen::Vector3f originAxisBarrelRoll(1.0f, 0.0f, 0.0f); // x-Achse
+		Eigen::Vector3f targetAxisBarrelRoll = convToVec3(leftShoulderPosition) - convToVec3(rightShoulderPosition); // Richtung korrekt?
+		targetAxisBarrelRoll.normalize();
+		Eigen::AngleAxisf flyRotationBarrelRoll = getRotationAngleAxis(originAxisBarrelRoll, targetAxisBarrelRoll);
+		flyRotationBarrelRoll.angle() *= FLY_ROTATION_ROLL_FACTOR;
+		// Rotationen um andere Achsen (durch schiefe Schulterposition) sollten noch wegmaskiert werden, wenn die stören
+
+		motionParameters.setRotation(Eigen::Quaternionf(flyRotation) * Eigen::Quaternionf(flyRotationBarrelRoll));
 
 		
 		break;
@@ -447,6 +457,7 @@ Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buff
 	for (int i = buffer->end(); i >= 0; i--) {
 		Eigen::Quaternionf *cur_rot = buffer->get(i);
 		float smoothing = rotationSmoothingFactor[i] / rotationSmoothingSum;
+		smoothing *= OBJECT_ROTATION_FACTOR;
 		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
 		rotation *= downscaled_rot;
 	}

@@ -359,7 +359,7 @@ void StateMachine::compute() {
 
 		// Barrel roll modus
 		Eigen::Vector3f originAxisBarrelRoll(1.0f, 0.0f, 0.0f); // x-Achse
-		Eigen::Vector3f targetAxisBarrelRoll = convToVec3(leftShoulderPosition) - convToVec3(rightShoulderPosition); // Richtung korrekt?
+		Eigen::Vector3f targetAxisBarrelRoll = convToVec3(rightShoulderPosition) - convToVec3(leftShoulderPosition); // Richtung korrekt?
 		targetAxisBarrelRoll.normalize();
 		Eigen::AngleAxisf flyRotationBarrelRoll = getRotationAngleAxis(originAxisBarrelRoll, targetAxisBarrelRoll);
 		flyRotationBarrelRoll.angle() *= FLY_ROTATION_ROLL_FACTOR;

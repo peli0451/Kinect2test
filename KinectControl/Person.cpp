@@ -380,7 +380,7 @@ bool Person::collectBodyProperties()
 * Berechnet aus allen im Buffer für die Körperproportionen gespeicherten Werten 
 * jeweils für eine Proportion den Durchschnitt aus allen Werten für diese Proportion
 * und speichert diese im eigenen bodyProperties-Array der Person-Klasse 
-* return gibt false zurück, falls einer der berechneten Körperproportionen durchgehend inferred war
+* return gibt false zurück, falls einer der berechneten Körperproportionen durchgehend inferred war (oder Puffer leer)
 */
 bool Person::calculateBodyProperties()
 {
@@ -402,7 +402,7 @@ bool Person::calculateBodyProperties()
 
 	// Fertig, falls Buffer leer
 	if (bodyPropertiesBuffer.empty())
-		return;
+		return false;
 
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		bodyProperties[i] = 0.0f;

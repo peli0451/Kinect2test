@@ -42,7 +42,7 @@ void KinectControl::init(ControlWidget *_widget) {
 	GetDefaultKinectSensor(&kinectSensor);
 	kinectSensor->Open();
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
-	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //Anzahl Personen?
+	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //max. mgl. Anzahl parallel trackbarer Personen
 	bodyFrameSource->OpenReader(&bodyFrameReader);
 
 	for (int i = 0; i < BODY_COUNT; i++) {
@@ -170,7 +170,8 @@ MotionParameters KinectControl::run() {
 				if (SUCCEEDED(result)) {
 					//Falls Gelenke erfolgreich geholt
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
-
+					//----------------------
+					// Mastersuche
 					if (masterDetermined && !collectFrames) {
 						
 						//master.compareBodyProperties(joints);
@@ -230,6 +231,8 @@ MotionParameters KinectControl::run() {
 						OutputDebugStringA("\n");
 						*/
 					}
+					//----------------------
+					// Masterfestlegung
 					else if (masterDetermined && collectFrames){
 						if (collectedFrames < 20) {
 							trackingId[master.getId()] = currentTrackingId;
@@ -246,6 +249,8 @@ MotionParameters KinectControl::run() {
 							collectFrames = false;
 						}
 					}
+					//----------------------
+					// Masterfestlegung primitiv
 					else {
 						if (headPosition.Z < master.getZ()) {
 							master.setJoints(joints);

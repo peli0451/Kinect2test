@@ -233,12 +233,12 @@ MotionParameters KinectControl::run() {
 					}
 					//----------------------
 					// Masterfestlegung
-					else if (masterDetermined && collectFrames){
+					else if (masterDetermined && collectFrames && trackingId[master.getId()] == currentTrackingId){
 						if (collectedFrames < 20) {
-							trackingId[master.getId()] = currentTrackingId;
+							
 							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
 							
-							if (master.collectBodyProperties() == false) {
+							if (master.collectBodyProperties() == false || isInConfigurationPose(joints) == false) {
 								collectedFrames = 0;
 							}
 							collectedFrames++;
@@ -256,6 +256,7 @@ MotionParameters KinectControl::run() {
 							master.setJoints(joints);
 							master.setId(i);
 							master.setZ(headPosition.Z);
+							trackingId[master.getId()] = currentTrackingId;
 						}
 					}
 

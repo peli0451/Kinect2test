@@ -138,24 +138,36 @@ void StateMachine::bufferGestureConfidence() {
 	boolean handRisen;
 	boolean risenHandOpen;
 	boolean risenHandUnknown;
-	if (leftHandCurPos->Y - rightHandCurPos->Y > .4) {
-		master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
-		handRisen = true;
-		risenHandOpen = (master.getLeftHandState() == HandState_Open);
-		risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
+	
+	if (leftHandCurPos->Y - rightHandCurPos->Y > .4f) {
+		float distanceFromRightHandToHip = sqrt(
+			pow(rightHandCurPos->X - master.getJoints()[JointType_HipRight].Position.X, 2)
+			+ pow(rightHandCurPos->Y - master.getJoints()[JointType_HipRight].Position.Y, 2)
+			+ pow(rightHandCurPos->Z - master.getJoints()[JointType_HipRight].Position.Z, 2));
+		if (distanceFromRightHandToHip < .1f) {
+			master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
+			handRisen = true;
+			risenHandOpen = (master.getLeftHandState() == HandState_Open);
+			risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
+		}
 	}
-	else if (rightHandCurPos->Y - leftHandCurPos->Y > .4) {
-		master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
-		handRisen = true;
-		risenHandOpen = (master.getRightHandState() == HandState_Open);
-		risenHandUnknown = (master.getRightHandState() == HandState_Unknown);
+	else if (rightHandCurPos->Y - leftHandCurPos->Y > .4f) {
+		float distanceFromLeftHandToHip = sqrt(
+			pow(leftHandCurPos->X - master.getJoints()[JointType_HipLeft].Position.X, 2)
+			+ pow(leftHandCurPos->Y - master.getJoints()[JointType_HipLeft].Position.Y, 2)
+			+ pow(leftHandCurPos->Z - master.getJoints()[JointType_HipLeft].Position.Z, 2));
+		if (distanceFromLeftHandToHip < .1f) {
+			master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
+			handRisen = true;
+			risenHandOpen = (master.getRightHandState() == HandState_Open);
+			risenHandUnknown = (master.getRightHandState() == HandState_Unknown);
+		}
 	}
 	else {
 		handRisen = false;
 		risenHandUnknown = false;
 		risenHandOpen = false;
 	}
-
 
 	//Je nach Zustand sind die Bewertungen der Trackingergebnisse anders zu bewerten
 	switch (currentState) {

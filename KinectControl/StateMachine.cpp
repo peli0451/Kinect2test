@@ -63,7 +63,7 @@ void StateMachine::assignWidget(ControlWidget* _widget) {
 	widget = _widget;
 }
 
-Eigen::AngleAxisf getRotationAngleAxis(Eigen::Vector3f originAxis, Eigen::Vector3f targetAxis) {
+Eigen::AngleAxisf StateMachine::getRotationAngleAxis(Eigen::Vector3f originAxis, Eigen::Vector3f targetAxis) {
 	Eigen::Vector3f rotationAxis;
 	rotationAxis = originAxis.cross(targetAxis); // Rotationsachse ist der zur von origin_ und target_axis aufgespannten Ebene orthogonale Vektor
 	rotationAxis.normalize();
@@ -79,7 +79,7 @@ float degToRad(float deg) {
 	return (deg * Pi / 180);
 }
 
-Eigen::Vector3f convToVec3(CameraSpacePoint csp) {
+Eigen::Vector3f StateMachine::convToVec3(CameraSpacePoint csp) {
 	Eigen::Vector3f vec;
 	vec(0) = csp.X;
 	vec(1) = csp.Y;
@@ -87,7 +87,7 @@ Eigen::Vector3f convToVec3(CameraSpacePoint csp) {
 	return vec;
 }
 
-Eigen::Vector3f convToVec3(CameraSpacePoint *csp) {
+Eigen::Vector3f StateMachine::convToVec3(CameraSpacePoint *csp) {
 	Eigen::Vector3f vec;
 	vec(0) = csp->X;
 	vec(1) = csp->Y;

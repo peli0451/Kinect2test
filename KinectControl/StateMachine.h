@@ -39,6 +39,10 @@ public:
 	void assignWidget(ControlWidget *_widget);
 
 	StateMachine();
+
+	static Eigen::Vector3f convToVec3(CameraSpacePoint csp);
+	static Eigen::Vector3f convToVec3(CameraSpacePoint *csp);
+	static Eigen::AngleAxisf getRotationAngleAxis(Eigen::Vector3f originAxis, Eigen::Vector3f targetAxis);
 private:
 	State state;
 	GestureRecognition gestureRecognition;

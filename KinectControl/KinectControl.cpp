@@ -92,6 +92,40 @@ float getSaneValue(float old, float fresh) {
 
 bool KinectControl::isInConfigurationPose(Joint* joints)
 {
+	Eigen::Vector3f originAxis = StateMachine::convToVec3(joints[JointType_ShoulderRight].Position)
+		- StateMachine::convToVec3(joints[JointType_ShoulderLeft].Position);
+	originAxis.normalize();
+	Eigen::Vector3f targetAxis(1.0f, 0, 0);
+	Eigen::AngleAxisf bodyRotation = StateMachine::getRotationAngleAxis(originAxis, targetAxis);
+	
+	Eigen::Vector3f rotatedLeftHandPosition = 
+		bodyRotation * StateMachine::convToVec3(joints[JointType_HandLeft].Position);
+
+	Eigen::Vector3f rotatedRightHandPosition = 
+		bodyRotation * StateMachine::convToVec3(joints[JointType_HandRight].Position);;
+
+	Eigen::Vector3f rotatedLeftHipPosition = 
+		bodyRotation * StateMachine::convToVec3(joints[JointType_HandLeft].Position);
+
+	Eigen::Vector3f rotatedRightHipPosition =
+		bodyRotation *  StateMachine::convToVec3(joints[JointType_HandRight].Position);
+
+
+	return (abs(rotatedLeftHandPosition.y() - rotatedRightHandPosition.y()) < .1f) // Hände etwa auf gleicher Höhe
+		&& (abs(rotatedLeftHandPosition.z() - rotatedRightHandPosition.z()) < .1f) // Hände etwa in gleicher Entfernung
+		&& (abs(rotatedLeftHipPosition.z() - rotatedRightHipPosition.z()) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
+		&& (abs(rotatedLeftHandPosition.y() - rotatedLeftHipPosition.y()) < .2f)
+		&& (abs(rotatedRightHandPosition.y() - rotatedRightHipPosition.y()) < .2f) // Hände ungefähr auf Hüfthöhe
+		&& (abs(rotatedLeftHandPosition.z() - rotatedLeftHipPosition.z()) < .15f)
+		&& (abs(rotatedRightHandPosition.z() - rotatedRightHipPosition.z()) < .15f) // Hände ungefähr auf Hüftentfernung
+		&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
+			< 5.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand < 4*Hüftabstand (x-Werte)
+		&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
+			> 2.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand > 2*Hüftabstand (x-Werte)
+		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
+		&& (joints[JointType::JointType_HipLeft].Position.X < joints[JointType::JointType_HipRight].Position.X); // richtig herum vor der Kamera
+
+	/*
 	return (abs(joints[JointType::JointType_HandLeft].Position.Y - joints[JointType::JointType_HandRight].Position.Y) < .1f) // Hände etwa auf gleicher Höhe
 		&& (abs(joints[JointType::JointType_HandLeft].Position.Z - joints[JointType::JointType_HandRight].Position.Z) < .1f) // Hände etwa in gleicher Entfernung
 		&& (abs(joints[JointType::JointType_HipLeft].Position.Z - joints[JointType::JointType_HipRight].Position.Z) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
@@ -105,6 +139,7 @@ bool KinectControl::isInConfigurationPose(Joint* joints)
 			> 2.0f * abs(joints[JointType::JointType_HipLeft].Position.X - joints[JointType::JointType_HipRight].Position.X)) // Handabstand > 2*Hüftabstand (x-Werte)
 		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
 		&& (joints[JointType::JointType_HipLeft].Position.X < joints[JointType::JointType_HipRight].Position.X); // richtig herum vor der Kamera
+	*/
 }
 
 /**

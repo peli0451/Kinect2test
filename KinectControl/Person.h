@@ -70,7 +70,7 @@ private:
 	int numberOfWeights;
 	float standardDeviations[NUMBER_OF_BODY_PROPERTIES];
 	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-	const float PERMITTED_QUANTIL = 2.0f;
+	float PERMITTED_QUANTIL = 2.0f;
 
 	int id;
 

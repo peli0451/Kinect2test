@@ -13,6 +13,13 @@ StateMachine::StateMachine()
 {
 	setState(IDLE);
 	motionParameters.resetMotion();
+
+	for (int i = 0; i < sizeof(rotationSmoothingFactor) / sizeof(float); i++) {
+		rotationSmoothingSum += rotationSmoothingFactor[i];
+	}
+	for (int i = 0; i < sizeof(cameraRotationSmoothingFactor) / sizeof(float); i++) {
+		cameraRotationSmoothingSum += cameraRotationSmoothingFactor[i];
+	}
 }
 
 
@@ -283,7 +290,7 @@ void StateMachine::compute() {
 
 			Eigen::AngleAxisf rot = getRotationAngleAxis(origin_axis, target_axis);
 			rotationBuffer->push(Eigen::Quaternionf(rot));
-			motionParameters.setRotation(smoothRotation(rotationBuffer));
+			motionParameters.setRotation(smoothRotation(rotationBuffer, cameraRotationSmoothingFactor, cameraRotationSmoothingSum));
 			break;
 		}
 		case GestureRecognition::Gesture::TRANSLATE_GESTURE:
@@ -321,7 +328,7 @@ void StateMachine::compute() {
 			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -OBJECT_MAX_ROTATION); //größte plausible Rotation für einen Frame (im Bogenmaß)
 			orientationDiffAA.angle() = min(orientationDiffAA.angle(), OBJECT_MAX_ROTATION); //in beide Rotationsrichtungen
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
-			motionParameters.setRotation(smoothRotation(rotationBuffer));
+			motionParameters.setRotation(smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum));
 		}
 		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
 		
@@ -451,12 +458,13 @@ CameraSpacePoint StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
 * Glättet gepufferte Rotationen (in Form von Quaternions)
 *
 * @param buffer Puffer für Rotationen
+* @param smoothingFactor Array mit Rotationsfaktoren
 */
-Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buffer) {
+Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum) {
 	Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity();
 	for (int i = buffer->end(); i >= 0; i--) {
 		Eigen::Quaternionf *cur_rot = buffer->get(i);
-		float smoothing = rotationSmoothingFactor[i] / rotationSmoothingSum;
+		float smoothing = smoothingFactor[i] / smoothingSum;
 		smoothing *= OBJECT_ROTATION_FACTOR;
 		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
 		rotation *= downscaled_rot;

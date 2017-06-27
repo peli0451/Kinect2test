@@ -397,9 +397,6 @@ bool Person::calculateBodyProperties()
 	int numberOfSamples[NUMBER_OF_BODY_PROPERTIES];
 	int i;
 
-	float smallest_val[NUMBER_OF_BODY_PROPERTIES];
-	float greatest_val[NUMBER_OF_BODY_PROPERTIES];
-
 	// Fertig, falls Buffer leer
 	if (bodyPropertiesBuffer.empty())
 		return false;
@@ -407,18 +404,6 @@ bool Person::calculateBodyProperties()
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
 		bodyProperties[i] = 0.0f;
 		numberOfSamples[i] = 0;
-		smallest_val[i] = FLT_MAX;
-		greatest_val[i] = -FLT_MAX;
-	}
-
-	// Bestimmung des kleinsten und größten Werts pro Property über alle Frames, werden später gestrichen
-	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
-		std::list<float*>::iterator frame;
-		for (frame = bodyPropertiesBuffer.begin(); frame != bodyPropertiesBuffer.end(); frame++) {
-			bodyPropertiesTemp = *frame;
-			if (bodyPropertiesTemp[i] < smallest_val[i]) { smallest_val[i] = bodyPropertiesTemp[i]; }
-			if (bodyPropertiesTemp[i] > greatest_val[i]) { greatest_val[i] = bodyPropertiesTemp[i]; }
-		}
 	}
 
 	// Gehe durch den Buffer und...
@@ -430,9 +415,7 @@ bool Person::calculateBodyProperties()
 			//... beziehe, falls der Wert ungleich 0.0f und damit gültig war, in den Durchschnitt für 
 			// diese Proportion mit ein, streiche auch kleinsten und größten Wert
 			
-			//OutputDebugStringA(std::to_string(smallest_val[i]).c_str());
-			//OutputDebugStringA("\n");
-			if (bodyPropertiesTemp[i] != 0.0f && bodyPropertiesTemp[i] != smallest_val[i] && bodyPropertiesTemp[i] != greatest_val[i]) {
+			if (bodyPropertiesTemp[i] != 0.0f) {
 				bodyProperties[i] += bodyPropertiesTemp[i];
 				numberOfSamples[i]++;
 			}
@@ -453,7 +436,7 @@ bool Person::calculateBodyProperties()
 		float sum = 0; //Summe der quadratischen Abstände für Merkmal i
 		for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
 			bodyPropertiesTemp = *liter;
-			if (bodyPropertiesTemp[i] != 0.0f && bodyPropertiesTemp[i] != smallest_val[i] && bodyPropertiesTemp[i] != greatest_val[i]) {
+			if (bodyPropertiesTemp[i] != 0.0f) {
 				sum += pow(bodyPropertiesTemp[i] - bodyProperties[i], 2);
 			}
 		}
@@ -490,6 +473,29 @@ bool Person::calculateBodyProperties()
 
 #endif
 	}
+	// filtere alle Werte aus den Puffern, die außerhalb der PERMITTED_QUANTIL-ten Standardabweichung liegen
+	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		numberOfSamples[i] = 0;
+		float bodyPropertyMiddle = bodyProperties[i];
+		bodyProperties[i] = 0;
+		for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
+			bodyPropertiesTemp = *liter;
+			
+			if (bodyPropertiesTemp[i] != 0.0f 
+				&& bodyPropertiesTemp[i] < bodyPropertyMiddle + standardDeviations[i] * PERMITTED_QUANTIL
+				&& bodyPropertiesTemp[i] > bodyPropertyMiddle - standardDeviations[i] * PERMITTED_QUANTIL) {
+
+				bodyProperties[i] += bodyPropertiesTemp[i];
+				numberOfSamples[i]++;
+			}
+		}
+		// bestimme wieder den Mittelwert über die gesammelten Werte
+		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
+			bodyProperties[i] /= numberOfSamples[i];
+		}
+	}
+
+
 	bodyPropertiesBuffer.clear();
 
 #ifdef DEBUG_VERBOSE

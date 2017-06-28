@@ -144,11 +144,15 @@ void StateMachine::bufferGestureConfidence() {
 			pow(rightHandCurPos->X - master.getJoints()[JointType_HipRight].Position.X, 2)
 			+ pow(rightHandCurPos->Y - master.getJoints()[JointType_HipRight].Position.Y, 2)
 			+ pow(rightHandCurPos->Z - master.getJoints()[JointType_HipRight].Position.Z, 2));
-		if (distanceFromRightHandToHip < .1f) {
+		if (distanceFromRightHandToHip < .2f) {
 			master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
 			handRisen = true;
 			risenHandOpen = (master.getLeftHandState() == HandState_Open);
 			risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
+		} else {
+			handRisen = false;
+			risenHandUnknown = false;
+			risenHandOpen = false;
 		}
 	}
 	else if (rightHandCurPos->Y - leftHandCurPos->Y > .4f) {
@@ -156,11 +160,15 @@ void StateMachine::bufferGestureConfidence() {
 			pow(leftHandCurPos->X - master.getJoints()[JointType_HipLeft].Position.X, 2)
 			+ pow(leftHandCurPos->Y - master.getJoints()[JointType_HipLeft].Position.Y, 2)
 			+ pow(leftHandCurPos->Z - master.getJoints()[JointType_HipLeft].Position.Z, 2));
-		if (distanceFromLeftHandToHip < .1f) {
+		if (distanceFromLeftHandToHip < .2f) {
 			master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
 			handRisen = true;
 			risenHandOpen = (master.getRightHandState() == HandState_Open);
 			risenHandUnknown = (master.getRightHandState() == HandState_Unknown);
+		} else {
+			handRisen = false;
+			risenHandUnknown = false;
+			risenHandOpen = false;
 		}
 	}
 	else {
@@ -176,6 +184,7 @@ void StateMachine::bufferGestureConfidence() {
 	case State::IDLE:
 		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
 		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt
@@ -185,6 +194,7 @@ void StateMachine::bufferGestureConfidence() {
 	case State::CAMERA_TRANSLATE:
 		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
 		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
@@ -198,6 +208,7 @@ void StateMachine::bufferGestureConfidence() {
 	case State::CAMERA_ROTATE:
 		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
 		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
@@ -211,7 +222,7 @@ void StateMachine::bufferGestureConfidence() {
 	case State::OBJECT_MANIPULATE:
 		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
 		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .4f, .0f, .0f, .6f,.0f };
+		else if (risenHandUnknown) newConfidence = { .25f, .0f, .0f, .75f,.0f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
@@ -221,6 +232,7 @@ void StateMachine::bufferGestureConfidence() {
 	case State::FLY: // wie IDLE
 		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
 		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
+		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
 		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
 		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
 		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt

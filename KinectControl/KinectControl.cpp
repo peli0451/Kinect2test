@@ -92,8 +92,7 @@ float getSaneValue(float old, float fresh) {
 
 bool KinectControl::isInConfigurationPose(Joint* joints)
 {
-	Eigen::Vector3f originAxis = StateMachine::convToVec3(joints[JointType_ShoulderRight].Position)
-		- StateMachine::convToVec3(joints[JointType_ShoulderLeft].Position);
+	Eigen::Vector3f originAxis = StateMachine::convToVec3(joints[JointType_ShoulderRight].Position) - StateMachine::convToVec3(joints[JointType_ShoulderLeft].Position);
 	originAxis.normalize();
 	Eigen::Vector3f targetAxis(1.0f, 0, 0);
 	Eigen::AngleAxisf bodyRotation = StateMachine::getRotationAngleAxis(originAxis, targetAxis);
@@ -105,23 +104,72 @@ bool KinectControl::isInConfigurationPose(Joint* joints)
 		bodyRotation * StateMachine::convToVec3(joints[JointType_HandRight].Position);;
 
 	Eigen::Vector3f rotatedLeftHipPosition = 
-		bodyRotation * StateMachine::convToVec3(joints[JointType_HandLeft].Position);
+		bodyRotation * StateMachine::convToVec3(joints[JointType_HipLeft].Position);
 
 	Eigen::Vector3f rotatedRightHipPosition =
-		bodyRotation *  StateMachine::convToVec3(joints[JointType_HandRight].Position);
+		bodyRotation *  StateMachine::convToVec3(joints[JointType_HipRight].Position);
 
+	//OutputDebugStringA(std::to_string(originAxis.x()).c_str()); OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(originAxis.y()).c_str()); OutputDebugStringA("\t");  OutputDebugStringA(std::to_string(originAxis.z()).c_str());
+	//OutputDebugStringA("\n");
+
+	/* linke Hand vor und nach Rota + Winkel
+	OutputDebugStringA(std::to_string(joints[JointType_HandLeft].Position.X).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(joints[JointType_HandLeft].Position.Y).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(joints[JointType_HandLeft].Position.Z).c_str());
+	OutputDebugStringA("\n");
+	OutputDebugStringA(std::to_string(rotatedLeftHandPosition.x()).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(rotatedLeftHandPosition.y()).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(rotatedLeftHandPosition.z()).c_str());
+	OutputDebugStringA("\n");
+	OutputDebugStringA(std::to_string(bodyRotation.angle()*180/3.142f).c_str());
+	OutputDebugStringA("\n");
+	*/
+
+	/* linke und rechte Hand (z-Koordinate) vor und nach Rota + Winkel
+	OutputDebugStringA(std::to_string(joints[JointType_HandLeft].Position.Z).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(joints[JointType_HandRight].Position.Z).c_str());
+	OutputDebugStringA("\n");
+	OutputDebugStringA(std::to_string(rotatedLeftHandPosition.z()).c_str());
+	OutputDebugStringA("\t"); OutputDebugStringA(std::to_string(rotatedRightHandPosition.z()).c_str());
+	OutputDebugStringA("\n");
+	OutputDebugStringA(std::to_string(bodyRotation.angle()*180/3.142f).c_str());
+	OutputDebugStringA("\n");
+	*/
+
+	/* Debugging der Constraints 
+	OutputDebugStringA(std::to_string(abs(rotatedLeftHandPosition.y() - rotatedRightHandPosition.y())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedLeftHandPosition.z() - rotatedRightHandPosition.z())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedLeftHipPosition.z() - rotatedRightHipPosition.z())).c_str());
+
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedLeftHandPosition.y() - rotatedLeftHipPosition.y())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedRightHandPosition.y() - rotatedRightHipPosition.y())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedLeftHandPosition.z() - rotatedLeftHipPosition.z())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedRightHandPosition.z() - rotatedRightHipPosition.z())).c_str());
+
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedLeftHandPosition.x() - rotatedLeftHipPosition.x())).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(abs(rotatedRightHandPosition.x() - rotatedRightHipPosition.x())).c_str());
+
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(joints[JointType_HandLeft].Position.X).c_str());
+	OutputDebugStringA("\n"); OutputDebugStringA(std::to_string(joints[JointType_HandRight].Position.X).c_str());
+
+	OutputDebugStringA("\n"); OutputDebugStringA("\n");
+	OutputDebugStringA(std::to_string(bodyRotation.angle() * 180 / 3.142f).c_str());
+	OutputDebugStringA("\n");
+	*/
 
 	return (abs(rotatedLeftHandPosition.y() - rotatedRightHandPosition.y()) < .1f) // Hände etwa auf gleicher Höhe
 		&& (abs(rotatedLeftHandPosition.z() - rotatedRightHandPosition.z()) < .1f) // Hände etwa in gleicher Entfernung
-		&& (abs(rotatedLeftHipPosition.z() - rotatedRightHipPosition.z()) < .1f) // Hüfte nicht verdreht (gerade vor der Kamera)
-		&& (abs(rotatedLeftHandPosition.y() - rotatedLeftHipPosition.y()) < .2f)
-		&& (abs(rotatedRightHandPosition.y() - rotatedRightHipPosition.y()) < .2f) // Hände ungefähr auf Hüfthöhe
-		&& (abs(rotatedLeftHandPosition.z() - rotatedLeftHipPosition.z()) < .15f)
-		&& (abs(rotatedRightHandPosition.z() - rotatedRightHipPosition.z()) < .15f) // Hände ungefähr auf Hüftentfernung
-		&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
-			< 5.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand < 4*Hüftabstand (x-Werte)
-		&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
-			> 2.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand > 2*Hüftabstand (x-Werte)
+		&& (abs(rotatedLeftHipPosition.z() - rotatedRightHipPosition.z()) < .1f) // Hüfte nicht verdreht (gegenüber Schultern)
+		&& (abs(rotatedLeftHandPosition.y() - rotatedLeftHipPosition.y()) < .1f)
+		&& (abs(rotatedRightHandPosition.y() - rotatedRightHipPosition.y()) < .1f) // Hände ungefähr auf Hüfthöhe
+		&& (abs(rotatedLeftHandPosition.z() - rotatedLeftHipPosition.z()) < .1f)
+		&& (abs(rotatedRightHandPosition.z() - rotatedRightHipPosition.z()) < .1f) // Hände ungefähr auf Hüftentfernung
+		&& (abs(rotatedLeftHandPosition.x() - rotatedLeftHipPosition.x()) < .25f)
+		&& (abs(rotatedRightHandPosition.x() - rotatedRightHipPosition.x()) < .25f)
+		//&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
+		//	< 5.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand < 5*Hüftabstand (x-Werte)
+		//&& (abs(rotatedLeftHandPosition.x() - rotatedRightHandPosition.x())
+		//	> 2.0f * abs(rotatedLeftHipPosition.x() - rotatedRightHipPosition.x())) // Handabstand > 2*Hüftabstand (x-Werte)
 		&& (joints[JointType::JointType_HandLeft].Position.X < joints[JointType::JointType_HandRight].Position.X)
 		&& (joints[JointType::JointType_HipLeft].Position.X < joints[JointType::JointType_HipRight].Position.X); // richtig herum vor der Kamera
 
@@ -186,7 +234,7 @@ MotionParameters KinectControl::run() {
 		trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
 	}
 
-	if (masterDetermined && isTracked && currentTrackingId == trackingId[master.getId()])
+	if (masterDetermined && isTracked && master.getTrackingId() == currentTrackingId)
 		searchForMaster = false;
 	else
 		searchForMaster = true;
@@ -207,6 +255,8 @@ MotionParameters KinectControl::run() {
 					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
 					//----------------------
 					// Mastersuche
+					
+
 					if (masterDetermined && !collectFrames) {
 						
 						//master.compareBodyProperties(joints);
@@ -216,6 +266,7 @@ MotionParameters KinectControl::run() {
 						OutputDebugStringA("\t");
 						*/
 
+						//OutputDebugStringA(std::to_string(searchForMaster).c_str());
 						if (searchForMaster && isInConfigurationPose (joints)) {
 							if (collectDeviation[i] == false) {
 								collectDeviation[i] = true;
@@ -227,6 +278,7 @@ MotionParameters KinectControl::run() {
 									if (deviation < 50.0f) {
 										searchForMaster = false;
 										master.setId(i);
+										master.setTrackingId(currentTrackingId);
 										for (int j = 0; j < numberOfTrackedBodies; j++) {
 											collectDeviation[j] = false;
 											deviationBuffer[j]->empty();
@@ -268,12 +320,14 @@ MotionParameters KinectControl::run() {
 					}
 					//----------------------
 					// Masterfestlegung
-					else if (masterDetermined && collectFrames && trackingId[master.getId()] == currentTrackingId){
+					else if (masterDetermined && collectFrames && master.getTrackingId() == currentTrackingId){
+						//OutputDebugStringA(std::to_string(collectedFrames).c_str()); OutputDebugStringA("\n");
 						if (collectedFrames < 20) {
 							
 							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
 							
-							if (master.collectBodyProperties() == false || isInConfigurationPose(joints) == false) {
+							if (isInConfigurationPose(joints) == false || master.collectBodyProperties() == false) {
+								OutputDebugStringA("RESET\n");
 								collectedFrames = 0;
 							}
 							collectedFrames++;
@@ -291,7 +345,7 @@ MotionParameters KinectControl::run() {
 							master.setJoints(joints);
 							master.setId(i);
 							master.setZ(headPosition.Z);
-							trackingId[master.getId()] = currentTrackingId;
+							master.setTrackingId(currentTrackingId);
 						}
 					}
 

@@ -66,7 +66,7 @@ private:
 	const float FLY_SEGMENT2_DEGREE = 10.0f;
 	const float FLY_SEGMENT2_FACTOR = 1.5f;
 	const float OBJECT_MAX_ROTATION = 0.2f;
-	const float OBJECT_ROTATION_FACTOR = 1.5f;
+	const float OBJECT_ROTATION_FACTOR = 10.f;
 	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);
 	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum);
 

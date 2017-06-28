@@ -18,6 +18,7 @@
 Person::Person()
 {
 	id = -1;
+	trackingId = -1;
 
 	leftHandCurrentPosition = { 0,0,0 };
 	rightHandCurrentPosition = { 0,0,0 };
@@ -73,6 +74,15 @@ void Person::setId(int newId) {
 
 int Person::getId() {
 	return id;
+}
+
+
+void Person::setTrackingId(UINT64 newTId) {
+	trackingId = newTId;
+}
+
+UINT64 Person::getTrackingId() {
+	return trackingId;
 }
 
 
@@ -444,34 +454,7 @@ bool Person::calculateBodyProperties()
 		if (numberOfSamples[i] > 1) {
 			standardDeviations[i] = max(sqrt(1.0f / (numberOfSamples[i] - 1) * sum), standardDeviations[i]);
 		}
-#ifdef DEBUG_COLLECTING
-		OutputDebugStringA("Standardabweichung, ");
-		switch (i)
-		{
-		case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("Linker Oberarm:        "); break;
-		case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("Rechter Oberarm:       "); break;
-		case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("Linker Unterarm:       "); break;
-		case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("Rechter Unterarm:      "); break;
-		//case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("Linker Oberschenkel:   "); break;
-		//case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("Rechter Oberschenkel:  "); break;
-		case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
-		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
-		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
-		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
-		
-		default: break;
-		}
-		OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
-		OutputDebugStringA("\t");
-		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
-			OutputDebugStringA("Mittel ");
-			OutputDebugStringA(std::to_string(bodyProperties[i]).c_str());
-			OutputDebugStringA(" über ");
-			OutputDebugStringA(std::to_string(numberOfSamples[i]).c_str());
-			OutputDebugStringA(" Samples.\n");
-		}
 
-#endif
 	}
 	// filtere alle Werte aus den Puffern, die außerhalb der PERMITTED_QUANTIL-ten Standardabweichung liegen
 	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
@@ -489,12 +472,44 @@ bool Person::calculateBodyProperties()
 				numberOfSamples[i]++;
 			}
 		}
+
+		OutputDebugStringA(std::to_string(numberOfSamples[i]).c_str());
+		OutputDebugStringA("\t");
 		// bestimme wieder den Mittelwert über die gesammelten Werte
 		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
 			bodyProperties[i] /= numberOfSamples[i];
 		}
 	}
+	OutputDebugStringA("\n");
+#ifdef DEBUG_COLLECTING
+	for (i = 0; i < NUMBER_OF_BODY_PROPERTIES; i++) {
+		OutputDebugStringA("Standardabweichung, ");
+		switch (i)
+		{
+		case LEFT_UPPER_ARM_LENGTH:  OutputDebugStringA("Linker Oberarm:        "); break;
+		case RIGHT_UPPER_ARM_LENGTH: OutputDebugStringA("Rechter Oberarm:       "); break;
+		case LEFT_LOWER_ARM_LENGTH:  OutputDebugStringA("Linker Unterarm:       "); break;
+		case RIGHT_LOWER_ARM_LENGTH: OutputDebugStringA("Rechter Unterarm:      "); break;
+			//case LEFT_UPPER_LEG_LENGTH:  OutputDebugStringA("Linker Oberschenkel:   "); break;
+			//case RIGHT_UPPER_LEG_LENGTH: OutputDebugStringA("Rechter Oberschenkel:  "); break;
+		case SHOULDER_WIDTH:         OutputDebugStringA("Schulterbreite:        "); break;
+		case HIP_WIDTH:              OutputDebugStringA("Hüftbreite:            "); break;
+		case TORSO_LENGTH:           OutputDebugStringA("Torsolänge:            "); break;
+		case NECK_TO_HEAD:           OutputDebugStringA("Hals zu Kopf:          "); break;
 
+		default: break;
+		}
+		OutputDebugStringA(std::to_string(standardDeviations[i]).c_str());
+		OutputDebugStringA("\t");
+		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
+			OutputDebugStringA("Mittel ");
+			OutputDebugStringA(std::to_string(bodyProperties[i]).c_str());
+			OutputDebugStringA(" über ");
+			OutputDebugStringA(std::to_string(numberOfSamples[i]).c_str());
+			OutputDebugStringA(" Samples.\n");
+		}
+	}
+#endif
 
 	bodyPropertiesBuffer.clear();
 

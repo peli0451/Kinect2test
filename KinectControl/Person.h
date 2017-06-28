@@ -16,6 +16,9 @@ public:
 	void setId(int id);
 	int getId();
 
+	void setTrackingId(UINT64 tid);
+	UINT64 getTrackingId();
+
 	void setZ(float newZ);
 	float getZ();
 
@@ -73,6 +76,7 @@ private:
 	float PERMITTED_QUANTIL = 2.0f;
 
 	int id;
+	UINT64 trackingId;
 
 	_CameraSpacePoint leftHandCurrentPosition;
 	_CameraSpacePoint rightHandCurrentPosition;

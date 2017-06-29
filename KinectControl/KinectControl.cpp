@@ -327,6 +327,7 @@ MotionParameters KinectControl::run() {
 							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
 							
 							if (isInConfigurationPose(joints) == false || master.collectBodyProperties() == false) {
+								master.deleteCollectedBodyProperties();
 								OutputDebugStringA("RESET\n");
 								collectedFrames = 0;
 							}

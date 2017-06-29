@@ -51,6 +51,7 @@ public:
 	void saveBodyProperties();
 	float compareBodyProperties(Joint* inputJoints);
 	bool collectBodyProperties();
+	void deleteCollectedBodyProperties();
 	bool calculateBodyProperties();
 	
 

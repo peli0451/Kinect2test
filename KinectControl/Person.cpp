@@ -386,6 +386,25 @@ bool Person::collectBodyProperties()
 	return isTracked;
 }
 
+/**
+* Löscht den Buffer für die Körperproportionen, der durch collectBodyProperties gefüllt wird
+*/
+void Person::deleteCollectedBodyProperties()
+{
+	std::list<float*>::iterator liter;
+	float* bodyPropertiesTemp;
+
+	if (bodyPropertiesBuffer.empty())
+		return;
+
+	for (liter = bodyPropertiesBuffer.begin(); liter != bodyPropertiesBuffer.end(); liter++) {
+		bodyPropertiesTemp = *liter;
+		delete[] bodyPropertiesTemp;
+	}
+
+	bodyPropertiesBuffer.clear();
+}
+
 /*
 * Berechnet aus allen im Buffer für die Körperproportionen gespeicherten Werten 
 * jeweils für eine Proportion den Durchschnitt aus allen Werten für diese Proportion

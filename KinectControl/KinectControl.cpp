@@ -226,6 +226,7 @@ MotionParameters KinectControl::run() {
 	}
 
 	bool searchForMaster;
+	bool masterTrackedDuringCollection = false;
 	BOOLEAN isTracked;
 	UINT64 currentTrackingId;
 
@@ -320,23 +321,34 @@ MotionParameters KinectControl::run() {
 					}
 					//----------------------
 					// Masterfestlegung
-					else if (masterDetermined && collectFrames && master.getTrackingId() == currentTrackingId){
-						//OutputDebugStringA(std::to_string(collectedFrames).c_str()); OutputDebugStringA("\n");
-						if (collectedFrames < 20) {
-							
-							master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
-							
-							if (isInConfigurationPose(joints) == false || master.collectBodyProperties() == false) {
-								master.deleteCollectedBodyProperties();
-								OutputDebugStringA("RESET\n");
-								collectedFrames = 0;
+					else if (masterDetermined && collectFrames){
+						
+						if (master.getId() == -1) {
+							if (isInConfigurationPose(joints)) {
+								master.setId(i);
+								master.setTrackingId(currentTrackingId);
 							}
-							collectedFrames++;
 						}
-						else {
-							master.calculateBodyProperties();
-							collectedFrames = 0;
-							collectFrames = false;
+						else if (master.getTrackingId() == currentTrackingId) {
+							masterTrackedDuringCollection = true;
+							//OutputDebugStringA(std::to_string(collectedFrames).c_str()); OutputDebugStringA("\n");
+							if (collectedFrames < 20) {
+
+								master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
+
+								if (isInConfigurationPose(joints) == false || master.collectBodyProperties() == false) {
+									master.deleteCollectedBodyProperties();
+									OutputDebugStringA("RESET\n");
+									collectedFrames = 0;
+									master.setId(-1);
+								}
+								collectedFrames++;
+							}
+							else {
+								master.calculateBodyProperties();
+								collectedFrames = 0;
+								collectFrames = false;
+							}
 						}
 					}
 					//----------------------
@@ -355,6 +367,13 @@ MotionParameters KinectControl::run() {
 		}
 
 		stateMachine.setMaster(master);
+
+		if (masterDetermined && collectFrames && !masterTrackedDuringCollection) {
+			master.deleteCollectedBodyProperties();
+			OutputDebugStringA("RESET\n");
+			collectedFrames = 0;
+			master.setId(-1);
+		}
 
 	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
 	//@TODO Mastererkennung mit Confidence, nicht direkt
@@ -440,5 +459,6 @@ void KinectControl::assignMaster() {
 	masterDetermined = true;
 	collectFrames = true;
 	collectedFrames = 0;
+	master.setId(-1);
 }
 

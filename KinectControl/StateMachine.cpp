@@ -183,70 +183,24 @@ void StateMachine::bufferGestureConfidence() {
 		risenHandOpen = false;
 	}
 
-	//Je nach Zustand sind die Bewertungen der Trackingergebnisse anders zu bewerten
-	switch (currentState) {
-
-	//Zustand IDLE -> alle Gesten werden nur eindeutig betrachtet
-	case State::IDLE:
-		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
-		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
-		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt
-		break;
-
-	//Zustand TRANSLATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geöffneten Hand vermutlich ein Translate
-	case State::CAMERA_TRANSLATE:
-		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
-		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
-		else if (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed)
-			newConfidence = { .0f,1.f,.0f,.0f,.0f }; //sehr wahrscheinlich Translate
-		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .8f,.1f,.1f,.0f,.0f }; //doppeldeutig
-		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
-		break;
-
-	//Zustand ROTATE -> neben eindeutigen Gesten sind doppeldeutige mit einer geschlossenen Hand vermutlich ein Rotate
-	case State::CAMERA_ROTATE:
-		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
-		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
-		else if (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen)
-			newConfidence = { .0f,.0f,1.f,.0f,.0f }; //sehr wahrscheinlich Rotate
-		else if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
-			newConfidence = { .8f,.1f,.1f,.0f,.0f }; //doppeldeutig
-		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
-		break;
-
-	//Zustand MANIPULATE -> alle Gesten werden nur eindeutig betrachtet
-	case State::OBJECT_MANIPULATE:
-		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
-		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .25f, .0f, .0f, .75f,.0f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
-		else newConfidence = { .7f,.1f,.1f,.1f,.0f }; //Unbekannt
-		break;
-
-	//Zustand FLY -> alle Gesten werden nur eindeutig betrachtet
-	case State::FLY: // wie IDLE
-		if (handsTogetherInFront) newConfidence = { .0f,.0f,.0f,.0f,1.f }; //Flygeste
-		else if (risenHandOpen) newConfidence = { .0f,.0f,.0f,1.f,.0f }; //Grabgeste
-		else if (risenHandUnknown) newConfidence = { .25f,.0f,.0f,.75f,.0f };
-		else if (bothHandsClosed) newConfidence = { .0f,.0f,1.f,.0f,.0f }; //beide geschlossen
-		else if (bothHandsOpen) newConfidence = { .0f,1.f,.0f,.0f,.0f }; //beide offen
-		else newConfidence = { 1.f,.0f,.0f,.0f,.0f }; //Unbekannt
-		break;
-		break;
-	default: break;
+	//Abhängigkeit der neuen Konfidenz von Hilfsvariablen und Zustand
+	if (handsTogetherInFront)					newConfidence = { .0f,  .0f, .0f, .0f,  1.f }; //Flygeste, eindeutig
+	else if (handRisen && risenHandOpen)		newConfidence = { .0f,  .0f, .0f, 1.f,  .0f }; //Grabgeste, eindeutig
+	else if (handRisen && risenHandUnknown)		newConfidence = { .25f, .0f, .0f, .75f, .0f }; //Grabgeste mit verlorenem HandState
+	else if (bothHandsClosed)					newConfidence = { .0f,  .0f, 1.f, .0f,  .0f }; //Rotategeste, eindeutig
+	else if (bothHandsOpen)						newConfidence = { .0f,  1.f, .0f, .0f,  .0f }; //Translategeste, eindeutig
+	else {										newConfidence = { 1.f,  .0f, .0f, .0f,  .0f }; //initial unbekannt, für alle Modi außer ROTATE und TRANSLATE
+		if (currentState == CAMERA_ROTATE || currentState == CAMERA_TRANSLATE) {
+			if (leftHandOpen && rightHandClosed || leftHandClosed && rightHandOpen)
+												newConfidence = { .8f,  .1f, .1f, .0f,  .0f }; //doppeldeutig, unbekannt
+			if (currentState == CAMERA_TRANSLATE && (leftHandOpen && !rightHandOpen && !rightHandClosed || rightHandOpen && !leftHandOpen && !leftHandClosed))
+												newConfidence = { .0f,  1.f, .0f, .0f,  .0f }; //sehr wahrscheinlich Translate
+			if (currentState == CAMERA_ROTATE && (leftHandClosed && !rightHandClosed && !rightHandOpen || rightHandClosed && !leftHandClosed && !leftHandOpen))
+												newConfidence = { .0f,  .0f, 1.f, .0f,  .0f }; //sehr wahrscheinlich Rotate
+		}
 	}
 
+	//Debugausgabe der neu berechneten Konfidenz
 	/*
 	OutputDebugStringA(std::to_string(newConfidence.unknownConfidence).c_str());
 	OutputDebugStringA("\t");
@@ -255,7 +209,7 @@ void StateMachine::bufferGestureConfidence() {
 	OutputDebugStringA(std::to_string(newConfidence.rotateCameraConfidence).c_str());
 	OutputDebugStringA("\t");
 	OutputDebugStringA(std::to_string(newConfidence.grabConfidence).c_str());
-	OutputDebugStringA("\t");
+	OutputDebugStringA("\n");
 	*/
 
 	//Berechnete Konfidenzien in den Pufferschreiben

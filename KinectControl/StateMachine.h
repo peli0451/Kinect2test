@@ -9,9 +9,14 @@
 #include "MotionParameters.h"
 #include "Person.h"
 
+enum EventType {
+	EVENT_MASTER_LOST,
+	EVENT_MASTER_FOUND
+};
+
 class ControlWidget {
 public: virtual void pickModel(float x, float y) {};
-		virtual void sendEvent(StateMachine::EventType _event);
+		virtual void sendEvent(EventType _event) {};
 };
 
 class StateMachine {
@@ -22,11 +27,6 @@ public:
 		CAMERA_ROTATE,
 		OBJECT_MANIPULATE,
 		FLY
-	};
-
-	enum EventType {
-		EVENT_MASTER_LOST,
-		EVENT_MASTER_FOUND
 	};
 	
 	void setState(State newState);

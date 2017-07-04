@@ -463,7 +463,7 @@ void GLWidget::pickModel(float x, float y) {
 	picked_model = &m_model;
 }
 
-void GLWidget::sendEvent(EventType _event) 
+void GLWidget::sendEvent(EventType _event)
 {
 	switch (_event)
 	{

@@ -16,34 +16,36 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.2}Aufgabenverteilung im Team}{6}{subsection.2.2}
 \defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {2.3}Werkzeuge}{6}{subsection.2.3}
+\defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Entwurfsentscheidungen}{7}{section.3}
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.1}Der Master}{7}{subsection.3.1}
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{9}{subsection.3.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{12}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{15}{subsection.3.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{13}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{16}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{20}{section.4}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{23}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{20}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{23}{subsection.4.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{KinectControl.}{20}{section*.7}
+\contentsline {paragraph}{KinectControl.}{23}{section*.11}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Buffer.}{21}{section*.9}
+\contentsline {paragraph}{Buffer.}{24}{section*.13}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{MotionParameters.}{22}{section*.10}
+\contentsline {paragraph}{MotionParameters.}{25}{section*.14}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Person.}{22}{section*.12}
+\contentsline {paragraph}{Person.}{25}{section*.16}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{GestureRecognition.}{23}{section*.14}
+\contentsline {paragraph}{GestureRecognition.}{26}{section*.18}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{StateMachine.}{24}{section*.17}
+\contentsline {paragraph}{StateMachine.}{27}{section*.21}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{24}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{27}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{24}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{27}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{24}{section.5}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{27}{section.5}

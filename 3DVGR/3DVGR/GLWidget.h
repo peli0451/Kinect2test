@@ -78,6 +78,7 @@ public:
 	void setFar(float f) { m_far = f; }
 
 	void pickModel(float x, float y);
+	void sendEvent(StateMachine::EventType event);
 
 protected:
 	void initializeGL();

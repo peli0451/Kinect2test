@@ -95,6 +95,12 @@ Eigen::Vector3f StateMachine::convToVec3(CameraSpacePoint *csp) {
 	return vec;
 }
 
+int signum(float x) {
+	if (x < 0) return -1;
+	if (x > 0) return 1;
+	return 0;
+}
+
 /**********************************************************
 * Funktionen
 **********************************************************/
@@ -314,7 +320,7 @@ void StateMachine::compute() {
 
 			Eigen::AngleAxisf rot = getRotationAngleAxis(origin_axis, target_axis);
 			rotationBuffer->push(Eigen::Quaternionf(rot));
-			motionParameters.setRotation(smoothRotation(rotationBuffer, cameraRotationSmoothingFactor, cameraRotationSmoothingSum));
+			motionParameters.setRotation(smoothRotation(rotationBuffer, cameraRotationSmoothingFactor, cameraRotationSmoothingSum, CAMERA_ROTATION_FACTOR));
 			break;
 		}
 		case GestureRecognition::Gesture::TRANSLATE_GESTURE:
@@ -351,8 +357,13 @@ void StateMachine::compute() {
 			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
 			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -OBJECT_MAX_ROTATION); //größte plausible Rotation für einen Frame (im Bogenmaß)
 			orientationDiffAA.angle() = min(orientationDiffAA.angle(), OBJECT_MAX_ROTATION); //in beide Rotationsrichtungen
-			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA));
-			motionParameters.setRotation(smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum));
+			
+			Eigen::AngleAxisf projectedOrientationAA = Eigen::AngleAxisf(orientationDiffAA); // auf (1,0,0) projezierte Rotation (Kippen)
+			projectedOrientationAA.angle() *= abs(projectedOrientationAA.axis().x()) * OBJECT_TILT_FACTOR;
+			projectedOrientationAA.axis() = Eigen::Vector3f(signum(projectedOrientationAA.axis().x()), 0, 0);
+			
+			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA) * Eigen::Quaternionf(projectedOrientationAA)); // Konkatenation der Rotationen
+			motionParameters.setRotation(smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum, OBJECT_ROTATION_FACTOR));
 		}
 		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
 		
@@ -484,12 +495,12 @@ CameraSpacePoint StateMachine::smoothSpeed(Buffer<CameraSpacePoint>* buffer) {
 * @param buffer Puffer für Rotationen
 * @param smoothingFactor Array mit Rotationsfaktoren
 */
-Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum) {
+Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum, float rotationFactor) {
 	Eigen::Quaternionf rotation = Eigen::Quaternionf::Identity();
 	for (int i = buffer->end(); i >= 0; i--) {
 		Eigen::Quaternionf *cur_rot = buffer->get(i);
 		float smoothing = smoothingFactor[i] / smoothingSum;
-		smoothing *= OBJECT_ROTATION_FACTOR;
+		smoothing *= rotationFactor;
 		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
 		rotation *= downscaled_rot;
 	}

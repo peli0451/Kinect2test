@@ -11,6 +11,7 @@
 
 class ControlWidget {
 public: virtual void pickModel(float x, float y) {};
+		virtual void sendEvent(StateMachine::EventType _event);
 };
 
 class StateMachine {
@@ -21,6 +22,11 @@ public:
 		CAMERA_ROTATE,
 		OBJECT_MANIPULATE,
 		FLY
+	};
+
+	enum EventType {
+		EVENT_MASTER_LOST,
+		EVENT_MASTER_FOUND
 	};
 	
 	void setState(State newState);
@@ -67,8 +73,10 @@ private:
 	const float FLY_SEGMENT2_FACTOR = 1.5f;
 	const float OBJECT_MAX_ROTATION = 0.2f;
 	const float OBJECT_ROTATION_FACTOR = 10.f;
+	const float OBJECT_TILT_FACTOR = 0.5f;
+	const float CAMERA_ROTATION_FACTOR = 10.f;
 	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);
-	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum);
+	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum, float rotationFactor);
 
 	ControlWidget *widget;
 };

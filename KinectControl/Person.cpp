@@ -472,6 +472,7 @@ bool Person::calculateBodyProperties()
 		standardDeviations[i] = .0001f;
 		if (numberOfSamples[i] > 1) {
 			standardDeviations[i] = max(sqrt(1.0f / (numberOfSamples[i] - 1) * sum), standardDeviations[i]);
+			//standardDeviations[i] += 0.02f;
 		}
 
 	}

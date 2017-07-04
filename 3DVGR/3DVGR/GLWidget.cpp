@@ -462,3 +462,14 @@ void GLWidget::pickModel(float x, float y) {
 	//TODO ray cast
 	picked_model = &m_model;
 }
+
+void GLWidget::sendEvent(EventType _event) 
+{
+	switch (_event)
+	{
+	case EVENT_MASTER_FOUND:
+		break;
+	case EVENT_MASTER_LOST:
+		break;
+	}
+}

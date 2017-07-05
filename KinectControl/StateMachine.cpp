@@ -11,6 +11,7 @@ const float Pi = 3.14159f;
 
 StateMachine::StateMachine()
 {
+	master = Person();
 	setState(IDLE);
 	motionParameters.resetMotion();
 
@@ -296,6 +297,17 @@ void StateMachine::compute() {
 		}
 		motionParameters.setTranslation(smoothenedHandPosition.X, smoothenedHandPosition.Y, smoothenedHandPosition.Z);
 
+		/* Debug-HandOrientation
+		OutputDebugStringA(std::to_string((master.getJointOrientations())[JointType_HandLeft].Orientation.w).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string((master.getJointOrientations())[JointType_HandLeft].Orientation.x).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string((master.getJointOrientations())[JointType_HandLeft].Orientation.y).c_str());
+		OutputDebugStringA("\t");
+		OutputDebugStringA(std::to_string((master.getJointOrientations())[JointType_HandLeft].Orientation.z).c_str());
+		OutputDebugStringA("\n");
+		*/
+
 		// Rotation
 		Eigen::Quaternionf currentHandOrientation = Eigen::Quaternionf::Identity();
 		Vector4 handOrientation;
@@ -309,6 +321,7 @@ void StateMachine::compute() {
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
 		if (master.isLastHandOrientationInitialized()) { // nur rotieren, wenn lastHandOrientation initialisiert ist
 			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
+			OutputDebugStringA(std::to_string(orientationDiffAA.angle()/3.14158*180.0f).c_str());OutputDebugStringA("\t");
 			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -OBJECT_MAX_ROTATION); //größte plausible Rotation für einen Frame (im Bogenmaß)
 			orientationDiffAA.angle() = min(orientationDiffAA.angle(), OBJECT_MAX_ROTATION); //in beide Rotationsrichtungen
 			
@@ -317,10 +330,22 @@ void StateMachine::compute() {
 			projectedOrientationAA.axis() = Eigen::Vector3f(signum(projectedOrientationAA.axis().x()), 0, 0);
 			
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA) * Eigen::Quaternionf(projectedOrientationAA)); // Konkatenation der Rotationen
-			motionParameters.setRotation(smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum, OBJECT_ROTATION_FACTOR));
+			Eigen::Quaternionf smoothenedRotation = smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum, OBJECT_ROTATION_FACTOR);
+			motionParameters.setRotation(smoothenedRotation);
+
+			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).angle()/3.14158*180.0f).c_str());
+			OutputDebugStringA("\t");
+
+			
+			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).axis().x()).c_str());
+			OutputDebugStringA("\t");
+			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).axis().y()).c_str());
+			OutputDebugStringA("\t");
+			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).axis().z()).c_str());
+			OutputDebugStringA("\n");
 		}
-		Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
-		
+		//Eigen::AngleAxisf aa = Eigen::AngleAxisf(currentHandOrientation);
+
 		master.setLastHandOrientation(currentHandOrientation);
 		master.setLastHandOrientationInitialized(true);
 		break;

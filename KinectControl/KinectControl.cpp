@@ -230,7 +230,7 @@ MotionParameters KinectControl::run() {
 	BOOLEAN isTracked;
 	UINT64 currentTrackingId;
 
-	if (masterDetermined) {
+	if (masterDetermined && !collectFrames) {
 		trackedBodies[master.getId()]->get_IsTracked(&isTracked);
 		trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
 	}
@@ -459,6 +459,8 @@ void KinectControl::assignMaster() {
 	masterDetermined = true;
 	collectFrames = true;
 	collectedFrames = 0;
+	Person master = stateMachine.getMaster();
 	master.setId(-1);
+	stateMachine.setMaster(master);
 }
 

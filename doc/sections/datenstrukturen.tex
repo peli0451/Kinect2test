@@ -30,12 +30,20 @@
 	\includegraphics[width=.8\textwidth]{pictures/motionparameters.jpg}
 	\caption{Inhalt der Header-Datei MotionParameters.h.}\label{fig:motpar}
 	\end{figure}\par\medskip
-	\paragraph{Person.} Die Person-Klasse kapselt Informationen, die logisch zu einer von der Kinect erkannten Person gehören. Wir speichern selbstverständlich so gut wie ausschließlich jene Informationen, die wir im Laufe unseres Programmes auch benötigen. Zu einer Person gehören als wohl wichtigstes Element die Gelenkdaten der Kinect -- ein Array von Joints. Ferner werden von diesen Gelenkdaten auch die Orientierungen, gespeichert in einem separaten Array, benötigt. Zentral sind weiter die Puffer für die Positionen der linken und rechten Hand, ein Puffer für die per Geste vorgeführten Rotationen, sowie die HandStates der beiden Hände und eine \glqq ControlHand\grqq{} für die einhändige Objektmanipulation. Dazu verwenden wir eine ID für die Person und verfolgen ihre z-Koordinate. Die weiteren Klassenvariablen dienen verschiedenen Zwecken, unter Anderem stellen sie die Strukturen und Funktionen bereit, die später bei der Mastererkennung dienlich sind.
+	\paragraph{Person.} Die Person-Klasse kapselt Informationen, die logisch zu einer von der Kinect erkannten Person gehören. Wir speichern selbstverständlich so gut wie ausschließlich jene Informationen, die wir im Laufe unseres Programmes auch benötigen. Zu einer Person gehören als wohl wichtigstes Element die Gelenkdaten der Kinect -- ein Array von Joints. Ferner werden von diesen Gelenkdaten auch die Orientierungen, gespeichert in einem separaten Array, benötigt. Zentral sind weiter die Puffer für die Positionen der linken und rechten Hand, ein Puffer für die per Geste vorgeführten Rotationen, sowie die HandStates der beiden Hände und eine \glqq ControlHand\grqq{} für die einhändige Objektmanipulation. Dazu verwenden wir eine ID für die Person und verfolgen ihre z-Koordinate. 
 	\begin{figure}[h]
 	\centering
 	\includegraphics[scale=.5]{pictures/person.jpg}
 	\caption{Ausschnitt aus dem Person-Konstruktor mit Initialisierung der wesentlichen Merkmale.}
 	\end{figure}\par\medskip
+	
+	Die weiteren Klassenvariablen dienen verschiedenen Zwecken, unter Anderem stellen sie die Strukturen und Funktionen bereit, die später bei der Mastererkennung dienlich sind. Zentral für die Erkennung ist hierbei die Vermessung der gezeigten Körperproportionen.
+	\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.7]{pictures/bodyproperties.png}
+	\caption{Köperproportionen, die zur Erkennung einer Person gespeichert werden}
+	\end{figure}\par\medskip
+	
 	\paragraph{GestureRecognition.} Hierbei handelt es sich erneut um eine Hilfsklasse. Enthalten sind zunächst die Grundstrukturen für die Arbeit mit unseren selbstdefinierten Gesten. Neben der Definition dieser Gesten selbst als Enumeration ist hier die Struktur \glqq GestureConfidence\grqq{} gespeichert. Ein Behälter, der für unsere verschiedenen Gesten Floats enthält, die angeben werden, wie sicher eine Erkennung der zugehörigen Geste war. Die auf Abb. \ref{fig:gestrechead} ebenfalls zu sehende Enumeration ControlHand ist wieder für die einhändige Objektsteuerung nötig, als Angabe, welche Hand steuert.\par
 	\begin{figure}[h]
 	\centering

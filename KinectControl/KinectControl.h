@@ -24,6 +24,8 @@ class KinectControl {
 		IBodyFrameReader *bodyFrameReader;
 
 		boolean masterDetermined;
+		boolean collectFrames;
+		int collectedFrames;
 
 		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;
@@ -34,6 +36,7 @@ class KinectControl {
 		const int NUMBER_OF_COLLECTED_FRAMES = 20;
 		float evaluateDeviationBuffer(Buffer<float> *deviationBuffer);
 		bool isInConfigurationPose(Joint* joints);
+		const float MASTER_ALLOWED_DEVIATION = 50.f;
 
 		//@TODO in die .cpp?
 		HRESULT result;

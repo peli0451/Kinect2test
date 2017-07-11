@@ -2,14 +2,18 @@
 #include "Person.h"
 #include <cmath>
 
-//#define DEBUG_BODY_PROPERTIES //Debugausgaben Körpermerkmale
-//#define DEBUG_ARM_DIFFERENCE //Debugmeldung über Oberarmlängendifferenz
-//#define DEBUG_LEG_DIFFERENCE //Debugmeldung über Schenkellängendifferenz
-//#define DEBUG_ACCUMULATED_ERROR //Debugmeldung über errechnete Abweichung
-//#define DEBUG_NOTIFY_BAD_PROPERTY //Debugbenachrichtigungen für schlechte Werte
-#define DEBUG_COLLECTING //Debugmeldung über Standardabweichung bei Masterfestlegung
-//#define DEBUG_VERBOSE //Debugmeldungen über Funktionsaufrufe und berechnungen
-//#define DEBUG_MASTER //Debugmeldung, ob Master erkannt
+/**********************************************************
+* Debug-Schalter
+**********************************************************/
+
+//#define DEBUG_BODY_PROPERTIES			//Debugausgaben Körpermerkmale
+//#define DEBUG_ARM_DIFFERENCE			//Debugmeldung über Oberarmlängendifferenz
+//#define DEBUG_LEG_DIFFERENCE			//Debugmeldung über Schenkellängendifferenz
+//#define DEBUG_ACCUMULATED_ERROR		//Debugmeldung über errechnete Abweichung
+//#define DEBUG_NOTIFY_BAD_PROPERTY		//Debugbenachrichtigungen für schlechte Werte
+#define DEBUG_COLLECTING				//Debugmeldung über Standardabweichung bei Masterfestlegung
+//#define DEBUG_VERBOSE					//Debugmeldungen über Funktionsaufrufe und berechnungen
+//#define DEBUG_MASTER					//Debugmeldung, ob Master erkannt
 
 /**********************************************************
 * Konstruktoren
@@ -703,5 +707,18 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 	}
 #endif
 
-	return accumulatedError;
+	return (float) accumulatedError;
+}
+
+
+/**
+* Leert alle wichtigen Puffer
+*/
+void Person::resetMotionBuffers() {
+	// Handpositionenbuffer
+	leftHandPositionBuffer->empty();
+	rightHandPositionBuffer->empty();
+
+	// Rotationenbuffer
+	rotationBuffer->empty();
 }

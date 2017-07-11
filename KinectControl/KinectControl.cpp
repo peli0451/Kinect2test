@@ -16,7 +16,15 @@
 const float MAX_SANE_DISTANCE = 0.1f; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
 const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 
+/**********************************************************
+* Debug-Schalter
+**********************************************************/
 
+//#define DEBUG_CONFIG_POSE				//Ausgabe, ob behandelter Körper in Iteration sich in Konfigpose befindet
+//#define DEBUG_DEVIATIONS				//Ausgabe der bestimmten Abweichungswerte bei der Mastersuche nach einem vollen Puffer
+//#define DEBUG_DEVIATION_VERBOSE		//Ausgabe der Abweichungswerte bei Mastersuche immer(!)
+//#define DEBUG_COLLECTING_COMPARE		//Ausgabe über Sammlungsstatus bei der Mastersuche
+//#define DEBUG_STATE_MACHINE_STATE		//Ausgabe des Zustands der State-Machine
 
 /**********************************************************
 * Konstruktoren
@@ -24,6 +32,8 @@ const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 
 KinectControl::KinectControl() { 
 	masterDetermined = false;
+	collectFrames = false;
+	collectedFrames = 0;
 }
 
 
@@ -195,21 +205,17 @@ bool KinectControl::isInConfigurationPose(Joint* joints)
 *
 * @return motionParameters Transformationsparameter
 */
-
-bool collectFrames = false;
-int collectedFrames = 0;
 MotionParameters KinectControl::run() {
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
+	IBodyFrame *bodyFrame;
 
-	//[deprecated]
-	//Plan: Iterieren über Köpfe, den niedrigsten z-Wert als Master wählen, Mastervariable
+	//falls kein Master bestimmt ist / werden soll -> Defaultwerte
 	if (!masterDetermined) {
 		master.setId(-1);
 		master.setZ(FLT_MAX);
 	}
-	IBodyFrame *bodyFrame;
-
+	
 	//Hole aktuellen Kinect-Frame (falls möglich)
 	//Bei Fehlschlag arbeite mit alten Parametern
 	result = bodyFrameReader->AcquireLatestFrame(&bodyFrame);
@@ -225,159 +231,196 @@ MotionParameters KinectControl::run() {
 		return motionParameters;
 	}
 
-	bool searchForMaster;
+	bool lostMaster = false;
+	bool searchForMaster = false;
 	bool masterTrackedDuringCollection = false;
 	BOOLEAN isTracked;
 	UINT64 currentTrackingId;
 
+	//Falls Master eingespeichert ist, frage Tracking-Status und ID seiner ehemaligen Arrayposition ab
+	//Zweck: Prüfen, ob Master nicht mehr da ist
 	if (masterDetermined && !collectFrames) {
 		trackedBodies[master.getId()]->get_IsTracked(&isTracked);
 		trackedBodies[master.getId()]->get_TrackingId(&currentTrackingId);
 	}
 
-	if (masterDetermined && isTracked && master.getTrackingId() == currentTrackingId)
+	//Falls Master eingespeichert ist und mit gleicher ID weiterhin getrackt: nicht suchen (sonst Master suchen)
+	if (masterDetermined && isTracked && master.getTrackingId() == currentTrackingId) {
 		searchForMaster = false;
-	else
+	} else {
+		if (!searchForMaster) lostMaster = true; //wird nur bei 0-1-Flanke von searchForMaster gesetzt und ist sonst false (verwendet am Ende der Funktion)
 		searchForMaster = true;
+	}
 
-	//TODO hier noch alte, primitive Mastererkennung
-		for (int i = 0; i < numberOfTrackedBodies; i++)
-		{
-			trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt
-			trackedBodies[i]->get_TrackingId(&currentTrackingId); //Tracking ID der i-ten getrackten Person
+	/**********************************************************
+	* Masterbehandlung
+	**********************************************************/
+	//Iteriere über trackedBodies
+	for (int i = 0; i < numberOfTrackedBodies; i++)
+	{
+		trackedBodies[i]->get_IsTracked(&isTracked); //ist i-te potentielle Person getrackt?
+		trackedBodies[i]->get_TrackingId(&currentTrackingId); //Tracking ID der i-ten getrackten Person
 
-			//Tracking erkannter Personen, Identifikation des Masters
-			if (isTracked == TRUE) {
-				//Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
-				Joint joints[JointType_Count];
-				result = trackedBodies[i]->GetJoints(JointType_Count, joints);
-				if (SUCCEEDED(result)) {
-					//Falls Gelenke erfolgreich geholt
-					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
-					//----------------------
-					// Mastersuche
-					
-
-					if (masterDetermined && !collectFrames) {
-						
-						//master.compareBodyProperties(joints);
-						/*
+		//Tracking erkannter Personen, Identifikation des Masters
+		if (isTracked == TRUE) {
+			//Wenn getrackt, lege Gelenkmodell an (Gelenkarray)
+			Joint joints[JointType_Count];
+			result = trackedBodies[i]->GetJoints(JointType_Count, joints);
+			
+			if (SUCCEEDED(result)) { //Falls Gelenke erfolgreich geholt
+				/**********************************************************
+				* Mastersuche
+				**********************************************************/
+				if (masterDetermined && !collectFrames) {
+					//Debugging der Konfigurationspose
+					#ifdef DEBUG_CONFIG_POSE
 						OutputDebugStringA("isInConfigurationPose: ");
 						OutputDebugStringA(std::to_string(isInConfigurationPose(joints)).c_str());
 						OutputDebugStringA("\t");
-						*/
+					#endif
 
-						//OutputDebugStringA(std::to_string(searchForMaster).c_str());
-						if (searchForMaster && isInConfigurationPose (joints)) {
-							if (collectDeviation[i] == false) {
-								collectDeviation[i] = true;
-								trackingId[i] = currentTrackingId;
-							}
-							else if (collectDeviation[i] == true && currentTrackingId == trackingId[i]) {
-								if (deviationBuffer[i]->isFull()) {
-									float deviation = evaluateDeviationBuffer(deviationBuffer[i]);
-									if (deviation < 50.0f) {
-										searchForMaster = false;
-										master.setId(i);
-										master.setTrackingId(currentTrackingId);
-										for (int j = 0; j < numberOfTrackedBodies; j++) {
-											collectDeviation[j] = false;
-											deviationBuffer[j]->empty();
-										}
-										OutputDebugStringA("Master gefunden.\t");
-										OutputDebugStringA(std::to_string(deviation).c_str());
-										OutputDebugStringA("\n");
-									} else { 
-										deviationBuffer[i]->empty();
-										OutputDebugStringA("----------------\t");
-										OutputDebugStringA(std::to_string(deviation).c_str());
-										OutputDebugStringA("\n");
+					if (searchForMaster && isInConfigurationPose(joints)) {
+						//Master wird gesucht, aktueller Körper ist in Konfigpose
+						//Beginne mit der Sammlung oder fahre mit der Sammlung fort
+						if (collectDeviation[i] == false) { //Beginne mit der Sammlung
+							collectDeviation[i] = true;
+							trackingId[i] = currentTrackingId;
+						}
+						else if (collectDeviation[i] == true && currentTrackingId == trackingId[i]) { //Fahre mit der Sammlung fort, falls für diesen Körper schon gesammelt wurde
+
+							//Voller Puffer
+							if (deviationBuffer[i]->isFull()) {
+								//bei vollem Puffer (Sammlung abgeschlossen) -> Pufferauswertung
+								//dies liefert Abweichungswert (deviation)
+								//falls Deviation klein genug -> Master gefunden (andernfalls lösche Sammlung)
+								float deviation = evaluateDeviationBuffer(deviationBuffer[i]);
+								if (deviation < MASTER_ALLOWED_DEVIATION) {
+									searchForMaster = false;
+									master.setId(i);
+									master.setTrackingId(currentTrackingId);
+									for (int j = 0; j < numberOfTrackedBodies; j++) {
+										collectDeviation[j] = false;
+										deviationBuffer[j]->empty();
 									}
-									//OutputDebugStringA(std::to_string(blub).c_str());
-									//OutputDebugStringA("\n");
+									#ifdef DEBUG_DEVIATIONS
+										OutputDebugStringA("Master gefunden.    \tArray-ID = ");
+										OutputDebugStringA(std::to_string(i).c_str());
+										OutputDebugStringA("\t Deviation = ");
+										OutputDebugStringA(std::to_string(deviation).c_str());
+										OutputDebugStringA("\n");
+									#endif
+								} else { 
+									deviationBuffer[i]->empty();
+									#ifdef DEBUG_DEVIATIONS
+										OutputDebugStringA("Abweichung zu groß. \tArray-ID = ");
+										OutputDebugStringA(std::to_string(i).c_str());
+										OutputDebugStringA("\t Deviation = ");
+										OutputDebugStringA(std::to_string(deviation).c_str());
+										OutputDebugStringA("\n");
+									#endif
 								}
-								else {
+							}
+							//Puffer noch nicht voll
+							else {
+								float deviation = master.compareBodyProperties(joints);
+								#ifdef DEBUG_COLLECTING_COMPARE
 									OutputDebugStringA("Collecting [");
 									OutputDebugStringA(std::to_string(i).c_str());
-									OutputDebugStringA("]\n");
-									float deviation = master.compareBodyProperties(joints);
-									if (deviation != FLT_MAX) {
-										deviationBuffer[i]->push(deviation);
-									}
-									else {
-										deviationBuffer[i]->empty();
-									}
+									OutputDebugStringA("]\t Gefundene Deviation = ");
+									OutputDebugStringA(std::to_string(deviation).c_str());
+								#endif
+								if (deviation != FLT_MAX) {
+									deviationBuffer[i]->push(deviation);
+									#ifdef DEBUG_COLLECTING_COMPARE
+										OutputDebugStringA("\t ... Push.");
+									#endif
+								}
+								else {
+									deviationBuffer[i]->empty();
+									#ifdef DEBUG_COLLECTING_COMPARE
+										OutputDebugStringA("\t ... Abbruch.");
+									#endif
 								}
 							}
-							else {
-								collectDeviation[i] = false;
-							}
 						}
-						/*												
+						else { //collectDeviation[i] ist true, aber Tracking-ID an Arraystelle hat sich geändert.
+							collectDeviation[i] = false;
+						}
+					}
+
+					#ifdef DEBUG_DEVIATIONS_VERBOSE									
 						OutputDebugStringA("Abweichung:\t");
 						OutputDebugStringA(std::to_string(master.compareBodyProperties(joints)).c_str());
 						OutputDebugStringA("\n");
-						*/
-					}
-					//----------------------
-					// Masterfestlegung
-					else if (masterDetermined && collectFrames){
-						
-						if (master.getId() == -1) {
-							if (isInConfigurationPose(joints)) {
-								master.setId(i);
-								master.setTrackingId(currentTrackingId);
-							}
-						}
-						else if (master.getTrackingId() == currentTrackingId) {
-							masterTrackedDuringCollection = true;
-							//OutputDebugStringA(std::to_string(collectedFrames).c_str()); OutputDebugStringA("\n");
-							if (collectedFrames < 20) {
-
-								master.setJoints(joints); //@TODO Fragwürdige Lösung? Nochmal z-TEst oder so
-
-								if (isInConfigurationPose(joints) == false || master.collectBodyProperties() == false) {
-									master.deleteCollectedBodyProperties();
-									OutputDebugStringA("RESET\n");
-									collectedFrames = 0;
-									master.setId(-1);
-								}
-								collectedFrames++;
-							}
-							else {
-								master.calculateBodyProperties();
-								collectedFrames = 0;
-								collectFrames = false;
-							}
-						}
-					}
-					//----------------------
-					// Masterfestlegung primitiv
-					else {
-						if (headPosition.Z < master.getZ()) {
-							master.setJoints(joints);
+					#endif
+				}
+				/**********************************************************
+				* Masterfestlegung
+				**********************************************************/
+				else if (masterDetermined && collectFrames){
+					if (master.getId() == -1) { //Falls Master-ID noch nicht festgelegt, verwende erste Person, die in Pose steht und speichere diese ein
+						if (isInConfigurationPose(joints)) {
 							master.setId(i);
-							master.setZ(headPosition.Z);
 							master.setTrackingId(currentTrackingId);
 						}
 					}
-
+					else if (master.getTrackingId() == currentTrackingId) { //Vorgesehener Master ist weiterhin getrackt -> sammle weiter
+						masterTrackedDuringCollection = true;
+						if (collectedFrames < 20) {
+							master.setJoints(joints);
+							boolean collectingResult = master.collectBodyProperties();
+							if (isInConfigurationPose(joints) == false || collectingResult == false) { //Falls Master bei Sammlung Pose verlässt oder schlechter (ungetrackter) Wert dabei war
+								//Beginne Sammlung von vorne
+								master.deleteCollectedBodyProperties();
+								OutputDebugStringA("RESET\n");
+								collectedFrames = 0;
+								//@TODO wollen wir die folgende Zeile wirklich
+								master.setId(-1);
+							} else {
+								//collectedFrames nur weiterzählen, falls der Frame gut war
+								collectedFrames++;
+							}
+						} else { //Falls fertig gesammelt, berechne BodyProperties und Setze das Sammeln zurück.
+							master.calculateBodyProperties();
+							collectedFrames = 0;
+							collectFrames = false;
+						}
+					}
 				}
+				/**********************************************************
+				* Primitive Masterfestlegung als Default-Methode
+				**********************************************************/
+				else {
+					//Primitive Masterfestlegung: niedrigster z-Wert des Kopfes
+					_CameraSpacePoint headPosition = joints[JointType::JointType_Head].Position;
+					if (headPosition.Z < master.getZ()) {
+						master.setJoints(joints);
+						master.setId(i);
+						master.setZ(headPosition.Z);
+						master.setTrackingId(currentTrackingId);
+					}
+				}
+
 			}
 		}
+	}
 
-		stateMachine.setMaster(master);
+	stateMachine.setMaster(master);
 
-		if (masterDetermined && collectFrames && !masterTrackedDuringCollection) {
-			master.deleteCollectedBodyProperties();
-			OutputDebugStringA("RESET\n");
-			collectedFrames = 0;
-			master.setId(-1);
-		}
+	//Verwerfen der Collection, falls Masterframes gesammelt werden, aber der Master die vorgesehene Master nicht mehr da ist
+	if (masterDetermined && collectFrames && !masterTrackedDuringCollection) {
+		master.deleteCollectedBodyProperties();
+		OutputDebugStringA("RESET\n");
+		collectedFrames = 0;
+		master.setId(-1);
+	}
 
 	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
 	//@TODO Mastererkennung mit Confidence, nicht direkt
-	if (master.getId() != -1) {
+	/**********************************************************
+	* Masterauslesung (falls einer existiert)
+	**********************************************************/
+	if (master.getId() != -1 && !lostMaster) {
 
 		//Hole Gelenkobjekte und wichtige Positionen des Masters
 		Joint joints[JointType_Count];
@@ -425,28 +468,32 @@ MotionParameters KinectControl::run() {
 
 		stateMachine.setMaster(master);
 
-		// Berechnungsschritt der State-Machine
+		/**********************************************************
+		* State-Machine-Berechnungsschritt
+		**********************************************************/
 		stateMachine.bufferGestureConfidence();
 		stateMachine.compute();
 		stateMachine.switchState();
 		
-
-		
-		//Debug: Ausgabe des Zustands der State-Machine auf der Konsole
-		/*
-		switch (stateMachine.getState()) {
-		case StateMachine::State::IDLE: OutputDebugStringA("IDLE\n"); break;
-		case StateMachine::State::CAMERA_TRANSLATE: OutputDebugStringA("CAMERA_TRANSLATE\n"); break;
-		case StateMachine::State::CAMERA_ROTATE: OutputDebugStringA("CAMERA_ROTATE\n"); break;
-		case StateMachine::State::OBJECT_MANIPULATE: OutputDebugStringA("OBJECT_MANIPULATE\n"); break;
-		case StateMachine::State::FLY: OutputDebugStringA("FLY\n"); break;
-		default: break; }
-		*/
-
-		
+		#ifdef DEBUG_STATE_MACHINE_STATE
+			switch (stateMachine.getState()) {
+			case StateMachine::State::IDLE: OutputDebugStringA("IDLE\n"); break;
+			case StateMachine::State::CAMERA_TRANSLATE: OutputDebugStringA("CAMERA_TRANSLATE\n"); break;
+			case StateMachine::State::CAMERA_ROTATE: OutputDebugStringA("CAMERA_ROTATE\n"); break;
+			case StateMachine::State::OBJECT_MANIPULATE: OutputDebugStringA("OBJECT_MANIPULATE\n"); break;
+			case StateMachine::State::FLY: OutputDebugStringA("FLY\n"); break;
+			default: break;
+			}
+		#endif
 	}
 
-	// Frame - Speicher freigeben
+	//falls Master verloren ging, stoppe jede Bewegung.
+	if (lostMaster) {
+		stateMachine.stopMotion();
+		lostMaster = false;
+	}
+
+	// Frame-Speicher freigeben
 	bodyFrame->Release();
 
 	return stateMachine.getMotionParameters();

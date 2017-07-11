@@ -41,6 +41,7 @@ public:
 	void bufferGestureConfidence();
 	void compute();
 	void switchState();
+	void stopMotion();
 
 	void assignWidget(ControlWidget *_widget);
 

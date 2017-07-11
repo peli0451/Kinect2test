@@ -346,19 +346,19 @@ void StateMachine::compute() {
 		currentHandOrientation = Eigen::Quaternionf(handOrientation.w, handOrientation.x, handOrientation.y, handOrientation.z);
 		if (master.isLastHandOrientationInitialized()) { // nur rotieren, wenn lastHandOrientation initialisiert ist
 			Eigen::AngleAxisf orientationDiffAA = Eigen::AngleAxisf(currentHandOrientation * master.getLastHandOrientation().inverse()); // Quaternion-Mult. ist Rotation von last auf current
-			OutputDebugStringA(std::to_string(orientationDiffAA.angle()/3.14158*180.0f).c_str());OutputDebugStringA("\t");
+			OutputDebugStringA(std::to_string(orientationDiffAA.angle()/Pi*180.0f).c_str());OutputDebugStringA("\t");
 			orientationDiffAA.angle() = max(orientationDiffAA.angle(), -OBJECT_MAX_ROTATION); //größte plausible Rotation für einen Frame (im Bogenmaß)
 			orientationDiffAA.angle() = min(orientationDiffAA.angle(), OBJECT_MAX_ROTATION); //in beide Rotationsrichtungen
 			
 			Eigen::AngleAxisf projectedOrientationAA = Eigen::AngleAxisf(orientationDiffAA); // auf (1,0,0) projezierte Rotation (Kippen)
 			projectedOrientationAA.angle() *= abs(projectedOrientationAA.axis().x()) * OBJECT_TILT_FACTOR;
-			projectedOrientationAA.axis() = Eigen::Vector3f(signum(projectedOrientationAA.axis().x()), 0, 0);
+			projectedOrientationAA.axis() = Eigen::Vector3f(signum(projectedOrientationAA.axis().x()), 0.0f, 0.0f);
 			
 			rotationBuffer->push(Eigen::Quaternionf(orientationDiffAA) * Eigen::Quaternionf(projectedOrientationAA)); // Konkatenation der Rotationen
 			Eigen::Quaternionf smoothenedRotation = smoothRotation(rotationBuffer, rotationSmoothingFactor, rotationSmoothingSum, OBJECT_ROTATION_FACTOR);
 			motionParameters.setRotation(smoothenedRotation);
 
-			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).angle()/3.14158*180.0f).c_str());
+			OutputDebugStringA(std::to_string(Eigen::AngleAxisf(smoothenedRotation).angle()/Pi*180.0f).c_str());
 			OutputDebugStringA("\t");
 
 			
@@ -511,4 +511,15 @@ Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buff
 		rotation *= Eigen::Quaternionf(downscaled_rot);
 	}
 	return rotation;
+}
+
+
+/**
+* Resetfunktion für Zustand und MotionParameters
+*/
+void StateMachine::stopMotion() {
+	motionParameters.setTarget(MotionParameters::MotionTarget::TARGET_CAMERA);
+	motionParameters.resetMotion();
+	state = IDLE;
+	master.resetMotionBuffers();
 }

@@ -53,6 +53,8 @@ public:
 	bool collectBodyProperties();
 	void deleteCollectedBodyProperties();
 	bool calculateBodyProperties();
+
+	void resetMotionBuffers();
 	
 
 private:

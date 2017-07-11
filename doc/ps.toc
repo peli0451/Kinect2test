@@ -28,24 +28,24 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{18}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{23}{section.4}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{25}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{23}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{25}{subsection.4.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{KinectControl.}{23}{section*.12}
+\contentsline {paragraph}{KinectControl.}{25}{section*.13}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Buffer.}{24}{section*.14}
+\contentsline {paragraph}{Buffer.}{26}{section*.15}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{MotionParameters.}{25}{section*.15}
+\contentsline {paragraph}{MotionParameters.}{27}{section*.16}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Person.}{25}{section*.17}
+\contentsline {paragraph}{Person.}{27}{section*.18}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{GestureRecognition.}{26}{section*.20}
+\contentsline {paragraph}{GestureRecognition.}{28}{section*.21}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{StateMachine.}{27}{section*.23}
+\contentsline {paragraph}{StateMachine.}{29}{section*.24}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{28}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.2}Details zum Zusammenspiel}{30}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{28}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{30}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{28}{section.5}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{30}{section.5}

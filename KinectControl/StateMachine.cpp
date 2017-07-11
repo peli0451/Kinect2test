@@ -117,7 +117,9 @@ void StateMachine::bufferGestureConfidence() {
 	GestureRecognition::GestureConfidence newConfidence = { 0,0,0,0,0 };
 	//Erinnerung Konfidenzschema: { unknown, translate, rotate, grab, fly }
 
-
+	/**********************************************************
+	* Erkennung einfacher Gesten
+	**********************************************************/
 	//Hilfsvariablen für Kombinationen von von Handstates
 	boolean leftHandOpen = (master.getLeftHandState() == HandState_Open);
 	boolean leftHandClosed = (master.getLeftHandState() == HandState_Closed);
@@ -132,51 +134,52 @@ void StateMachine::bufferGestureConfidence() {
 	CameraSpacePoint* leftHandCurPos = leftHandPositionBuffer->get(leftHandPositionBuffer->end());
 	CameraSpacePoint* rightHandCurPos = rightHandPositionBuffer->get(leftHandPositionBuffer->end());
 
+	/**********************************************************
+	* Erkennung FLY_GESTURE
+	**********************************************************/
 	//Hilfsvariable für FLY_GESTURE
 	Eigen::Vector3f leftVector = convToVec3(leftHandCurPos) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
 	Eigen::Vector3f rightVector = convToVec3(rightHandCurPos) - convToVec3(master.getJoints()[JointType_SpineShoulder].Position);
 
-	boolean handsTogetherInFront = abs(leftHandCurPos->X - rightHandCurPos->X) < .1f &&
-		abs(leftHandCurPos->Y - rightHandCurPos->Y) < .1f &&
-		abs(leftHandCurPos->Z - rightHandCurPos->Z) < .1f &&
-		leftVector.norm() > .3f && rightVector.norm() > .3f;
+	boolean handsTogetherInFront = abs(leftHandCurPos->X - rightHandCurPos->X) < .1f && //nah in x-Richtung
+		abs(leftHandCurPos->Y - rightHandCurPos->Y) < .1f && //nah in y-Richtung
+		abs(leftHandCurPos->Z - rightHandCurPos->Z) < .1f && //nah in z-Richtung
+		leftVector.norm() > .3f && rightVector.norm() > .3f; //"weit" vor dem Körper
 
+
+	/**********************************************************
+	* Erkennung GRAB_GESTURE
+	**********************************************************/
 	//Hilfsvariablen für GRAB_GESTURE
 	boolean handRisen;
 	boolean risenHandOpen;
 	boolean risenHandUnknown;
 	
-	if (leftHandCurPos->Y - rightHandCurPos->Y > .4f) {
-		float distanceFromRightHandToHip = sqrt(
-			pow(rightHandCurPos->X - master.getJoints()[JointType_HipRight].Position.X, 2)
-			+ pow(rightHandCurPos->Y - master.getJoints()[JointType_HipRight].Position.Y, 2)
-			+ pow(rightHandCurPos->Z - master.getJoints()[JointType_HipRight].Position.Z, 2));
-		if (distanceFromRightHandToHip < .2f) {
-			master.setRisenHand(GestureRecognition::ControlHand::HAND_LEFT);
-			handRisen = true;
-			risenHandOpen = (master.getLeftHandState() == HandState_Open);
-			risenHandUnknown = (master.getLeftHandState() == HandState_Unknown);
-		} else {
-			handRisen = false;
-			risenHandUnknown = false;
-			risenHandOpen = false;
-		}
+	const float yConstraint = .4f;		//minimaler y-Unterschied der Hände
+	const float hipConstraint = .3f;	//maximaler Abstand der "idleHand" zur Hüfte
+
+	//Hilfsvariablen zur Wiederverwendung bei Berechnung Hüftdistanz-Constraint
+	GestureRecognition::ControlHand controlHand;
+	CameraSpacePoint* idleHandCurPos = nullptr;
+	HandState controlHandState;
+	boolean yConstraintSatisfied = false;
+	JointType referenceHip;
+
+	//Höhenunterschied-Constraint für HandRisen (für linke Hand oben)
+	if (leftHandCurPos->Y - rightHandCurPos->Y > yConstraint) {
+		yConstraintSatisfied = true;
+		controlHand = GestureRecognition::ControlHand::HAND_LEFT;
+		idleHandCurPos = rightHandCurPos;
+		controlHandState = master.getLeftHandState();
+		referenceHip = JointType_HipRight;
 	}
-	else if (rightHandCurPos->Y - leftHandCurPos->Y > .4f) {
-		float distanceFromLeftHandToHip = sqrt(
-			pow(leftHandCurPos->X - master.getJoints()[JointType_HipLeft].Position.X, 2)
-			+ pow(leftHandCurPos->Y - master.getJoints()[JointType_HipLeft].Position.Y, 2)
-			+ pow(leftHandCurPos->Z - master.getJoints()[JointType_HipLeft].Position.Z, 2));
-		if (distanceFromLeftHandToHip < .2f) {
-			master.setRisenHand(GestureRecognition::ControlHand::HAND_RIGHT);
-			handRisen = true;
-			risenHandOpen = (master.getRightHandState() == HandState_Open);
-			risenHandUnknown = (master.getRightHandState() == HandState_Unknown);
-		} else {
-			handRisen = false;
-			risenHandUnknown = false;
-			risenHandOpen = false;
-		}
+	//Höhenunterschied-Constraint für HandRisen (für rechte Hand oben)
+	else if (rightHandCurPos->Y - leftHandCurPos->Y > yConstraint) {
+		yConstraintSatisfied = true;
+		controlHand = GestureRecognition::ControlHand::HAND_RIGHT;
+		idleHandCurPos = leftHandCurPos;
+		controlHandState = master.getRightHandState();
+		referenceHip = JointType_HipLeft;
 	}
 	else {
 		handRisen = false;
@@ -184,6 +187,28 @@ void StateMachine::bufferGestureConfidence() {
 		risenHandOpen = false;
 	}
 
+	//Hüftdistanz-Constraint bei erfüllten Höhenunterschied-Constraint
+	if (yConstraintSatisfied) {
+		float distanceFromIdleHandToHip = sqrt(
+			pow(idleHandCurPos->X - master.getJoints()[referenceHip].Position.X, 2)
+			+ pow(idleHandCurPos->Y - master.getJoints()[referenceHip].Position.Y, 2)
+			+ pow(idleHandCurPos->Z - master.getJoints()[referenceHip].Position.Z, 2));
+		if (distanceFromIdleHandToHip < hipConstraint) {
+			master.setRisenHand(controlHand);
+			handRisen = true;
+			risenHandOpen = (controlHandState == HandState_Open);
+			risenHandUnknown = (controlHandState == HandState_Unknown);
+		}
+		else {
+			handRisen = false;
+			risenHandUnknown = false;
+			risenHandOpen = false;
+		}
+	}
+
+	/**********************************************************
+	* Festlegung Gestenkonfidenzen
+	**********************************************************/
 	//Abhängigkeit der neuen Konfidenz von Hilfsvariablen und Zustand
 	if (handsTogetherInFront)					newConfidence = { .0f,  .0f, .0f, .0f,  1.f }; //Flygeste, eindeutig
 	else if (handRisen && risenHandOpen)		newConfidence = { .0f,  .0f, .0f, 1.f,  .0f }; //Grabgeste, eindeutig

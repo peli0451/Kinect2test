@@ -480,8 +480,10 @@ Eigen::Quaternionf StateMachine::smoothRotation(Buffer<Eigen::Quaternionf> *buff
 		Eigen::Quaternionf *cur_rot = buffer->get(i);
 		float smoothing = smoothingFactor[i] / smoothingSum;
 		smoothing *= rotationFactor;
-		Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
-		rotation *= downscaled_rot;
+		//Eigen::Quaternionf downscaled_rot = Eigen::Quaternionf::Identity().slerp(smoothing, *cur_rot); // skaliert einen Puffereintrag
+		Eigen::AngleAxisf downscaled_rot = Eigen::AngleAxisf(*cur_rot);
+		downscaled_rot.angle() *= smoothing;
+		rotation *= Eigen::Quaternionf(downscaled_rot);
 	}
 	return rotation;
 }

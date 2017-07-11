@@ -9,7 +9,7 @@ class Person {
 public:
 
 	static const int POS_BUFFER_SIZE = 10;
-	static const int ROT_BUFFER_SIZE = 20;
+	static const int ROT_BUFFER_SIZE = 40;
 
 	Person();
 

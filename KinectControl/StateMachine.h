@@ -58,11 +58,15 @@ private:
 	const float smoothingFactor[9] = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 	const float smoothingSum = 511.0f; //Summe obiger Einträge
 
-	const float cameraRotationSmoothingFactor[20] = { .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, 1.f, 1.5f, 
+	const float cameraRotationSmoothingFactor[40] = { .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f,
+													.0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f,
+													.0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, .0f, 1.f, 1.5f, 
 													2.25f, 3.375f, 5.0625f, 7.6f, 11.39f, 17.086f, 25.63f, 38.44f };
 	float cameraRotationSmoothingSum = 0.0f; //Summe obiger Einträge
 	
-	const float rotationSmoothingFactor[20] = { 1.0f, 1.3f, 1.69f, 2.197f, 2.856f, 3.713f, 4.827f, 6.275f, 8.157f, 10.604f, 
+	const float rotationSmoothingFactor[40] = { 1.0f, 1.3f, 1.69f, 2.197f, 2.856f, 3.713f, 4.827f, 6.275f, 8.157f, 10.604f, 
+										10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f,
+										10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f,
 										10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f, 10.604f };
 	float rotationSmoothingSum = 0.0f; //Summe obiger Einträge
 
@@ -74,7 +78,7 @@ private:
 	const float OBJECT_MAX_ROTATION = 0.2f;
 	const float OBJECT_ROTATION_FACTOR = 10.f;
 	const float OBJECT_TILT_FACTOR = 0.5f;
-	const float CAMERA_ROTATION_FACTOR = 10.f;
+	const float CAMERA_ROTATION_FACTOR = 3.f;
 	CameraSpacePoint smoothSpeed(Buffer<CameraSpacePoint>* buffer);
 	Eigen::Quaternionf smoothRotation(Buffer<Eigen::Quaternionf> *buffer, const float* smoothingFactor, float smoothingSum, float rotationFactor);
 

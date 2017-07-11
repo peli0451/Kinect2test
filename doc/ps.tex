@@ -50,10 +50,33 @@
 
 \begin{document}
 \begin{titlepage}
-\thispagestyle{empty}
-\setcounter{page}{0}
-%TODO Schöne Titelseite
-\maketitle
+\setmarginsrb{2.5cm}{2.5cm}{2.5cm}{2.5cm}%  %ränder links oben rechts unten
+             {1.0cm}{1.0cm}{1.0cm}{1.7cm}%  %kopf und fußzeile, höhe, abstand
+\begin{center}
+\vspace*{-2cm}
+\includegraphics[width=.4\textwidth]{pictures/logo.jpg}\par 
+\vspace*{1cm}{\small
+Technische Universität Ilmenau\\
+Fakultät für Informatik und Automatisierung\\
+Institut für Praktische Informatik und Medieninformatik\\
+Fachgebiet Graphische Datenverarbeitung}\par
+\vfill
+{\large Projektseminar}\par
+\vspace*{.5cm}
+%\rule{.9\textwidth}{4pt}\\[4ex]
+{\huge\bfseries Gestensteuerung einer 3D-Anwendung mittels Kinect}\\[2ex]
+%\rule{.9\textwidth}{4pt}\par
+\vfill
+\begin{tabular}{r l}
+\emph{Autoren:}	& Mario Janke\\
+	& Peter Lindner\\
+	& Patrick Stäblein\\
+&\\
+\emph{Betreuer:} & M.\,sc. Julian Meder
+\end{tabular}\par
+\vfill
+{Sommersemester 2017}\par
+\end{center}
 \end{titlepage}
 \tableofcontents
 \clearpage

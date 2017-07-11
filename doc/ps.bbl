@@ -1,5 +1,5 @@
 % $ biblatex auxiliary file $
-% $ biblatex bbl format version 2.8 $
+% $ biblatex bbl format version 2.7 $
 % Do not modify the above lines!
 %
 % This is an auxiliary file used by the 'biblatex' package.
@@ -21,21 +21,21 @@
     \name{author}{3}{}{%
       {{hash=ARM}{%
          family={Araujo},
-         familyi={A\bibinitperiod},
+         family_i={A\bibinitperiod},
          given={R.\bibnamedelima M.},
-         giveni={R\bibinitperiod\bibinitdelim M\bibinitperiod},
+         given_i={R\bibinitperiod\bibinitdelim M\bibinitperiod},
       }}%
       {{hash=GG}{%
          family={Gra{\~n}a},
-         familyi={G\bibinitperiod},
+         family_i={G\bibinitperiod},
          given={G.},
-         giveni={G\bibinitperiod},
+         given_i={G\bibinitperiod},
       }}%
       {{hash=AV}{%
          family={Andersson},
-         familyi={A\bibinitperiod},
+         family_i={A\bibinitperiod},
          given={V.},
-         giveni={V\bibinitperiod},
+         given_i={V\bibinitperiod},
       }}%
     }
     \list{organization}{1}{%
@@ -54,9 +54,9 @@
     \field{title}{Towards skeleton biometric identification using the microsoft
   kinect sensor}
     \verb{url}
-    \verb https://www.researchgate.net/profile/Ricardo_Araujo2/publication/23
-    \verb 7064051_Towards_Skeleton_Biometric_Identification_Using_the_Microso
-    \verb ft_Kinect_Sensor/links/0046351b1d1cc4c5a0000000.pdf
+    \verb https://www.researchgate.net/profile/Ricardo_Araujo2/publication/2370
+    \verb 64051_Towards_Skeleton_Biometric_Identification_Using_the_Microsoft_K
+    \verb inect_Sensor/links/0046351b1d1cc4c5a0000000.pdf
     \endverb
     \field{year}{2013}
   \endentry
@@ -65,27 +65,27 @@
     \name{author}{4}{}{%
       {{hash=BG}{%
          family={Blumrosen},
-         familyi={B\bibinitperiod},
+         family_i={B\bibinitperiod},
          given={G.},
-         giveni={G\bibinitperiod},
+         given_i={G\bibinitperiod},
       }}%
       {{hash=MY}{%
          family={Miron},
-         familyi={M\bibinitperiod},
+         family_i={M\bibinitperiod},
          given={Y.},
-         giveni={Y\bibinitperiod},
+         given_i={Y\bibinitperiod},
       }}%
       {{hash=IN}{%
          family={Intrator},
-         familyi={I\bibinitperiod},
+         family_i={I\bibinitperiod},
          given={N.},
-         giveni={N\bibinitperiod},
+         given_i={N\bibinitperiod},
       }}%
       {{hash=PM}{%
          family={Plotnik},
-         familyi={P\bibinitperiod},
+         family_i={P\bibinitperiod},
          given={M.},
-         giveni={M\bibinitperiod},
+         given_i={M\bibinitperiod},
       }}%
     }
     \strng{namehash}{BG+1}
@@ -108,7 +108,7 @@
     \name{author}{1}{}{%
       {{hash=M}{%
          family={Microsoft},
-         familyi={M\bibinitperiod},
+         family_i={M\bibinitperiod},
       }}%
     }
     \strng{namehash}{M1}
@@ -126,9 +126,9 @@
     \name{author}{1}{}{%
       {{hash=NMD}{%
          family={Network},
-         familyi={N\bibinitperiod},
+         family_i={N\bibinitperiod},
          given={Microsoft\bibnamedelima Developer},
-         giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
       }}%
     }
     \strng{namehash}{NMD1}
@@ -147,9 +147,9 @@
     \name{author}{1}{}{%
       {{hash=SR}{%
          family={Seggers},
-         familyi={S\bibinitperiod},
+         family_i={S\bibinitperiod},
          given={R.},
-         giveni={R\bibinitperiod},
+         given_i={R\bibinitperiod},
       }}%
     }
     \strng{namehash}{SR1}
@@ -162,8 +162,8 @@
     \field{title}{People Tracking in Outdoor Environments: Evaluating the
   Kinect 2 Performance in Differend Lighting Conditions}
     \verb{url}
-    \verb https://staff.fnwi.uva.nl/a.visser/education/bachelorAI/thesisSegge
-    \verb rs.pdf
+    \verb https://staff.fnwi.uva.nl/a.visser/education/bachelorAI/thesisSeggers
+    \verb .pdf
     \endverb
     \list{institution}{1}{%
       {University of Amsterdam}%
@@ -176,39 +176,39 @@
     \name{author}{6}{}{%
       {{hash=SL}{%
          family={Susperregi},
-         familyi={S\bibinitperiod},
+         family_i={S\bibinitperiod},
          given={L.},
-         giveni={L\bibinitperiod},
+         given_i={L\bibinitperiod},
       }}%
       {{hash=SB}{%
          family={Sierra},
-         familyi={S\bibinitperiod},
+         family_i={S\bibinitperiod},
          given={B.},
-         giveni={B\bibinitperiod},
+         given_i={B\bibinitperiod},
       }}%
       {{hash=CM}{%
          family={Castrillón},
-         familyi={C\bibinitperiod},
+         family_i={C\bibinitperiod},
          given={M.},
-         giveni={M\bibinitperiod},
+         given_i={M\bibinitperiod},
       }}%
       {{hash=LJ}{%
          family={Lorenzo},
-         familyi={L\bibinitperiod},
+         family_i={L\bibinitperiod},
          given={J.},
-         giveni={J\bibinitperiod},
+         given_i={J\bibinitperiod},
       }}%
       {{hash=MOJM}{%
          family={Martínez-Otzeta},
-         familyi={M\bibinitperiod-O\bibinitperiod},
+         family_i={M\bibinitperiod-O\bibinitperiod},
          given={J.\bibnamedelima M.},
-         giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+         given_i={J\bibinitperiod\bibinitdelim M\bibinitperiod},
       }}%
       {{hash=LE}{%
          family={Lazkano},
-         familyi={L\bibinitperiod},
+         family_i={L\bibinitperiod},
          given={E.},
-         giveni={E\bibinitperiod},
+         given_i={E\bibinitperiod},
       }}%
     }
     \strng{namehash}{SL+1}
@@ -231,9 +231,9 @@
     \name{author}{1}{}{%
       {{hash=WJ}{%
          family={Walters},
-         familyi={W\bibinitperiod},
+         family_i={W\bibinitperiod},
          given={Jason},
-         giveni={J\bibinitperiod},
+         given_i={J\bibinitperiod},
       }}%
     }
     \strng{namehash}{WJ1}

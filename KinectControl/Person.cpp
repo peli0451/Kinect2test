@@ -503,6 +503,9 @@ bool Person::calculateBodyProperties()
 		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
 			bodyProperties[i] /= numberOfSamples[i];
 		}
+
+		//böse
+		standardDeviations[i] = 1.0f;
 	}
 	OutputDebugStringA("\n");
 #ifdef DEBUG_COLLECTING

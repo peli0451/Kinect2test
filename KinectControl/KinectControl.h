@@ -22,10 +22,13 @@ class KinectControl {
 		IKinectSensor *kinectSensor;
 		IBodyFrameSource *bodyFrameSource;
 		IBodyFrameReader *bodyFrameReader;
+		WAITABLE_HANDLE frameArrivedHandle;
 
 		boolean masterDetermined;
 		boolean collectFrames;
-		int collectedFrames;
+		int framesLeftToCollect;
+		int maxFramesToCollect;
+		const int MIN_FRAMES_TO_COLLECT = 60;
 
 		//Kinect Tracking-Variablen
 		INT32 numberOfTrackedBodies;

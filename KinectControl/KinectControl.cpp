@@ -21,9 +21,9 @@ const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 **********************************************************/
 
 //#define DEBUG_CONFIG_POSE				//Ausgabe, ob behandelter Körper in Iteration sich in Konfigpose befindet
-//#define DEBUG_DEVIATIONS				//Ausgabe der bestimmten Abweichungswerte bei der Mastersuche nach einem vollen Puffer
+#define DEBUG_DEVIATIONS				//Ausgabe der bestimmten Abweichungswerte bei der Mastersuche nach einem vollen Puffer
 //#define DEBUG_DEVIATION_VERBOSE		//Ausgabe der Abweichungswerte bei Mastersuche immer(!)
-//#define DEBUG_COLLECTING_COMPARE		//Ausgabe über Sammlungsstatus bei der Mastersuche
+#define DEBUG_COLLECTING_COMPARE		//Ausgabe über Sammlungsstatus bei der Mastersuche
 //#define DEBUG_STATE_MACHINE_STATE		//Ausgabe des Zustands der State-Machine
 
 /**********************************************************
@@ -33,7 +33,8 @@ const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 KinectControl::KinectControl() { 
 	masterDetermined = false;
 	collectFrames = false;
-	collectedFrames = 0;
+	framesLeftToCollect = MIN_FRAMES_TO_COLLECT;
+	maxFramesToCollect = MIN_FRAMES_TO_COLLECT;
 }
 
 
@@ -54,6 +55,7 @@ void KinectControl::init(ControlWidget *_widget) {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //max. mgl. Anzahl parallel trackbarer Personen
 	bodyFrameSource->OpenReader(&bodyFrameReader);
+	bodyFrameReader->SubscribeFrameArrived(&frameArrivedHandle);
 
 	for (int i = 0; i < BODY_COUNT; i++) {
 		deviationBuffer[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
@@ -206,6 +208,13 @@ bool KinectControl::isInConfigurationPose(Joint* joints)
 * @return motionParameters Transformationsparameter
 */
 MotionParameters KinectControl::run() {
+	if (collectFrames) {
+		OutputDebugStringA(std::to_string(framesLeftToCollect).c_str());
+		OutputDebugStringA(" von ");
+		OutputDebugStringA(std::to_string(maxFramesToCollect).c_str());
+		OutputDebugStringA(" noch zu sammeln.\n");
+	}
+	
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
 	IBodyFrame *bodyFrame;
@@ -234,7 +243,7 @@ MotionParameters KinectControl::run() {
 	bool lostMaster = false;
 	bool searchForMaster = false;
 	bool masterTrackedDuringCollection = false;
-	BOOLEAN isTracked;
+	BOOLEAN isTracked = false;
 	UINT64 currentTrackingId;
 
 	//Falls Master eingespeichert ist, frage Tracking-Status und ID seiner ehemaligen Arrayposition ab
@@ -332,13 +341,13 @@ MotionParameters KinectControl::run() {
 								if (deviation != FLT_MAX) {
 									deviationBuffer[i]->push(deviation);
 									#ifdef DEBUG_COLLECTING_COMPARE
-										OutputDebugStringA("\t ... Push.");
+										OutputDebugStringA("\t ... Push.\n");
 									#endif
 								}
 								else {
 									deviationBuffer[i]->empty();
 									#ifdef DEBUG_COLLECTING_COMPARE
-										OutputDebugStringA("\t ... Abbruch.");
+										OutputDebugStringA("\t ... Abbruch.\n");
 									#endif
 								}
 							}
@@ -366,23 +375,22 @@ MotionParameters KinectControl::run() {
 					}
 					else if (master.getTrackingId() == currentTrackingId) { //Vorgesehener Master ist weiterhin getrackt -> sammle weiter
 						masterTrackedDuringCollection = true;
-						if (collectedFrames < 20) {
+						if (framesLeftToCollect > 0) {
 							master.setJoints(joints);
 							boolean collectingResult = master.collectBodyProperties();
 							if (isInConfigurationPose(joints) == false || collectingResult == false) { //Falls Master bei Sammlung Pose verlässt oder schlechter (ungetrackter) Wert dabei war
 								//Beginne Sammlung von vorne
 								master.deleteCollectedBodyProperties();
 								OutputDebugStringA("RESET\n");
-								collectedFrames = 0;
+								framesLeftToCollect = maxFramesToCollect;
 								//@TODO wollen wir die folgende Zeile wirklich
 								master.setId(-1);
 							} else {
-								//collectedFrames nur weiterzählen, falls der Frame gut war
-								collectedFrames++;
+								//Frames nur weiterzählen, falls der Frame gut war
+								framesLeftToCollect--;
 							}
 						} else { //Falls fertig gesammelt, berechne BodyProperties und Setze das Sammeln zurück.
 							master.calculateBodyProperties();
-							collectedFrames = 0;
 							collectFrames = false;
 						}
 					}
@@ -411,7 +419,7 @@ MotionParameters KinectControl::run() {
 	if (masterDetermined && collectFrames && !masterTrackedDuringCollection) {
 		master.deleteCollectedBodyProperties();
 		OutputDebugStringA("RESET\n");
-		collectedFrames = 0;
+		framesLeftToCollect = maxFramesToCollect;
 		master.setId(-1);
 	}
 
@@ -503,11 +511,25 @@ MotionParameters KinectControl::run() {
 * Bereitet die Mastererfassung vor
 */
 void KinectControl::assignMaster() {
-	masterDetermined = true;
-	collectFrames = true;
-	collectedFrames = 0;
-	Person master = stateMachine.getMaster();
-	master.setId(-1);
-	stateMachine.setMaster(master);
+	if (!masterDetermined) {
+		Person master = stateMachine.getMaster();
+		master.setId(-1);
+		stateMachine.setMaster(master);
+
+		masterDetermined = true;
+		collectFrames = true;
+		framesLeftToCollect = MIN_FRAMES_TO_COLLECT;
+		maxFramesToCollect = MIN_FRAMES_TO_COLLECT;
+	} else {
+		switch (WaitForSingleObject(&frameArrivedHandle, 0)) { //Frage frameArrivedHandle ab, Timeout 0 Millisekunden
+		case WAIT_TIMEOUT: return;	//kein Frame da
+		case WAIT_FAILED: return;	//Fehler
+		case WAIT_OBJECT_0: {		//Frame da
+			framesLeftToCollect++;
+			maxFramesToCollect++; }
+		}
+	}
+
+
 }
 

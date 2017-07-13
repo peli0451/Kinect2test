@@ -76,7 +76,7 @@ private:
 	int numberOfWeights;
 	float standardDeviations[NUMBER_OF_BODY_PROPERTIES];
 	float bodyPropertiesFactors[NUMBER_OF_BODY_PROPERTIES] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-	float PERMITTED_QUANTIL = 2.0f;
+	float PERMITTED_QUANTIL = 1.2f;
 
 	int id;
 	UINT64 trackingId;

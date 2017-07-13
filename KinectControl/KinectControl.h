@@ -41,8 +41,9 @@ class KinectControl {
 		bool isInConfigurationPose(Joint* joints);
 		const float MASTER_ALLOWED_DEVIATION = 50.f;
 
-		//@TODO in die .cpp?
-		HRESULT result;
+		float getSaneValue(float old, float fresh);
+		const float MAX_SANE_DISTANCE = 0.1f; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
+		const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 
 		//State-Machine für KinectControl
 		StateMachine stateMachine;

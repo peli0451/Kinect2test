@@ -249,7 +249,6 @@ void StateMachine::bufferGestureConfidence() {
 * Realisiert die Berechnungen der MotionParameters in den Zuständen der State Machine.
 */
 void StateMachine::compute() {
-	//TODO: die folgenden drei "sind konstant", muss man sich nicht ständig holen
 	Buffer<_CameraSpacePoint>* leftHandPositionBuffer = master.getLeftHandPosBuffer();
 	Buffer<_CameraSpacePoint>* rightHandPositionBuffer = master.getRightHandPosBuffer();
 	Buffer<Eigen::Quaternionf>* rotationBuffer = master.getRotationBuffer();
@@ -283,7 +282,7 @@ void StateMachine::compute() {
 		case GestureRecognition::Gesture::ROTATE_GESTURE: {
 
 			Eigen::Vector3f origin_axis;
-			Eigen::Vector3f target_axis; //TODO: Smoothing
+			Eigen::Vector3f target_axis;
 			origin_axis = convToVec3(leftHandPositionBuffer->get(leftHandPositionBuffer->end() - 1)) - convToVec3(rightHandPositionBuffer->get(rightHandPositionBuffer->end() - 1));
 			origin_axis.normalize();
 			// origin_axis enthält nun den normierten Vektor zwischen der rechten und linken Hand im letzten Frame

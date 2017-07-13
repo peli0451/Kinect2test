@@ -8,13 +8,6 @@
 #include <iostream>
 #include "KinectControl.h"
 
-/* 
-* Globale Konstanten
-*/
-
-//TODO in den Header
-const float MAX_SANE_DISTANCE = 0.1f; // Wert geraten. Könnte man auch getSaneValue übergeben, wenn es variieren soll
-const float MAX_STEP = 0.05f; // muss <= MAX_SANE_DISTANCe sein
 
 /**********************************************************
 * Debug-Schalter
@@ -85,7 +78,7 @@ float KinectControl::evaluateDeviationBuffer(Buffer<float> *deviationBuffer) {
 * @param fresh Die Position aus dem aktuellen Frame
 * @return Position, die definierte Abweichung nicht überschreitet, sich aber fresh annähert
 */
-float getSaneValue(float old, float fresh) {
+float KinectControl::getSaneValue(float old, float fresh) {
 
 	if (fresh - old > MAX_SANE_DISTANCE) {
 		return old + MAX_STEP;
@@ -218,6 +211,7 @@ MotionParameters KinectControl::run() {
 	Person master = stateMachine.getMaster();
 	MotionParameters motionParameters = stateMachine.getMotionParameters();
 	IBodyFrame *bodyFrame;
+	HRESULT result;
 
 	//falls kein Master bestimmt ist / werden soll -> Defaultwerte
 	if (!masterDetermined) {
@@ -383,7 +377,8 @@ MotionParameters KinectControl::run() {
 								master.deleteCollectedBodyProperties();
 								OutputDebugStringA("RESET\n");
 								framesLeftToCollect = maxFramesToCollect;
-								//@TODO wollen wir die folgende Zeile wirklich
+								//Falls Master aus Pose geriet oder in Teilen inferred war, wird wieder der Erstbeste als nächstes genommen, um einen Master festzulegen
+								//Könnte man alternativ auch ohne ID-Rücksetzen machen, würde dann wieder dieselbe Person versuchen, einzuspeichern
 								master.setId(-1);
 							} else {
 								//Frames nur weiterzählen, falls der Frame gut war
@@ -423,8 +418,6 @@ MotionParameters KinectControl::run() {
 		master.setId(-1);
 	}
 
-	//@TODO Wenn Master wechselt muss der Ringpuffer für die Positionen neu initialisiert werden (mit der Position des neuen Masters)
-	//@TODO Mastererkennung mit Confidence, nicht direkt
 	/**********************************************************
 	* Masterauslesung (falls einer existiert)
 	**********************************************************/

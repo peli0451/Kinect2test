@@ -1,0 +1,177 @@
+\documentclass[
+	11pt,
+	xcolor={dvipsnames},
+	hyperref={
+		bookmarks=true,
+		pdftex,
+		bookmarksnumbered=true,
+		pdfencoding=auto}
+	]{beamer}
+%
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage[babel,german=quotes]{csquotes}
+\usepackage{ifthen}
+\usepackage[backend=bibtex,style=numeric-comp]{biblatex}
+
+\usepackage{tikz}
+
+\definecolor{TUGreen}{HTML}{006666}
+\definecolor{TUOrange}{HTML}{FF6600}
+\definecolor{TUBlue}{HTML}{003366}
+\definecolor{TURed}{HTML}{CC0000}
+\definecolor{TULightblue}{HTML}{6699CC}
+\definecolor{TUGreenL}{HTML}{E5F2F3}
+\definecolor{TUOrangeL}{HTML}{FBE5D6}
+\definecolor{TUBlueL}{HTML}{E3EFFA}
+\definecolor{TURedL}{HTML}{FDE1E1}
+\definecolor{TULightblueL}{HTML}{E3EFFA}
+
+\definecolor{MetroRed}{HTML}{D11141}
+\definecolor{MetroGreen}{HTML}{00B159}
+\definecolor{MetroBlue}{HTML}{00AEDB}
+\definecolor{MetroOrange}{HTML}{F37735}
+\definecolor{MetroYellow}{HTML}{FFC425}
+
+\useoutertheme{infolines}
+\useinnertheme{rectangles}
+
+\setbeamercolor{alerted text}{fg=TURed}
+\setbeamercolor{block body}{bg=TUBlueL}
+\setbeamercolor{block title}{fg=white,bg=TUBlue}
+\setbeamercolor{block body alerted}{bg=TURedL}
+\setbeamercolor{block title alerted}{fg=white,bg=TURed}
+\setbeamercolor{block body example}{bg=TUGreenL}
+\setbeamercolor{block title example}{fg=white,bg=TUGreen}
+\setbeamercolor{frametitle}{fg=black,bg=Black!20!White}
+\setbeamercolor{item}{fg=TUBlue}
+\setbeamercolor{structure}{fg=Black!70!White}
+\setbeamercolor{title}{fg=TUBlue,bg=Black!20!White}
+
+\setbeamerfont{description item}{series=\bfseries}
+
+\beamertemplatenavigationsymbolsempty
+
+\newcommand*{\header}{\printsec}
+
+\setbeamertemplate{headline}{
+	\vskip2ex\color{gray}{\par\centering\strut\header\par}\vskip1ex
+}
+\setbeamertemplate{footline}[frame number]
+
+\newcommand{\printsec}{\thesection\hspace{1em}\insertsectionhead}
+\newcommand{\printsubsec}{\large\thesection.\thesubsection\hspace{1em}\insertsubsectionhead}
+
+\usepackage{appendixnumberbeamer}
+
+\usepackage{pifont}	
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand<>*{\hl}[2][TURed]{%
+	\begingroup%
+	\textcolor#3{#1}{\bfseries #2}%
+	\endgroup%
+}
+
+\newcommand{\printtocframe}{%
+\begingroup
+	\let\header\relax
+	\begin{frame}{Vortragsstruktur}
+		\tableofcontents
+	\end{frame}%
+\endgroup
+}
+
+\newcommand{\printcurrenttocframe}{%
+\begingroup
+	\let\header\relax
+	\begin{frame}{\printsec}
+		\tableofcontents[currentsection]
+	\end{frame}%
+\endgroup
+}
+%
+\title{Gestensteuerung einer 3D-Anwendung mittels Kinect}
+\subtitle{Projektseminar}
+\author[Mario Janke, Peter Lindner, Patrick Stäblein]{Mario Janke\\Peter Lindner\\Patrick Stäblein}
+\institute{%
+	\color{gray}%
+	\normalsize 	Technische Universit\"at Ilmenau\\%
+	\footnotesize	Fakult\"at f\"ur Informatik und Automatisierung\\%
+	\scriptsize 	Institut f\"ur Praktische Informatik und Medieninformatik\\%
+	\scriptsize 	Fachgebiet Graphische Datenverarbeitung%
+}
+\date{21. Juli 2017}
+%
+%
+\begin{document}
+
+\begin{frame}[plain]
+	\maketitle
+	\begin{tikzpicture}[remember picture,overlay]
+		\node[anchor=south east,outer sep=.2cm] at (current page.south east) {\includegraphics[scale=.5]{../pictures/logo.jpg}};
+	\end{tikzpicture}
+\end{frame}
+
+\section{Aufgabenstellung}
+\begin{frame}{\header}
+\begin{itemize}
+	\item 3D-Anwendung gegeben\\
+		\qquad$\rightsquigarrow$ \textbf{Gegeben:} Präsentation einer 3D-Szene\\
+	\item Bewegen, Rotieren und Objekte handhaben\\
+		\qquad$\rightsquigarrow$ \textbf{Aufgabe \#1:} Gestensteuerung
+	\item Anwendungsszenario\\
+		\qquad$\rightsquigarrow$ \textbf{Aufgabe \#2:} Mastererkennung
+	\item Umsetzung\\
+		\qquad$\rightsquigarrow$ \textbf{Trackingsystem:} Microsoft Kinect
+\end{itemize}
+\end{frame}
+
+\printtocframe
+
+\section{Trackingsystem}
+\begin{frame}{\header}
+	[Kinect -- TODO]
+\end{frame}
+
+\section{Entwurfsentscheidungen}
+\begin{frame}{\header}
+\begin{itemize}
+	\item Kennenlernphase
+	\item Objektorientierung, Modularisierung
+	\item eigene Gestendefinition
+	\item State-Machine-Pattern
+\end{itemize}
+\end{frame}
+\section{Gestensteuerung}
+\section{Mastererkennung}
+\section{Bewertung \& Ausblick}
+\begin{frame}{\header}
+\begin{itemize}
+\item Kinect bedingt geeignet
+\item Probleme (Ausschnitt):
+	\begin{itemize}
+		\item Trackingfehler (Phantome, Skeletttausch und -löschung)
+		\item Konfidente Fehler
+		\item Jitter (gewöhnliches Rauschen \&~Sonderfälle)
+		\item Proportionsfehler (Posenwechsel \&~Neuzuorndung)
+		\item Lichtprobleme (Infrarotabsorption, Reflexionen)
+		\item Okklusions- und Orientierungsabhängigkeit
+	\end{itemize}
+\item Pro: Preis-Leistungs-Verhältnis
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Mögliche Verbesserungen}
+\begin{itemize}
+\item groß angelegte Tests
+\item Steuerung zufriedenstellend, ggf. Anpassung an abweichende Zwecke
+\item weitere Schnittstellen nach außen, konfigurierbare Parameter
+\item Erweiterung der Steuerung
+\item Mastererkennung noch robuster gestalten, ggf. über volles Bewegungsprofil (Trade-Off: Aufwand $\rightsquigarrow$ Ansätze meist abhängig vom Einsatzszenario)
+\end{itemize}
+\end{frame}
+
+\end{document}

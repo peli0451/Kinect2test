@@ -48,7 +48,6 @@ void KinectControl::init(ControlWidget *_widget) {
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
 	bodyFrameSource->get_BodyCount(&numberOfTrackedBodies); //max. mgl. Anzahl parallel trackbarer Personen
 	bodyFrameSource->OpenReader(&bodyFrameReader);
-	bodyFrameReader->SubscribeFrameArrived(&frameArrivedHandle);
 
 	for (int i = 0; i < BODY_COUNT; i++) {
 		deviationBuffer[i] = new Buffer<float>(NUMBER_OF_COLLECTED_FRAMES);
@@ -503,6 +502,7 @@ MotionParameters KinectControl::run() {
 /** 
 * Bereitet die Mastererfassung vor
 */
+int counter = 0;
 void KinectControl::assignMaster() {
 	if (!masterDetermined) {
 		Person master = stateMachine.getMaster();
@@ -513,14 +513,14 @@ void KinectControl::assignMaster() {
 		collectFrames = true;
 		framesLeftToCollect = MIN_FRAMES_TO_COLLECT;
 		maxFramesToCollect = MIN_FRAMES_TO_COLLECT;
+
+		counter = 0;
 	} else {
-		switch (WaitForSingleObject(&frameArrivedHandle, 0)) { //Frage frameArrivedHandle ab, Timeout 0 Millisekunden
-		case WAIT_TIMEOUT: return;	//kein Frame da
-		case WAIT_FAILED: return;	//Fehler
-		case WAIT_OBJECT_0: {		//Frame da
+		if (counter == 0) {
 			framesLeftToCollect++;
-			maxFramesToCollect++; }
+			maxFramesToCollect++;
 		}
+		counter = (counter + 1) % 8;
 	}
 
 

@@ -22,7 +22,6 @@ class KinectControl {
 		IKinectSensor *kinectSensor;
 		IBodyFrameSource *bodyFrameSource;
 		IBodyFrameReader *bodyFrameReader;
-		WAITABLE_HANDLE frameArrivedHandle;
 
 		boolean masterDetermined;
 		boolean collectFrames;

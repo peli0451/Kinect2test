@@ -140,9 +140,9 @@
 \begin{frame}{\header}
 \begin{itemize}
 	\item Kennenlernphase
-	\item Objektorientierung, Modularisierung
-	\item eigene Gestendefinition
+	\item Objektorientierung
 	\item State-Machine-Pattern
+	\item eigene Gestendefinition
 \end{itemize}
 \end{frame}
 \section{Gestensteuerung}
@@ -153,12 +153,12 @@
 \item Kinect bedingt geeignet
 \item Probleme (Ausschnitt):
 	\begin{itemize}
-		\item Trackingfehler (Phantome, Skeletttausch und -löschung)
-		\item Konfidente Fehler
-		\item Jitter (gewöhnliches Rauschen \&~Sonderfälle)
-		\item Proportionsfehler (Posenwechsel \&~Neuzuorndung)
-		\item Lichtprobleme (Infrarotabsorption, Reflexionen)
-		\item Okklusions- und Orientierungsabhängigkeit
+		\item Trackingfehler der Skelette
+		\item falsche Proportionen
+		\item Abhängigkeit von Verdeckung und Verdrehung
+		\item Beleuchtungsabhängigkeit
+		\item Jitter
+		\item z.\,T. werden schlechte Daten nicht als solche erkannt
 	\end{itemize}
 \item Pro: Preis-Leistungs-Verhältnis
 \end{itemize}
@@ -166,11 +166,11 @@
 
 \begin{frame}{Mögliche Verbesserungen}
 \begin{itemize}
-\item groß angelegte Tests
 \item Steuerung zufriedenstellend, ggf. Anpassung an abweichende Zwecke
 \item weitere Schnittstellen nach außen, konfigurierbare Parameter
 \item Erweiterung der Steuerung
 \item Mastererkennung noch robuster gestalten, ggf. über volles Bewegungsprofil (Trade-Off: Aufwand $\rightsquigarrow$ Ansätze meist abhängig vom Einsatzszenario)
+\item groß angelegte Tests
 \end{itemize}
 \end{frame}
 

@@ -58,4 +58,12 @@
 	\end{figure}
 	Die eben genannte \glqq Ermittlung\grqq{} ist dabei einfach eine Glättung der Pufferdaten, Näheres siehe Abschnitt \ref{sec:robustheit}.\par\medskip
 	\paragraph{StateMachine.}
-	%TODO Statemachine
+	Die Zustandsmaschine ist das Muster, das die Gestensteuerung implementiert. Dem zugrunde liegt die natürliche Abbildung von Steuerungsmodus auf Zustand: Die Zustandsmaschine ist stets gemäß präsentierter Geste in genau einem ihrer Zustände und wertet die gesehenen Daten zu Parametern aus. In der run()-Methode von Kinect-Control wird stets ein Berechnungsschritt, d.\,h. Berechnungen und Zustandswechsel, der State Machine durchgeführt.\par 
+	Aus datenstruktureller Sicht ist das State-Struct zentral, das die bereits konzeptuell bekannten Zustände IDLE, CAMERA\_TRANSLATE, CAMERA\_ROTATE, OBJECT\_MANIPULATE und FLY definiert. Wichtige Klassenvariablen sind der aktuelle Zustand \glqq{}state\grqq{}, die eingespeicherte Person \glqq{}master\grqq{}, sowie eine GestureRecognition-Instanz für die Gestenerkennung und die aktuellen berechneten Rückgabeparameter \glqq{}motionParameters\grqq{}. Darüber hinaus enthält sie zahlreiche Konstanten, die als Gewichte, Constraints oder empirisch ermittelte Verstärkungs- bzw. Abschwäschungsfaktoren Verwendung finden.\par 
+	Für einen Arbeitsschritt der StateMachine sind die Funktionen bufferGestureConfidence(), compute() und switchState() ausschlaggebend. Diese Funktionen werden in genau dieser Reihenfolge im Main-Loop von KinectControl aufgerufen. In bufferGestureConfidence() wird aus den Kinectdaten unter Prüfung diverser Constraints eine Fuzzy-Geste in Form eines Konfidenztupels bestimmt und gepuffert. Dieser Puffer wird anschließend direkt ausgewertet und liefert die erkannte Geste, die in recognizedGesture gespeichert wird. Die compute()-Funktion errechnet daraufhin je nach aktuellem Zustand aus den gesehenen Skelettdaten und HandStates entsprechend vorangegangener Erklärungen die Bewegungsparameter und legt sie gebündelt in motionParameters ab. Schließlich entscheidet switchState() anhand der recognizedGesture über den Folgezustand und nullt gegebenenfalls die motionParameters der StateMachine.\par 
+	\begin{figure}[h]
+	\centering
+	\includegraphics[width=.9\textwidth]{pictures/switchstate.png}
+	\caption{Ausschnitt aus der switchState-Funktion.\\Anmerkung: Die pickModel-Funktion in Zeile 457 nutzt eine Stubfunktion, die in einer möglichen Erweiterung der Software zum Object Picking verwendet werden kann.}\label{fig:switchstate}
+	\end{figure}
+	Das als Erweiterung der Aufgabenstellung eingeführte Eventsystem liegt aufgrund der Klassenhierarchie ebenfalls in der StateMachine-Klasse.

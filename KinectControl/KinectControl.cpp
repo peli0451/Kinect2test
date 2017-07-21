@@ -250,7 +250,7 @@ MotionParameters KinectControl::run() {
 	if (masterDetermined && isTracked && master.getTrackingId() == currentTrackingId) {
 		searchForMaster = false;
 	} else {
-		if (!searchForMaster) lostMaster = true; //wird nur bei 0-1-Flanke von searchForMaster gesetzt und ist sonst false (verwendet am Ende der Funktion)
+		if (!searchForMaster && masterDetermined) lostMaster = true; //wird nur bei 0-1-Flanke von searchForMaster gesetzt und ist sonst false (verwendet am Ende der Funktion)
 		searchForMaster = true;
 	}
 

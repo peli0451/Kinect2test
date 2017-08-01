@@ -52,8 +52,8 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {paragraph}{StateMachine.}{36}{section*.26}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel}{38}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel und Ablaufskizze}{38}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{38}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{39}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{40}{section.5}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{41}{section.5}

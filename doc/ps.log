@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  31 JUL 2017 11:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  1 AUG 2017 15:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2157,7 +2157,25 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 1.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 1.
-) (./sections/einbinden.tex
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 2.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 2.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 2.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 2.
+ [37 <./pictures/gestureeval.jpg>]
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 6.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 6.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 6.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 6.
+ [38])
+(./sections/einbinden.tex
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 1.
 Package babel Info: Redefining ngerman shorthand "~
@@ -2171,7 +2189,7 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 113.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 113.
- [37 <./pictures/gestureeval.jpg>]
+ [39]
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 113.
 Package babel Info: Redefining ngerman shorthand "~
@@ -2180,16 +2198,7 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 113.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 113.
- [38]
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 113.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 113.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 113.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 113.
- [39 <./pictures/switchstate.png>]
+ [40 <./pictures/switchstate.png>]
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 114.
 Package babel Info: Redefining ngerman shorthand "~
@@ -2202,7 +2211,7 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 117.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 117.
- [40
+ [41
 
 ]
 Underfull \hbox (badness 1783) in paragraph at lines 119--119
@@ -2218,14 +2227,14 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 119.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 119.
-[41]
+[42]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 119.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 119.
  (./ps.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 119.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 119.
 Package rerunfilecheck Info: File `ps.out' has not changed.
-(rerunfilecheck)             Checksum: 6C0472EA8F21B420EEF9DA86116D602A;1530.
+(rerunfilecheck)             Checksum: FD5E0C0557DFF17950FB7DE1D3C411FA;1547.
 
 
 LaTeX Warning: There were multiply-defined labels.
@@ -2235,13 +2244,13 @@ Package logreq Info: Writing requests to 'ps.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 30096 strings out of 493014
- 591192 string characters out of 6137001
- 961719 words of memory out of 5000000
- 32943 multiletter control sequences out of 15000+600000
+ 30098 strings out of 493014
+ 591214 string characters out of 6137001
+ 962759 words of memory out of 5000000
+ 32944 multiletter control sequences out of 15000+600000
  58600 words of font info for 46 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
- 62i,14n,84p,1789b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,14n,84p,1890b,1731s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/texlive/2016/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/texlive/2016/tex
 mf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/texlive/2016/texmf-dist/fonts/enc/
 dvips/lm/lm-mathsy.enc}<c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmbx12
@@ -2252,10 +2261,10 @@ nts/type1/public/lm/lmr10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm
 live/2016/texmf-dist/fonts/type1/public/lm/lmri12.pfb><c:/texlive/2016/texmf-di
 st/fonts/type1/public/lm/lmsy10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/pub
 lic/lm/lmtt12.pfb>
-Output written on ps.pdf (42 pages, 10293726 bytes).
+Output written on ps.pdf (43 pages, 10297580 bytes).
 PDF statistics:
- 517 PDF objects out of 1000 (max. 8388607)
- 418 compressed objects within 5 object streams
- 109 named destinations out of 1000 (max. 500000)
+ 523 PDF objects out of 1000 (max. 8388607)
+ 423 compressed objects within 5 object streams
+ 110 named destinations out of 1000 (max. 500000)
  385 words of extra memory for PDF output out of 10000 (max. 10000000)
 

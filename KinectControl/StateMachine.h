@@ -10,6 +10,7 @@
 #include "Person.h"
 
 enum EventType {
+	EVENT_CONFIGURATION_FINISHED,
 	EVENT_MASTER_LOST,
 	EVENT_MASTER_FOUND
 };

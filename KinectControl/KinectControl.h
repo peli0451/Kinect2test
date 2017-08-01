@@ -9,8 +9,6 @@
 #include "StateMachine.h"
 #include "MotionParameters.h"
 
-class ControlWidget;
-
 class KinectControl {
 	public:
 		void init(ControlWidget *_widget);
@@ -25,6 +23,7 @@ class KinectControl {
 
 		boolean masterDetermined;
 		boolean collectFrames;
+		bool searchForMaster = false;
 		int framesLeftToCollect;
 		int maxFramesToCollect;
 		const int MIN_FRAMES_TO_COLLECT = 60;
@@ -46,4 +45,5 @@ class KinectControl {
 
 		//State-Machine für KinectControl
 		StateMachine stateMachine;
+		ControlWidget* widget;
 };

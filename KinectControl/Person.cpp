@@ -503,9 +503,6 @@ bool Person::calculateBodyProperties()
 		if (numberOfSamples[i] != 0 && bodyProperties[i] != 0.0f) {
 			bodyProperties[i] /= numberOfSamples[i];
 		}
-
-		//böse
-		standardDeviations[i] = 1.0f;
 	}
 	OutputDebugStringA("\n");
 #ifdef DEBUG_COLLECTING
@@ -610,12 +607,12 @@ float Person::compareBodyProperties(Joint* inputJoints) {
 			weightIndex = numberOfWeights - 1;
 		}
 
-		normalizationFactor += bodyPropertiesWeights[weightIndex] * bodyPropertiesFactors[i] / standardDeviations[i];
+		normalizationFactor += bodyPropertiesWeights[weightIndex] * bodyPropertiesFactors[i];
 
 		// Quadratische Abweichung, normiert, gewichtet mit Glaubwürdigkeitsfaktor und 1/Standardabweichung
 		if (bodyProperties[i] != 0.0f) {
 			accumulatedError += pow((double) bodyProperties[i] - (double) propertiesForComparison[i], 2) / (double) bodyProperties[i]
-				* (double) bodyPropertiesWeights[weightIndex] * (double) bodyPropertiesFactors[i] / (double) standardDeviations[i];
+				* (double) bodyPropertiesWeights[weightIndex] * (double) bodyPropertiesFactors[i];
 		}
 
 		//Debugausgaben Körpermerkmale

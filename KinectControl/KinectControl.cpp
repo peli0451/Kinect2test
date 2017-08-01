@@ -43,6 +43,7 @@ KinectControl::KinectControl() {
 */
 void KinectControl::init(ControlWidget *_widget) {
 	stateMachine.assignWidget(_widget);
+	widget = _widget;
 	GetDefaultKinectSensor(&kinectSensor);
 	kinectSensor->Open();
 	kinectSensor->get_BodyFrameSource(&bodyFrameSource);
@@ -234,7 +235,7 @@ MotionParameters KinectControl::run() {
 	}
 
 	bool lostMaster = false;
-	bool searchForMaster = false;
+	
 	bool masterTrackedDuringCollection = false;
 	BOOLEAN isTracked = false;
 	UINT64 currentTrackingId;
@@ -297,6 +298,7 @@ MotionParameters KinectControl::run() {
 								//falls Deviation klein genug -> Master gefunden (andernfalls lösche Sammlung)
 								float deviation = evaluateDeviationBuffer(deviationBuffer[i]);
 								if (deviation < MASTER_ALLOWED_DEVIATION) {
+									widget->sendEvent(EVENT_MASTER_FOUND);
 									searchForMaster = false;
 									master.setId(i);
 									master.setTrackingId(currentTrackingId);
@@ -384,6 +386,7 @@ MotionParameters KinectControl::run() {
 								framesLeftToCollect--;
 							}
 						} else { //Falls fertig gesammelt, berechne BodyProperties und Setze das Sammeln zurück.
+							widget->sendEvent(EVENT_CONFIGURATION_FINISHED);
 							master.calculateBodyProperties();
 							collectFrames = false;
 						}
@@ -489,6 +492,7 @@ MotionParameters KinectControl::run() {
 
 	//falls Master verloren ging, stoppe jede Bewegung.
 	if (lostMaster) {
+		widget->sendEvent(EVENT_MASTER_LOST);
 		stateMachine.stopMotion();
 		lostMaster = false;
 	}

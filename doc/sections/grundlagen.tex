@@ -1,25 +1,9 @@
-\subsection{Grundlagen \& Technik}
-	Gegeben ist eine bereits vorhandene 3D-Anwendung, die zu Demonstrationszwecken genutzt wird. Innerhalb der Anwendung ist es möglich,
+\subsection{Grundlagen und Motivation}
+	Gegeben ist eine bereits vorhandene 3D-Anwendung, die vom Betreuer des Projektseminars, Herrn M.\,sc. Julian Meder, erstellt wurde. Das Programm wird zu Demonstrationszwecken z.\,B. am Tag der offenen Tür in den Räumlichkeiten des Fachgebiets genutzt. Innerhalb der Anwendung ist es möglich,
 	\begin{itemize}
-		\item Objekte zu laden und damit anzeigen zu lassen sowie
-		\item die Kamera (bzw. Kameras) zu manipulieren, d.\,h. zu bewegen, zu rotieren und zu zoomen,
+		\item Objekte einzuladen und anzeigen zu lassen sowie
+		\item die Kamera (bzw. Kameras) zu manipulieren, d.\,h. zu bewegen, zu rotieren und zu zoomen.
 	\end{itemize}
-zusätzlich geplant ist später
-	\begin{itemize}
-		\item geladene Objekte manipulieren, in diesem Falle skalieren oder löschen zu können.
-	\end{itemize}
-	Das Programm rendert dabei zwei Ausgabefenster, in denen die Szene dargestellt ist, wobei die Kameras einen 3D-Aufbau bilden.\par
-	Die so beschriebene Ausgabe wird über zwei Projektoren von hinten auf eine Projektionsfläche geworfen -- ein Projektor für die linke Kamera und einer für die rechte. Wird die \glqq Leinwand\grqq{} von vorne durch eine Shutterbrille betrachtet, entsteht der 3D-Eindruck.\par 
-	Die Steuerung der Anwendung erfolgt über Tastatur und Maus bzw. Präsentationspointer.
-	\subsection{Aufgabenstellung}
-	Ziel des Projektseminars ist es, die Steuerung der Anwendung hinsichtlich einer Präsentation vor einer Zuschauergruppe zu erleichtern und intuitiv zu gestalten, sodass parallel an der Universität vorhandene (und bislang ungenutzte) Technik verwendet und präsentiert werden kann. In diesem Sinne geeignet und vorgeschlagen sind
-	\begin{itemize}
-		\item ein professionelles Trackingsystem zum Tracken von Raumpunkten und
-		\item die Verwendung einer Microsoft Kinect 2 zur Gestenerkennung.
-	\end{itemize}\par 
-	Das damit entwickelte Programm soll Folgendes leisten:
-	\begin{itemize}
-		\item Es soll in der Lage zu sein, sämtliche Steuerung und Manipulation, die oben beschrieben wurde durchzuführen.
-		\item Die Bedienung soll sehr intuitiv und einfach sein, d.\,h. etwaige Gesten müssen bezüglich der ihnen zugeordneten Aktion einleuchtend und leicht auszuführen sein.
-		\item Das Programm soll möglichst einfach eingebunden und wiederverwendet werden können.		
-	\end{itemize}
+	In Erweiterung soll das Programm auch weiteren Aufgaben der Objektmanipulation dienlich sein, dies beinhaltet insbesondere das Laden mehrerer Objekte in eine Szene und die Manipulation dieser im Sinne von Translation, Rotation, Skalierung und Löschung.\par
+	Den oben genannten Demonstrationszweck nimmt das Programm über die Ankopplung des Rechners an einen 3D-Kameraaufbau wahr. Das Programm rendert zwei Ausgabefenster aus zwei verschiedenen, im Sinne der Stereoskopie angeordneten Kamerasichten. Dies wird von den beiden Projektoren im Nebenraum des Päsentationsraums genutzt um ein linkes und ein rechtes Bild von hinten auf einen Schirm zu strahlen, der in die Trennwand der beiden Räume eingelassen ist. Mittels handelüblicher aus 3D-Kinos bekannten Shutterbrillen können Benutzer und Zuschauer sodann den 3D-Eindruck wahrnehmen.\par
+	Die Steuerung des genannten Grundprogramms erfolgt durch den Vortragenden (im Weiteren zumeist Master genannt) über Tastatur und Maus bzw. einen Präsentationspointer. Die Unhandlichkeit sowie fehlende Immersion und Attraktivität dieser Steuerung ist eine Kernmotivation für unser Projekt. Darüber hinaus motivierend ist auch die bloße Auseinandersetzung mit der am Fachgebiet vorhandenen Technik sowie die Untersuchung der Möglichkeiten, diese zielführend einzusetzen.

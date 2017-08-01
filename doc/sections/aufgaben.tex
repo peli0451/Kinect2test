@@ -1,0 +1,23 @@
+	\subsection{Aufgabenstellung}\label{sec:aufg}
+	Aus der oben angeführten Motivation heraus, ist es das Ziel unseres Projektes, die Steuerung der uns gegebenen Anwendung hinsichtlich ihrer Präsentation vor einer Zuschauergruppe zu erleichtern und intuitiv zu gestalten. Dabei wird besonderer Wert auf das Eintauchen des vorführenden Masters in die 3D-Szene gelegt. Diese Anforderung soll durch die Implementierung einer Gestensteuerung erfüllt werden. Parallel soll der zusätzliche Zweck erfüllt werden, weitere am Fachgebiet vorhandene, bislang jedoch ungenutzte Technik zu verwenden und präsentieren zu können. Dies betrifft das Trackingsystem, mit welchem die genannte Gestensteuerung umgesetzt werden soll. Hierbei standen zur Auswahl:
+	\begin{itemize}
+		\item ein professionelles Trackingsystem zum Tracken von Raumpunkten und
+		\item die Verwendung einer Microsoft Kinect 2 zur Gestenerkennung.
+	\end{itemize}
+	Das genannte professionelle Trackingsystem ist ein Motion-Capture-System, das über angebrachte Marker und Wands funktioniert. Die Kinect hingegen verwendet keine am Körper angebrachten Merkmale und leitet die 3D-Information aus ihrer Sicht auf ein projiziertes Infrarotmuster ab.\par 
+	Bereits sehr früh (so früh, um sie als verfeinerte Aufgabenstellung betrachten zu können) fiel die Entscheidung, die Kinect als Trackingsystem zu verwenden. Dies hatte vielerlei Gründe. Zum einen ist sie mit ihrer Herkunft aus der Spieleindustrie einem breiten Publikum bekannt und daher gegebenenfalls besser zur Präsentation geeignet. Hier kommt ebenfalls zugute, dass der Nutzer ohne jeglichen Aufwand mit dem Bedienen der Kinect beginnen kann, markerbasierte Trackingsysteme haben diesen \glqq{}Plug-and-Play\grqq{}-Vorteil nicht. Andererseits ist es auch der Popularität der Kinect zu verdanken, dass es eine sehr gute Quellenlage im Internet gibt. Die Kinect verfügt über eine (wenn auch nicht in großem Maße ausführliche) Online-Dokumentation und da sie mit SDK und API veröffentlicht wurde finden sich in einem doch etwas breiteren Rahmen Lösungsdiskussionen und -präsentationen im Netz. Nicht zuletzt war sie allen Projektmitgliedern bekannt und weckte aufgrund ihrer Herkunft bereits Interesse.\par\medskip
+	Das so ausgewählte Trackingsystem soll nun also zur Implementierung einer Gestensteuerung der gegebenen Anwendung genutzt werden. Das dafür entwickelte Programm soll Folgendes leisten:
+	\begin{itemize}
+		\item Es soll in der Lage zu sein, sämtliche Steuerung und Manipulation, die oben beschrieben wurde durchzuführen, d.\,h. Kamera und Objekte steuern können.
+		\item Die Bedienung soll sehr intuitiv und einfach sein, d.\,h. etwaige Gesten müssen bezüglich der ihnen zugeordneten Aktion einleuchtend und leicht auszuführen sein.
+		\item Die Steuerung soll ihrem Zweck angemessen genau sein, am besten ist hier eine glatte 1-zu-1-Übertragung von Handbewegungen auf die Szene.
+		\item Das Programm soll möglichst einfach eingebunden und wiederverwendet werden können.		
+	\end{itemize}
+	Aus dem Anwendungszweck des Originalprogrammes heraus erwuchs die zusätzliche Anforderung, eine Mastererkennung / -verwaltung zu implementieren, das heißt ein Verfahren, das garantiert, dass auch nur die dafür vorgesehene Person das Programm steuert und niemand sonst. Im Rahmen der genannten öffentlichen Präsentation muss ausgeschlossen sein, dass ein Fremder die Kontrolle über das Programm gewinnen kann und die Vorführung dadurch -- gewollt oder unbewusst -- behindert. Zusätzlich soll die ausgezeichnete Person auch später wieder erkannt werden, nachdem sie etwa einen Augenblick lang nicht im von der Kamera abgedeckten Bereich war.\par\bigskip
+	Damit ist die vollständige Liste der Anforderungen gegeben und wird hier zur Übersicht nochmals in ihrem Kern zusammengefasst:\par 
+	Ziel ist die Entwicklung einer Software
+	\begin{itemize}
+	\item unter Verwendung vorhandener Technik (gemeint ist das Trackingsystem Kinect),
+	\item die eine Gestensteuerung der gegebenen Anwendung ermöglicht und
+	\item dabei nur einer ausgezeichneten Person diese Steuerung erlaubt.
+	\end{itemize}

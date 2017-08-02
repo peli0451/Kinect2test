@@ -18,7 +18,7 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {2.3}Aufgabenverteilung im Team}{9}{subsection.2.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {2.4}Werkzeuge}{9}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.4}Werkzeuge}{10}{subsection.2.4}
 \defcounter {refsection}{0}\relax 
 \contentsline {section}{\numberline {3}Entwurfsentscheidungen}{11}{section.3}
 \defcounter {refsection}{0}\relax 
@@ -36,24 +36,24 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{23}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{32}{section.4}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{33}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{32}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{33}{subsection.4.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{KinectControl.}{33}{section*.15}
+\contentsline {paragraph}{KinectControl.}{34}{section*.15}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Buffer.}{33}{section*.17}
+\contentsline {paragraph}{Buffer.}{34}{section*.17}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{MotionParameters.}{34}{section*.18}
+\contentsline {paragraph}{MotionParameters.}{35}{section*.18}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Person.}{34}{section*.20}
+\contentsline {paragraph}{Person.}{36}{section*.20}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{GestureRecognition.}{36}{section*.23}
+\contentsline {paragraph}{GestureRecognition.}{37}{section*.23}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{StateMachine.}{36}{section*.26}
+\contentsline {paragraph}{StateMachine.}{37}{section*.26}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel und Ablaufskizze}{38}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel und Ablaufskizze}{39}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{39}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{42}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{41}{section.5}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{44}{section.5}

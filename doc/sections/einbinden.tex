@@ -1,1 +1,5 @@
 \subsection{Einbinden}\label{sec:einbinden}
+Das vorliegende Projekt kompiliert eine statische Bibliothek (.lib). Diese ist (in Visual Studio) als \glqq{}Additional Dependency\grqq{} für das Linking einzutragen.\par\medskip
+Das Programm, das die Library verwendet, sollte mittels \[\texttt{KinectControl kinectControl;}\]ein KinectControl-Objekt anlegen und in seiner Initialisierung durch Aufruf seiner \texttt{init()}-Funktion mitinitialisieren.\par 
+Im Main-Loop oder Event-Loop des Programms werden per \[\texttt{MotionParameters motionParameters = kinectControl.run();}\] die Parameter (Translation, Rotation und Ziel) geholt und können ausgewertet und entsprechen angewendet werden.\par 
+Weiterhin sollte \texttt{kinectControl.assignMaster()} irgendwie angestoßen werden können, z.\,B. über ein bestimmtes Tastendruck-Event.

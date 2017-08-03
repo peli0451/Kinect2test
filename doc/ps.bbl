@@ -122,6 +122,84 @@
     \field{title}{Kinect f\"ur Windows 2.0 SDK}
   \endentry
 
+  \entry{face}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=NAA}{%
+         family={Nag{\^a}t},
+         family_i={N\bibinitperiod},
+         given={A.-A.},
+         given_i={A\bibinitperiod-A\bibinitperiod},
+      }}%
+      {{hash=CCD}{%
+         family={C{\u{a}}leanu},
+         family_i={C\bibinitperiod},
+         given={C.-D.},
+         given_i={C\bibinitperiod-D\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {IEEE}%
+    }
+    \strng{namehash}{NAACCD1}
+    \strng{fullhash}{NAACCD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+    \field{booktitle}{2013 IEEE 8th International Symposium on Applied
+  Computational Intelligence and Informatics (SACI)}
+    \field{note}{Zugriff 3.8.17}
+    \field{pages}{169\bibrangedash 172}
+    \field{title}{Face identification using Kinect Technology}
+    \verb{url}
+    \verb http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6608961&isnum
+    \verb ber=6608938
+    \endverb
+    \field{year}{2013}
+  \endentry
+
+  \entry{skeletal}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         family_i={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/hh973074.aspx}}
+    \field{note}{Zugriff 25.4.2017}
+    \field{title}{{Skeletal Tracking}}
+    \field{year}{2017}
+  \endentry
+
+  \entry{tracking}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         family_i={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/jj131025.aspx}}
+    \field{note}{Zugriff 25.4.2017}
+    \field{title}{{Tracking Users with Kinect Skeletal Tracking}}
+    \field{year}{2017}
+  \endentry
+
   \entry{trackingstate}{misc}{}
     \name{author}{1}{}{%
       {{hash=NMD}{%
@@ -170,6 +248,45 @@
     }
     \field{type}{Bachelorarbeit}
     \field{year}{2015}
+  \endentry
+
+  \entry{gait}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=SA}{%
+         family={Sinha},
+         family_i={S\bibinitperiod},
+         given={A.},
+         given_i={A\bibinitperiod},
+      }}%
+      {{hash=CK}{%
+         family={Chakravarty},
+         family_i={C\bibinitperiod},
+         given={K.},
+         given_i={K\bibinitperiod},
+      }}%
+      {{hash=BB}{%
+         family={Bhowmick},
+         family_i={B\bibinitperiod},
+         given={B.},
+         given_i={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SACKBB1}
+    \strng{fullhash}{SACKBB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{booktitle}{ACHI 2013: The Sixth International Conferance on Advances
+  in Computer-Human Interactions}
+    \field{note}{Zugriff 3.8.17}
+    \field{pages}{101\bibrangedash 108}
+    \field{title}{Person Identification using Skeleton Information from Kinec
+  t}
+    \verb{url}
+    \verb https://www.thinkmind.org/download.php?articleid=achi_2013_4_50_20187
+    \endverb
+    \field{year}{2013}
   \endentry
 
   \entry{thermalsens}{article}{}
@@ -232,7 +349,7 @@
       {{hash=WJ}{%
          family={Walters},
          family_i={W\bibinitperiod},
-         given={Jason},
+         given={J.},
          given_i={J\bibinitperiod},
       }}%
     }
@@ -247,6 +364,37 @@
   \url{http://web.archive.org/web/20151031033003/http://glitchbeam.com:80/2015/04/02/kinect-v2-joint-map/},
   Zugriff 4.7.2017}
     \field{title}{Kinect v2 Joint Map}
+  \endentry
+
+  \entry{appearance}{article}{}
+    \name{author}{2}{}{%
+      {{hash=YMT}{%
+         family={Yang},
+         family_i={Y\bibinitperiod},
+         given={M.-T.},
+         given_i={M\bibinitperiod-T\bibinitperiod},
+      }}%
+      {{hash=HSY}{%
+         family={Huang},
+         family_i={H\bibinitperiod},
+         given={S.-Y.},
+         given_i={S\bibinitperiod-Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{YMTHSY1}
+    \strng{fullhash}{YMTHSY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Y}
+    \field{sortinithash}{Y}
+    \field{note}{Zugriff 3.8.17}
+    \field{title}{Appearance-Based Multimodal Human Tracking and Identification
+  for Healthcare in the Digital Home}
+    \verb{url}
+    \verb https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4179041/
+    \endverb
+    \field{journaltitle}{Sensors (Basel)}
+    \field{year}{2014}
   \endentry
 \endsortlist
 \endinput

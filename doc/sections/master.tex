@@ -6,6 +6,81 @@
 	Die zweite Möglichkeit war die Festlegung des Masters auf eine bestimmte Person, von der zunächst bestimmte Identifikations-Merkmale eingespeichert werden und die dann anhand dieser als Master reidentifiziert werden kann. Sofern diese Festlegung erst einmal geschehen ist, bleibt diese Person Master, selbst nachdem sich diese zwischenzeitlich in einem ungetrackten Zustand (beispielsweise beim Herausgehen aus dem getrackten Bereich) befunden hat und dann wieder als getrackt erkannt wird. Bei einer Recherche, welche Merkmale sich aus den von der Kinect gelieferten Daten extrahieren lassen ließen, um hierfür in Frage zu kommen, stießen wir hierbei auf verschiedene Möglichkeiten, von denen einige jedoch aufgrund ihrer Unpraktikabilität ausschieden (Erkennung anhand des Gangs oder anhand der Stimme würde bei unserer Anwendung keinen Sinn ergeben, da die Master-Person während der Bedienung kaum umher läuft und diese hierfür nicht zu sprechen braucht). Schließlich stießen wir auch auf Verfahren, die die Skelettdaten der Kinect zur Identifikation nutzen. Dies schien die für unsere Zwecke praktikabelste Lösung zu sein, wenngleich unser Ansatz die Skelettdaten zu nutzen im Vergleich zu denjenigen in den gefundenen Arbeiten stark vereinfacht wurde.\par
 	Grundlegendstes Prinzip für die Identifizierung einer Person ist hierbei das Auslesen der Skelettkoordinatenpunkte mit Hilfe des Kinect SDKs und daraus der Ermittlung diverser Längen als Körperproportionen mittels der Berechnung des euklidischen Abstands zwischen den entsprechenden Skelettpunkten. Beispielsweise wird die rechte Oberarmlänge als Abstand zwischen dem rechten Schulterpunkt und dem rechten Ellenbogenpunkt ermittelt. Weitere Körperproportionen die verwendet wurden sind unter anderem die Schulterbreite, Hüftbreite, Unterarmlänge, Abstand zwischen Hals und Kopf. \par
 
+\subsubsection{Fuzzy Skelettmatching}
+Eine notwendige Grundfunktion bei der Mastererkennung ist es, ein aufgenommenes Skelettprofil mit einem im Bild sichtbaren Skelett zu vergleichen.
+Bei jedem Skelettmerkmal, wie beispielsweise der Oberarmlänge oder der Torsolänge, sind Abweichungen zu erwarten.
+Es bestehen Freiheitsgrade in der Gewichtung dieser Abweichungen.
+Ziel ist es, eine Funktion zu entwerfen, welche die Ähnlichkeit zweier Skelette repräsentiert.
+\par
+Folgende Varianten wurden im Team diskutiert:
+Für jedes Skelettmerkmal $P$ des Masterprofils und jedes Merkmal $K$ des Kandidaten: 
+
+
+\begin{enumerate}
+\item Man wähle das Maximum von $P$ und $K$ und teile es durch das Minimum von $P$ und $K$. 
+Die so berechneten Werte werden durch Multiplikation akkumuliert.
+\par
+Der Ergebniswert liegt zwischen 0 und 1.
+Je größer er ist, desto näher sind die Merkmale des Kandidaten denen des eingespeicherten Masters. 
+Die Funktion besitzt die erstrebenswerte Eigenschaft, dass ein identisches Matching einen Fehlerwert von 1 repräsentiert.
+Beim experimentellen Testen der Funktion bestätigte sich der Verdacht, dass große Fehler zu schwach bestraft werden.
+Das genaue Verhalten wurde aus Zeitgründen nicht weiter untersucht, die Ergebnisse waren jedoch nicht zufriedenstellend.
+\item Wir nehmen an, dass die Merkmale des Kandidaten Poisson-verteilt sind und die Erwartungswerte die realen Knochenlängen repräsentieren.
+Aus $P$ werden der empirische Erwartungswert und die emprirische Varianz der angenommenen Poisson-Verteilung berechnet.
+Für jedes Skelettmerkmal wird die Wahrscheinlichkeit des Ereignisses \glqq{}Das Skelettmerkmal ist $K$\grqq{} berechnet. Diese Werte werden akkumuliert.
+\par
+Der resultierende Wert würde der Wahrscheinlichkeit entsprechen, dass $K$ tatsächlich $P$ repräsentiert.
+Der Ansatz kann weiterhin für andere Verteilungen versucht werden.
+Es zeigte sich jedoch, dass die Fehler des Skelettprofils nicht gut als Poisson-verteilt angenähert werden können.
+Die Verteilung zeigte Sprünge und multimodales Verhalten, sodass es großen Aufwands bedürfe, sie genau zu bestimmen.
+
+\item Man bilde $(P-K)^2$. Die entstandenen Werte summiere man.
+\par
+Dieser Ansatz kam aus der generellen Feststellung, dass das zweite zentrale Moment (die quadrierte Abweichung) häufig genutzt wird, 
+um Ähnlichkeit (beispielweise zwischen Funktionen) zu bestimmen.
+Der Ansatz einspricht einem $\chi^2$-Hypothesentest. Auch dieser trifft eine implizite Annahme über die Verteilung der Fehler.
+In diesem Fall wird angenommen, die Fehler könnten gut als $\chi^2$-verteilt (Verteilung der quadrierten Summe normalverteilter unabhängiger Zufallsgrößen) genähert werden.
+Um diese Forderung zu testen, wäre es möglich gewesen, einen anpassungstest auf $\chi^2$ Verteilung zu machen.
+Wir verzichteten aus folgenden Gründen darauf:
+\begin{itemize}
+\item
+der Aufwand, Fehlerwerte aufzunehmen und auszuwerten wäre nicht zu vernachlässigen.
+\item erste Ebene
+um die Resultate nutzen zu können, wäre ein vielversprechender alternativer Ansatz zum Vergleich notwendig.
+\end{itemize}
+
+\item diverse weitere Akkumulationsverfahren, welche ad hoc entstanden, wie beispielsweise die Summe der normierten Abweichungen 
+oder das Maximum der normierten Abweichungen.
+\par
+Diese Ansätze wurden nicht weiter verfolgt, da sie nicht lohnend für experimentelle Überprüfung schienen.
+\end{enumerate}
+
+Wir entschieden uns daher nach ausgiebiger Diskussion und experimenteller Überprüfung einiger Variante für Variante (3), da sie die besten Ergebnisse lieferte.
+\par
+
+Es wurde weiterhin diskutiert und ausprobiert, die verschiedenen Abweichungswerte mit dem Kehrwert der Standardabweichung ihres zugehörigen Profils zu wichten.
+Dies würde einem Merkmal mit geringer Standardabweichung eine sehr hohe Relevanz verleihen.
+Der Ansatz schien jedoch nur unzuverlässig zu funktionieren.
+Grund dafür könnte eine Eigenschaft der Fehlerverteilung sein, die uns nicht bekannt ist, da die Fehlerverteilung nicht bekannt ist.
+Bei der Implementierung wurde die Möglichkeit offen gehalten, die Standardabweichung des Profils einfließen zu lassen, 
+eine schwächere Einwirkung als direkt multiplikativ könnte sinnvoll sein.
+
+ 
+
+
+Ein Schwellwert für die Akzeptanz eines Kandidaten wurde experimentell festgelegt.
+Die Wahl bestimmt den Anteil von falsch-positiven sowie korrekt-positiven Akzeptanzen.
+Die Anpassung wurde so getroffen, dass zufriedenstellend wenige falsch-negative Erkennungen passieren, 
+und ein Nutzer verlässlich den Masterstatus wiedererlangen kann.
+
+
+
+
+
+
+
+
+
 \subsubsection{Robustheit}
 Nach einigen Experimenten mit den Körperproportionen wurde festgestellt, dass einige Proportionen übermäßig große Abweichungen aufwiesen, wenn die gleiche Person in unterschiedlichen Posen mit der Kinect vermessen wurde bzw. dass sich einige Skelettpunkte \glqq{}verschieben\grqq{}, wenn man mit einem Körperteil darüber fährt. (Beispielsweise die gemessene Schulterbreite, welche sich signifikant zwischen der Standard-Pose und einer Pose bei der die Arme über den Kopf gestreckt sind unterschied.) 
 \begin{figure}[h!]

@@ -26,42 +26,44 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {3.1.1}M\IeC {\"o}glichkeiten der Master-Identifikation}{11}{subsubsection.3.1.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {3.1.2}Robustheit}{12}{subsubsection.3.1.2}
+\contentsline {subsubsection}{\numberline {3.1.2}Fuzzy Skelettmatching}{12}{subsubsection.3.1.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsubsection}{\numberline {3.1.3}Umsetzung}{13}{subsubsection.3.1.3}
+\contentsline {subsubsection}{\numberline {3.1.3}Robustheit}{14}{subsubsection.3.1.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{15}{subsection.3.2}
+\contentsline {subsubsection}{\numberline {3.1.4}Umsetzung}{15}{subsubsection.3.1.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{21}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.2}Gesten und ihre Wirkung}{17}{subsection.3.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{23}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.3}Zustandsmaschine}{23}{subsection.3.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{34}{section.4}
+\contentsline {subsection}{\numberline {3.4}Robustheit und Pufferung}{25}{subsection.3.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{34}{subsection.4.1}
+\contentsline {section}{\numberline {4}Bemerkungen zum Quellcode}{36}{section.4}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{KinectControl.}{35}{section*.15}
+\contentsline {subsection}{\numberline {4.1}Wichtige Datenstrukturen, Variablen und Funktionen}{36}{subsection.4.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Buffer.}{35}{section*.17}
+\contentsline {paragraph}{KinectControl.}{37}{section*.15}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{MotionParameters.}{36}{section*.18}
+\contentsline {paragraph}{Buffer.}{37}{section*.17}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{Person.}{37}{section*.20}
+\contentsline {paragraph}{MotionParameters.}{38}{section*.18}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{GestureRecognition.}{38}{section*.23}
+\contentsline {paragraph}{Person.}{39}{section*.20}
 \defcounter {refsection}{0}\relax 
-\contentsline {paragraph}{StateMachine.}{38}{section*.26}
+\contentsline {paragraph}{GestureRecognition.}{40}{section*.23}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel und Ablaufskizze}{40}{subsection.4.2}
+\contentsline {paragraph}{StateMachine.}{40}{section*.26}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {4.3}Einbinden}{43}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.2}Erg\IeC {\"a}nzungen zum Zusammenspiel und Ablaufskizze}{42}{subsection.4.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {5}Schlussbemerkungen}{45}{section.5}
+\contentsline {subsection}{\numberline {4.3}Einbinden}{45}{subsection.4.3}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.1}Eignung unserer Software}{45}{subsection.5.1}
+\contentsline {section}{\numberline {5}Schlussbemerkungen}{47}{section.5}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.2}Eignung der Kinect}{45}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.1}Eignung unserer Software}{47}{subsection.5.1}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.3}Verbesserungen}{46}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.2}Eignung der Kinect}{47}{subsection.5.2}
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {5.4}Fazit}{47}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.3}Verbesserungen}{48}{subsection.5.3}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.4}Fazit}{49}{subsection.5.4}

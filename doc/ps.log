@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  16 AUG 2017 12:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  16 AUG 2017 12:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1774,53 +1774,53 @@ Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 36.
  [12]
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 75.
+(babel)             in language  on input line 74.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 75.
+(babel)             in language  on input line 74.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 75.
+(babel)             in language  on input line 74.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 75.
+(babel)             in language  on input line 74.
  [13]
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 83.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 84.
+(babel)             in language  on input line 83.
 
 <pictures/standardpose_.png, id=248, 845.559pt x 473.3685pt>
 File: pictures/standardpose_.png Graphic file (type png)
 
 <use pictures/standardpose_.png>
-Package pdftex.def Info: pictures/standardpose_.png used on input line 88.
+Package pdftex.def Info: pictures/standardpose_.png used on input line 87.
 (pdftex.def)             Requested size: 352.8155pt x 197.5205pt.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 92.
+(babel)             in language  on input line 91.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 92.
+(babel)             in language  on input line 91.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 92.
+(babel)             in language  on input line 91.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 92.
+(babel)             in language  on input line 91.
  [14 <./pictures/standardpose_.png>]
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 95.
+(babel)             in language  on input line 94.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 95.
+(babel)             in language  on input line 94.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 99.
+(babel)             in language  on input line 98.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 99.
+(babel)             in language  on input line 98.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 99.
+(babel)             in language  on input line 98.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 99.
+(babel)             in language  on input line 98.
  [15]
 <pictures/sensors-16-01965-g005.jpg, id=258, 82.1469pt x 48.30045pt>
 File: pictures/sensors-16-01965-g005.jpg Graphic file (type jpg)
 
 <use pictures/sensors-16-01965-g005.jpg>
 Package pdftex.def Info: pictures/sensors-16-01965-g005.jpg used on input line 
-101.
+100.
 (pdftex.def)             Requested size: 441.01772pt x 259.3761pt.
 ) (./sections/gesten.tex
 Package babel Info: Redefining ngerman shorthand "|
@@ -2375,7 +2375,7 @@ r10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/texlive
 ts/type1/public/lm/lmri10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm
 /lmri12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/te
 xlive/2016/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
-Output written on ps.pdf (52 pages, 10355812 bytes).
+Output written on ps.pdf (52 pages, 10355358 bytes).
 PDF statistics:
  626 PDF objects out of 1000 (max. 8388607)
  514 compressed objects within 6 object streams

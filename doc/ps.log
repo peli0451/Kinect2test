@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  18 AUG 2017 14:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.6.15)  18 AUG 2017 14:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2368,9 +2368,6 @@ Package babel Info: Redefining ngerman shorthand "~
  [52
 
 ]
-
-LaTeX Warning: Reference `sec:programm' on page 53 undefined on input line 13.
-
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 16.
 Package babel Info: Redefining ngerman shorthand "~
@@ -2383,7 +2380,7 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 20.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 20.
-[53]
+ [53]
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 23.
 Package babel Info: Redefining ngerman shorthand "~
@@ -2432,21 +2429,8 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 122.
  (./ps.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 122.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 122.
-
-
-Package rerunfilecheck Warning: File `ps.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `ps.out':
-(rerunfilecheck)             Before: BA770523802AF3FD229AC5D4A2A13475;2039
-(rerunfilecheck)             After:  CF523D7CE0032D44E4CD8605D36EC0AC;2035.
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
+Package rerunfilecheck Info: File `ps.out' has not changed.
+(rerunfilecheck)             Checksum: CF523D7CE0032D44E4CD8605D36EC0AC;2035.
 Package logreq Info: Writing requests to 'ps.run.xml'.
 \openout1 = `ps.run.xml'.
 
@@ -2454,7 +2438,7 @@ Package logreq Info: Writing requests to 'ps.run.xml'.
 Here is how much of TeX's memory you used:
  30214 strings out of 493014
  593623 string characters out of 6137001
- 987779 words of memory out of 5000000
+ 986830 words of memory out of 5000000
  33007 multiletter control sequences out of 15000+600000
  65222 words of font info for 50 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
@@ -2470,10 +2454,10 @@ r10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/texlive
 ts/type1/public/lm/lmri10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm
 /lmri12.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/te
 xlive/2016/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
-Output written on ps.pdf (57 pages, 11173177 bytes).
+Output written on ps.pdf (57 pages, 11171079 bytes).
 PDF statistics:
- 726 PDF objects out of 1000 (max. 8388607)
- 604 compressed objects within 7 object streams
+ 727 PDF objects out of 1000 (max. 8388607)
+ 605 compressed objects within 7 object streams
  150 named destinations out of 1000 (max. 500000)
  466 words of extra memory for PDF output out of 10000 (max. 10000000)
 

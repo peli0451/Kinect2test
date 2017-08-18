@@ -1,9 +1,9 @@
-\subsection{Der Master}
-	Der Master ist die Person (unter den getrackten Personen), der es obliegt, die Anwendung zu steuern, d.\,h. in unserem Anwendungsfall der Präsentation ist der Master der Präsentierende.
+\subsection{Der Master}\label{sec:master}
+	Der Master ist die Person (unter den getrackten Personen), der es obliegt, die Anwendung zu steuern, d.\,h. im Anwendungsfall der Präsentation ist der Master der Präsentierende.
 	Es muss gewährleistet werden, dass nur der Master das Programm steuert und dabei von weiteren Personen im Raum nicht (bzw. nicht ohne weiteres) gestört werden kann. Die Erkennung muss robust gegen Jittering der Kinectdaten sein.\par
 \subsubsection{Möglichkeiten der Master-Identifikation}
 	Grundsätzlich kamen für die Festlegung des Masters zwei Ideen auf. Zunächst sollte bei jedem Frame die getrackte Person identifiziert werden, die der Kinect bzgl. der z-Koordinate am nähesten ist und diese als Master festgelegt werden. Der Master könnte hierbei bei jedem Frame zwischen den getrackten Personen wechseln. \par
-	Die zweite Möglichkeit war die Festlegung des Masters auf eine bestimmte Person, von der zunächst bestimmte Identifikations-Merkmale eingespeichert werden und die dann anhand dieser als Master reidentifiziert werden kann. Sofern diese Festlegung erst einmal geschehen ist, bleibt diese Person Master, selbst nachdem sich diese zwischenzeitlich in einem ungetrackten Zustand (beispielsweise beim Herausgehen aus dem getrackten Bereich) befunden hat und dann wieder als getrackt erkannt wird. Bei einer Recherche, welche Merkmale sich aus den von der Kinect gelieferten Daten extrahieren lassen ließen, um hierfür in Frage zu kommen, stießen wir hierbei auf verschiedene Möglichkeiten, von denen einige jedoch aufgrund ihrer Unpraktikabilität ausschieden (Erkennung anhand des Gangs oder anhand der Stimme würde bei unserer Anwendung keinen Sinn ergeben, da die Master-Person während der Bedienung kaum umher läuft und diese hierfür nicht zu sprechen braucht). Schließlich stießen wir auch auf Verfahren, die die Skelettdaten der Kinect zur Identifikation nutzen. Dies schien die für unsere Zwecke praktikabelste Lösung zu sein, wenngleich unser Ansatz die Skelettdaten zu nutzen im Vergleich zu denjenigen in den gefundenen Arbeiten stark vereinfacht wurde.\par
+	Die zweite Möglichkeit war die Festlegung des Masters auf eine bestimmte Person, von der zunächst bestimmte Identifikations-Merkmale eingespeichert werden und die dann anhand dieser als Master reidentifiziert werden kann. Sofern diese Festlegung erst einmal geschehen ist, bleibt diese Person Master, selbst nachdem sich diese zwischenzeitlich in einem ungetrackten Zustand (beispielsweise beim Herausgehen aus dem getrackten Bereich) befunden hat und dann wieder als getrackt erkannt wird. Bei einer Recherche, welche Merkmale sich aus den von der Kinect gelieferten Daten extrahieren lassen ließen, um hierfür in Frage zu kommen, ergaben sich verschiedene Möglichkeiten, von denen einige jedoch aufgrund ihrer Unpraktikabilität ausschieden. Eine Erkennung anhand des Gangs (\cite{gait}) oder anhand der Stimme würde hier keinen Sinn ergeben, da die Master-Person während der Bedienung kaum umher läuft und diese hierfür nicht zu sprechen braucht). Schließlich gibt es Verfahren, die die Skelettdaten der Kinect zur Identifikation nutzen. Dies schien die praktikabelste Lösung zu sein, wenngleich der hier präsentierte Ansatz, die Skelettdaten zu nutzen im Vergleich zu denjenigen in den gefundenen Arbeiten (\cite{bodyprop}) stark vereinfacht wurde.\par
 	Grundlegendstes Prinzip für die Identifizierung einer Person ist hierbei das Auslesen der Skelettkoordinatenpunkte mit Hilfe des Kinect SDKs und daraus der Ermittlung diverser Längen als Körperproportionen mittels der Berechnung des euklidischen Abstands zwischen den entsprechenden Skelettpunkten. Beispielsweise wird die rechte Oberarmlänge als Abstand zwischen dem rechten Schulterpunkt und dem rechten Ellenbogenpunkt ermittelt. Weitere Körperproportionen die verwendet wurden sind unter anderem die Schulterbreite, Hüftbreite, Unterarmlänge, Abstand zwischen Hals und Kopf. \par
 
 \subsubsection{Fuzzy Skelettmatching}
@@ -12,20 +12,19 @@ Bei jedem Skelettmerkmal, wie beispielsweise der Oberarmlänge oder der Torsolä
 Es bestehen Freiheitsgrade in der Gewichtung dieser Abweichungen.
 Ziel ist es, eine Funktion zu entwerfen, welche die Ähnlichkeit zweier Skelette repräsentiert.
 \par
-Folgende Varianten wurden im Team diskutiert:
+Folgende Varianten sind denkbar: 
 Für jedes Skelettmerkmal $P$ des Masterprofils und jedes Merkmal $K$ des Kandidaten: 
 
 
 \begin{enumerate}
-\item Man wähle das Maximum von $P$ und $K$ und teile es durch das Minimum von $P$ und $K$. 
-Die so berechneten Werte werden durch Multiplikation akkumuliert.
+\item Es wird das Maximum von $P$ und $K$ gebildet und durch das Minimum von $P$ und $K$ geteilt. Die so berechneten Werte werden durch Multiplikation akkumuliert.
 \par
 Der Ergebniswert liegt zwischen 0 und 1.
 Je größer er ist, desto näher sind die Merkmale des Kandidaten denen des eingespeicherten Masters. 
 Die Funktion besitzt die erstrebenswerte Eigenschaft, dass ein identisches Matching einen Fehlerwert von 1 repräsentiert.
 Beim experimentellen Testen der Funktion bestätigte sich der Verdacht, dass große Fehler zu schwach bestraft werden.
 Das genaue Verhalten wurde aus Zeitgründen nicht weiter untersucht, die Ergebnisse waren jedoch nicht zufriedenstellend.
-\item Wir nehmen an, dass die Merkmale des Kandidaten Poisson-verteilt sind und die Erwartungswerte die realen Knochenlängen repräsentieren.
+\item Es wird angenommen, dass die Merkmale des Kandidaten Poisson-verteilt sind und die Erwartungswerte die realen Knochenlängen repräsentieren.
 Aus $P$ werden der empirische Erwartungswert und die emprirische Varianz der angenommenen Poisson-Verteilung berechnet.
 Für jedes Skelettmerkmal wird die Wahrscheinlichkeit des Ereignisses \glqq{}Das Skelettmerkmal ist $K$\grqq{} berechnet. Diese Werte werden akkumuliert.
 \par
@@ -34,14 +33,14 @@ Der Ansatz kann weiterhin für andere Verteilungen versucht werden.
 Es zeigte sich jedoch, dass die Fehler des Skelettprofils nicht gut als Poisson-verteilt angenähert werden können.
 Die Verteilung zeigte Sprünge und multimodales Verhalten, sodass es großen Aufwands bedürfe, sie genau zu bestimmen.
 
-\item Man bilde $(P-K)^2$. Die entstandenen Werte summiere man.
+\item Es wird $(P-K)^2$ berechnet und die entstandenen Werte summiert.
 \par
 Dieser Ansatz kam aus der generellen Feststellung, dass das zweite zentrale Moment (die quadrierte Abweichung) häufig genutzt wird, 
 um Ähnlichkeit (beispielweise zwischen Funktionen) zu bestimmen.
 Der Ansatz einspricht einem $\chi^2$-Hypothesentest. Auch dieser trifft eine implizite Annahme über die Verteilung der Fehler.
 In diesem Fall wird angenommen, die Fehler könnten gut als $\chi^2$-verteilt (Verteilung der quadrierten Summe normalverteilter unabhängiger Zufallsgrößen) genähert werden.
 Um diese Forderung zu testen, wäre es möglich gewesen, einen anpassungstest auf $\chi^2$ Verteilung zu machen.
-Wir verzichteten aus folgenden Gründen darauf:
+Hierauf wurde aus folgenden Gründen verzichtet:
 \begin{itemize}
 \item
 Der Aufwand, Fehlerwerte aufzunehmen und auszuwerten wäre nicht zu vernachlässigen.
@@ -54,13 +53,13 @@ oder das Maximum der normierten Abweichungen.
 Diese Ansätze wurden nicht weiter verfolgt, da sie nicht lohnend für experimentelle Überprüfung schienen.
 \end{enumerate}
 
-Wir entschieden uns daher nach ausgiebiger Diskussion und experimenteller Überprüfung einiger Variante für Variante (3), da sie die besten Ergebnisse lieferte.
+Die Entscheidung fiel daher nach ausgiebiger Diskussion und experimenteller Überprüfung einiger Variante auf Variante (3), da sie die besten Ergebnisse lieferte.
 \par
 
-Es wurde weiterhin diskutiert und ausprobiert, die verschiedenen Abweichungswerte mit dem Kehrwert der Standardabweichung ihres zugehörigen Profils zu wichten.
+Ein weiterer Ansatz wäre, die verschiedenen Abweichungswerte mit dem Kehrwert der Standardabweichung ihres zugehörigen Profils zu wichten.
 Dies würde einem Merkmal mit geringer Standardabweichung eine sehr hohe Relevanz verleihen.
 Der Ansatz schien jedoch nur unzuverlässig zu funktionieren.
-Grund dafür könnte eine Eigenschaft der Fehlerverteilung sein, die uns nicht bekannt ist, da die Fehlerverteilung nicht bekannt ist.
+Grund dafür könnte eine unbekannte Eigenschaft der (ebenfalls nicht bekannten) Fehlerverteilung sein.
 Bei der Implementierung wurde die Möglichkeit offen gehalten, die Standardabweichung des Profils einfließen zu lassen, 
 eine schwächere Einwirkung als direkt multiplikativ könnte sinnvoll sein.
 
@@ -81,25 +80,24 @@ und ein Nutzer verlässlich den Masterstatus wiedererlangen kann.
 
 
 \subsubsection{Robustheit}
-Nach einigen Experimenten mit den Körperproportionen wurde festgestellt, dass einige Proportionen übermäßig große Abweichungen aufwiesen, wenn die gleiche Person in unterschiedlichen Posen mit der Kinect vermessen wurde bzw. dass sich einige Skelettpunkte \glqq{}verschieben\grqq{}, wenn man mit einem Körperteil darüber fährt. (Beispielsweise die gemessene Schulterbreite, welche sich signifikant zwischen der Standard-Pose und einer Pose bei der die Arme über den Kopf gestreckt sind unterschied.) 
+Nach einigen Experimenten mit den Körperproportionen wurde festgestellt, dass einige Proportionen übermäßig große Abweichungen aufwiesen, wenn die gleiche Person in unterschiedlichen Posen mit der Kinect vermessen wurde bzw. dass sich einige Skelettpunkte \glqq{}verschieben\grqq{}, wenn der Benutzer mit einem Körperteil darüber fährt, beispielsweise die gemessene Schulterbreite, welche sich signifikant zwischen der Standard-Pose und einer Pose bei der die Arme über den Kopf gestreckt sind unterschied.)
 \begin{figure}[h!]
 		\centering
 		\includegraphics[width=.8\textwidth]{pictures/standardpose_.png}
 		\caption{Die Standardpose, in der sich eine Person befinden muss, damit sie vermessen werden kann.}\label{fig:standardp}
 		\end{figure}
 Aus diesem Grund wird die Vermessung einer Person nur durchgeführt, wenn sich die entsprechende Person über eine bestimmte Anzahl von Frames (etwa 20) durchgehend in der festgelegten Standard-Pose befindet. Falls während der Sammlung das Einhalten der Standard-Pose unterbrochen wird, wird die Sammlung erneut begonnen.\par
-Ein weiteres Problem, das zu lösen war bestand darin, dass selbst beim Stillhalten, jedoch hauptsächlich bei der Bewegung einer getrackten Person, Skelettpunkte kurzzeitig auf einen anderen weiter entfernten Raumpunkt springen konnten, was teils zu unrealistischen Messungen einer Körperproportion für einzelne Frames führte (z.B. Messung einer Oberarmlänge von 2 Metern). Um derartige Ausreißer zu eliminieren wird der während der Vermessung einer Person zur Einspeicherung als Master über mehrere Frames der Mittelwert sowie die Standardabweichung jeder Körperproportion berechnet und jeder Wert der nicht innerhalb des Intervalls um den Mittelwert mit der Ausdehnung der Standardabweichung liegt, d.h. des Intervalls \[(\text{Mittelwert}-\text{Standardabweichung}\cdot \text{Faktor}, \text{Mittelwert}+\text{Standardabweichung}\cdot \text{Faktor})\text,\] ignoriert. 
-\par
-Weiterhin wird darauf geachtet, dass alle für die Vermessung relevanten Körperproportionen mit ausreichender Konfidenz von der Kinect getrackt werden. Die Kinect liefert hierfür für jeden Skelettpunkt einen von drei möglichen Konfidenzwerten, der angibt, wie wahrscheinlich die von der Kinect gelieferte Koordinatenwerte für diesen Punkt dem tatsächlichem Wert entsprechen. (Die drei Konfidenzwerte heißen Tracked, Inferred, NotTracked; wobei Tracked die höchste Konfidenz und NotTracked die niedrigste Konfidenz für einen Skelettpunkt bezeichnet). Ist in einem Frame der Konfidenzwert von einem der beiden Skelettpunkte, aus denen eine Körperproportion berechnet wird, nicht Tracked, so wird diese Körperproportion für diesen Frame nicht berücksichtigt bzw. mit Null gewichtet. \par
+Ein weiteres Problem, das zu lösen war, bestand darin, dass selbst beim Stillhalten, jedoch hauptsächlich bei der Bewegung einer getrackten Person, Skelettpunkte kurzzeitig auf einen anderen weiter entfernten Raumpunkt springen konnten, was teils zu unrealistischen Messungen einer Körperproportion für einzelne Frames führte (z.B. Messung einer Oberarmlänge von 2 Metern). Um derartige Ausreißer zu eliminieren wird der während der Vermessung einer Person zur Einspeicherung als Master über mehrere Frames der Mittelwert sowie die Standardabweichung jeder Körperproportion berechnet und jeder Wert der nicht innerhalb des Intervalls um den Mittelwert $m$ mit der Ausdehnung der Standardabweichung $s$ liegt, d.h. des Intervalls $(c\cdot(m-s),c\cdot(m+s))$ ignoriert. Dabei ist $c$ ein empirischer Faktor.\par
+Weiterhin wird darauf geachtet, dass alle für die Vermessung relevanten Körperproportionen mit ausreichender Konfidenz von der Kinect getrackt werden. Die Kinect liefert hierfür für jeden Skelettpunkt einen von drei möglichen Konfidenzwerten, der angibt, wie wahrscheinlich die von der Kinect gelieferte Koordinatenwerte für diesen Punkt dem tatsächlichem Wert entsprechen. Die drei Konfidenzwerte heißen Tracked, Inferred, NotTracked; wobei Tracked die höchste Konfidenz und NotTracked die niedrigste Konfidenz für einen Skelettpunkt bezeichnet. Ist in einem Frame der Konfidenzwert von einem der beiden Skelettpunkte, aus denen eine Körperproportion berechnet wird, nicht Tracked, so wird diese Körperproportion für diesen Frame nicht berücksichtigt bzw. mit Null gewichtet. \par
 \subsubsection{Umsetzung}
-Eingebettet in unsere Hauptschleife geht die Master-Identifikation folgendermaßen von statten: Beim Start des Programms ist zunächst einmal die Person Master, die bzgl. der Kinect die geringste z-Koordinate aufweist. Hierfür wird bei jedem Schleifendurchlauf abgefragt, welche der 6 (potenziell) getrackten Personen, den geringsten z-Wert hat. Der Master wird somit bei jedem Frame neu bestimmt.
+Die Master-Identifikation geht insgesamt folgendermaßen von statten: Beim Start des Programms ist zunächst einmal die Person Master, die bzgl. der Kinect die geringste $z$-Koordinate aufweist. Dies ist lediglich eine primitive Basisvariante, solange kein Master eingespeichert wurde. Hierfür wird bei jedem Schleifendurchlauf abgefragt, welche der 6 (potenziell) getrackten Personen, den geringsten $z$-Wert hat. Der Master wird somit bei jedem Frame neu bestimmt.
 \par
- Durch die Betätigung einer vorher festgelegten Taste wird schließlich die Master-Festlegung auf eine bestimmte Person aktiviert. Hierzu werden die Körperproportionen der Person, die als erstes in Standardpose erkannt wird, über mehrere Frames aus den Skelettdaten extrahiert, gepuffert und schließlich aus diesen für jedes Körpermerkmal der Mittelwert sowie die Standardabweichung berechnet. (Sofern beim Tastendruck noch keine Person im getrackten Bereich war, wird gewartet bis eine Person getrackt wird und diese die Standard-Pose einnimmt.) Der Mittelwert und die Standardabweichung werden dazu verwendet Ausreißer zu identifizieren und zu entfernen, um schließlich die Mittelwerte erneut ohne die Ausreißer zu berechnen. Neben diesen Mittelwerten für die nun als Master festgelegte Person, wird außerdem die von der Kinect vergebene ID der Person eingespeichert. Diese bleibt dieser Person zugeordnet, solange sie durchgehend getrackt wird. Verlässt der Master den getrackten Bereich oder wird anderweitig vorübergehend nicht getrackt (beispielsweise wenn dieser von einer anderen Person verdeckt wird) und kommt danach wieder in den getrackten Bereich zurück, hat dieser eine neue ID. In diesem Fall muss der Master neu identifiziert werden. 
+ Durch die Betätigung einer vorher festgelegten Taste wird schließlich die Master-Festlegung auf eine bestimmte Person aktiviert. Hierzu werden die Körperproportionen der Person, die als erstes in Standardpose erkannt wird, über mehrere Frames aus den Skelettdaten extrahiert, gepuffert und schließlich aus diesen für jedes Körpermerkmal der Mittelwert sowie die Standardabweichung berechnet. Sofern beim Tastendruck noch keine Person im getrackten Bereich war, wird gewartet bis eine Person getrackt wird und diese die Standard-Pose einnimmt. Der Mittelwert und die Standardabweichung werden dazu verwendet Ausreißer zu identifizieren und zu entfernen, um schließlich die Mittelwerte erneut ohne die Ausreißer zu berechnen. Neben diesen Mittelwerten für die nun als Master festgelegte Person, wird außerdem die von der Kinect vergebene ID der Person eingespeichert. Diese bleibt dieser Person zugeordnet, solange sie durchgehend getrackt wird. Verlässt der Master den getrackten Bereich oder wird anderweitig vorübergehend nicht getrackt (beispielsweise wenn dieser von einer anderen Person verdeckt wird) und kommt danach wieder in den getrackten Bereich zurück, hat dieser eine neue ID. In diesem Fall muss der Master neu identifiziert werden. 
  
  \begin{figure}
 \includegraphics[width=\textwidth]{pictures/sensors-16-01965-g005.jpg}
 \caption{Neuzuordnung von IDs nach zwischenzeitlichem \glqq Verlust\grqq{} von Skeletten, Quelle:\cite{bodyprop}}
-\label{fig:fehlerk}
+\label{fig:fehlerk2}
 \end{figure}
  \par
  Solange der Master noch nicht gefunden wurde, werden hierfür für jede Person, die in Standard-Pose erkannt wird, die Körperproportionen über eine gewisse Anzahl (etwa 20) an Frames mit denen der für den Master eingespeicherten Werte verglichen. Schließlich wird aus den frameweise berechneten Abweichungen der Durchschnitt berechnet. Ist diese durchschnittliche Abweichung kleiner als ein im Programm festgelegter Wert ist diese als Master identifiziert worden. Diese kann nun mit der Steuerung des Programms fortfahren.

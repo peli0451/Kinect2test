@@ -1,9 +1,15 @@
-\subsection{Grundlagen und Motivation}
-	Gegeben ist eine bereits vorhandene 3D-Anwendung, die vom Betreuer des Projektseminars, Herrn M.\,sc. Julian Meder, erstellt wurde. Das Programm wird zu Demonstrationszwecken z.\,B. am Tag der offenen Tür in den Räumlichkeiten des Fachgebiets genutzt. Innerhalb der Anwendung ist es möglich,
-	\begin{itemize}
-		\item Objekte einzuladen und anzeigen zu lassen sowie
-		\item die Kamera (bzw. Kameras) zu manipulieren, d.\,h. zu bewegen, zu rotieren und zu zoomen.
-	\end{itemize}
-	In Erweiterung soll das Programm auch weiteren Aufgaben der Objektmanipulation dienlich sein, dies beinhaltet insbesondere das Laden mehrerer Objekte in eine Szene und die Manipulation dieser im Sinne von Translation, Rotation, Skalierung und Löschung.\par
-	Den oben genannten Demonstrationszweck nimmt das Programm über die Ankopplung des Rechners an einen 3D-Kameraaufbau wahr. Das Programm rendert zwei Ausgabefenster aus zwei verschiedenen, im Sinne der Stereoskopie angeordneten Kamerasichten. Dies wird von den beiden Projektoren im Nebenraum des Präsentationsraums genutzt um ein linkes und ein rechtes Bild von hinten auf einen Schirm zu strahlen, der in die Trennwand der beiden Räume eingelassen ist. Mittels handelsüblicher aus 3D-Kinos bekannten Shutterbrillen können Benutzer und Zuschauer sodann den 3D-Eindruck wahrnehmen.\par
-	Die Steuerung des genannten Grundprogramms erfolgt durch den Vortragenden (im Weiteren zumeist Master genannt) über Tastatur und Maus bzw. einen Präsentationspointer. Die Unhandlichkeit sowie fehlende Immersion und Attraktivität dieser Steuerung ist eine Kernmotivation für unser Projekt. Darüber hinaus motivierend ist auch die bloße Auseinandersetzung mit der am Fachgebiet vorhandenen Technik sowie die Untersuchung der Möglichkeiten, diese zielführend einzusetzen.
+\subsection{Grundlagen und Motivation}\label{sec:grundl}
+Gegeben ist eine bereits vorhandene 3D-Anwendung, die vom Betreuer des Projektseminars, Herrn M.\,Sc. Julian Meder, erstellt wurde. Das Programm wird zu Demonstrationszwecken z.\,B. am Tag der offenen Tür in den Räumlichkeiten des Fachgebiets genutzt. Innerhalb der Anwendung ist es möglich,
+\begin{itemize}
+\item ein Objekt zu laden und anzeigen zu lassen sowie 
+\item die Kamera (bzw. Kameras) zu bewegen, zu rotieren und zu zoomen.
+\end{itemize}
+In Erweiterung soll das Programm auch andere Aufgaben der Objektmanipulation wahrnehmen können, insbesondere das Laden von mehreren Objekten in die Szene und eine abwechselnde Manipulation dieser im Sinne von Translation, Rotation, Skalierung und Löschung.\par
+Um den oben genannten Demonstrationszweck zu erfüllen, ist das Programm auf einem Rechner im Laborraum verfügbar. Es rendert zwei Ausgabefenster aus zwei verschiedenen, stereoskopisch angeordneten Kamerasichten. Der Laborrechner ist per HDMI an einen 3D-Kameraaufbau angeschlossen, der aus zwei Projektoren im Nebenraum besteht. Sie werfen die beiden Ansichten aus dem Programm von hinten auf einen Projektionsschirm, der in die Trennwand von Labor- und Nebenraum eingelassen ist. Mittels handelsüblicher aus 3D-Kinos bekannten Shutterbrillen können Benutzer und Zuschauer sodann den 3D-Eindruck wahrnehmen.\par
+Der konkrete Präsentationsablauf, wie er vor dem Projektseminar stattfand, lässt sich wie folgt skizzieren. Ein Vorführender befindet sich mit einigen Personen Publikum im Laborraum. Während er etwa sich und das Fachgebiet vorstellt, werden das Programm auf dem Laborrechner und die Projektoren gestartet. Am Rechner kann der Präsentierende dann z.\,B. ein Objekt laden. Diese Eingaben erfolgen per Maus und Tastatur.\par Anschließend kann er wieder vor die Zuhörenden treten, da die Kameramanipulationen, die das Programm erlaubt, auch mittels eines Präsentationspointers durchgeführt werden können. So kann er das Programm, während er vorträgt, bedienen. An die Zuhörer werden die genannten Shutterbrillen verteilt, sodass sie im Laufe des Vortrages ein 3D-Bild der Szene und der Manipulationen des Vortragenden sehen können.\par
+In dieser Form hat der Ablauf Schwächen, die die Motivation für das Projektseminar bilden:
+\begin{itemize}
+	\item Die Steuerungen per Tastatur und Maus und noch stärker sogar die per Präsentationspointer bieten nur ein geringes Maß an Immersion.
+	\item Es ist am Fachgebiet Technik (genauer Tracking-Systeme) vorhanden, mittels derer man eine Gestensteuerung für das genannte Programm realisiert werden kann. Eine solche ist für einen Vortrag wie etwa im Rahmen eines Tages der offenen Tür zusätzlich attraktiver für die Zuhörer und bietet außerdem dem Vortragenen ein weiteres Thema, auf das er eingehen und welches präsentiert werden kann.
+\end{itemize}
+Darüber hinaus motivierend ist auch die bloße Auseinandersetzung mit der genannten vorhandenen, aber bislang ungenutzten Technik und eine allgemeinere Untersuchung der Möglichkeiten, sie zielführend einzusetzen.

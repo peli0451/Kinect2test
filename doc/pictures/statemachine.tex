@@ -1,12 +1,12 @@
 \usetikzlibrary{positioning}
-\resizebox{\linewidth}{!}{
+\resizebox{\textwidth}{!}{
 \begin{tikzpicture}
 
 %%IDLE-State
-\umlbasicstate[x=0, name=IDLE, fill=white]{IDLE}
+\umlbasicstate[x=8,y=4, name=IDLE, fill=white]{IDLE}
 
 %%INIT-State
-\umlstateinitial[left=2cm of IDLE.west, name=INIT]
+\umlstateinitial[below=2cm of IDLE.south, name=INIT]
 	\umltrans{INIT}{IDLE}
 
 %%Superstate Kamera-Manipulation
@@ -17,21 +17,23 @@
 	%%Zustand Kamerabewegung
 	\umlbasicstate[x=0,y=0, name=CAMTRANS, fill=white]{CAMERA\_TRANSLATE}
 	%%Zustand Kameradrehung
-	\umlbasicstate[x=8,y=0, name=CAMROT, fill=white]{CAMERA\_ROTATE}
+	\umlbasicstate[x=0,y=-4, name=CAMROT, fill=white]{CAMERA\_ROTATE}
+	%%Zustand FLY
+	\umlbasicstate[x=0,y=-8, name=FLY, fill=white]{FLY}
 	
 	%%%%%%%%%%%%%%%%%%
 	%% Transitionen %%
 	%%%%%%%%%%%%%%%%%%
-	\umlHVHtrans[anchor1=20,anchor2=170,arg={ROT...},pos=1.5]{CAMTRANS}{CAMROT}
-	\umlHVHtrans[anchor1=-170,anchor2=-20,arg={TRA...},pos=1.5]{CAMROT}{CAMTRANS}
+	%\umlHVHtrans[anchor1=20,anchor2=170,arg={ROT...},pos=1.5]{CAMTRANS}{CAMROT}
+	%\umlHVHtrans[anchor1=-170,anchor2=-20,arg={TRA...},pos=1.5]{CAMROT}{CAMTRANS}
 	
-	\umltrans[recursive=-120|-170|3cm, recursive direction=bottom to left, arg={TRANSLATE\_GESTURE},pos=1.3]{CAMTRANS}{CAMTRANS}
-	\umltrans[recursive=-10|-60|3cm, recursive direction=right to bottom, arg={ROTATE\_GESTURE},pos=2.6]{CAMROT}{CAMROT}
+%	\umltrans[recursive=-120|-170|3cm, recursive direction=bottom to left, arg={TRANSLATE\_GESTURE},pos=1.3]{CAMTRANS}{CAMTRANS}
+	%\umltrans[recursive=-10|-60|3cm, recursive direction=right to bottom, arg={ROTATE\_GESTURE},pos=2.6]{CAMROT}{CAMROT}
 \end{umlstate}
 
 
 %%Superstate Objekt-Manipulation
-\begin{umlstate}[x=8, name=OBJ, fill=black!20]{Objekt-Manipulation}
+\begin{umlstate}[x=8,y=8,name=OBJ, fill=black!20]{Objekt-Manipulation}
 	%%%%%%%%%%%%%%
 	%% Zustände %%
 	%%%%%%%%%%%%%%
@@ -40,33 +42,87 @@
 	%%%%%%%%%%%%%%%%%%
 	%% Transitionen %%
 	%%%%%%%%%%%%%%%%%%
-	\umltrans[recursive=-40|-140|2cm, recursive direction=bottom to bottom, arg={GRAB\_GESTURE},pos=1.5]{OBJMAN}{OBJMAN}
+	%\umltrans[recursive=-40|-140|2cm, recursive direction=bottom to bottom, arg={GRAB\_GESTURE},pos=1.5]{OBJMAN}{OBJMAN}
 \end{umlstate}
 
-\umlVHVtrans[arm1=-1cm,anchor1=-60,anchor2=-150,arg={GRAB\_GESTURE},pos=1.4]{IDLE}{OBJMAN}
-\umlVHVtrans[arm1=-2cm,anchor1=-30,anchor2=-120,arg={UNKNOWN\_GESTURE},pos=1.5]{OBJMAN}{IDLE}
+\umltrans[recursive=-10|-60|3cm, recursive direction=right to bottom]{OBJMAN}{OBJMAN}
+\umltrans{CAMROT}{OBJMAN}
+\umltrans{FLY}{OBJMAN}
+\umltrans[anchor1=110,anchor2=-110]{IDLE}{OBJMAN}
+\umltrans{CAMTRANS}{OBJMAN}
 
-\umlVHVtrans[arm1=4cm,anchor1=130,anchor2=-45,arg={TRANSLATE\_GESTURE},pos=0.5,name=IDLETOCAM]{IDLE}{CAMTRANS}
-\umlVHVtrans[arm2=3.75cm,anchor2=120,anchor1=-40,arg={UNKNOWN\_GESTURE},pos=2.1,name=CAMTOIDLE]{CAMTRANS}{IDLE}
-\umlpoint{CAMTOIDLE-2}
-\umlVHtrans[anchor1=-150]{CAMROT}{CAMTOIDLE-2}
-\umlpoint{IDLETOCAM-1}
-\umlHVHtrans[arm1=-2cm,anchor1=170]{OBJMAN}{IDLETOCAM-1}
+\node at (4.6,8.6) {G};
+\node at (5.2,6.6) {G};
+\node at (5.8,6.5) {G};
+\node at (7.4,6.5) {G};
+\node at (11.7,7.6) {G};
 
-\umlVHVtrans[arm1=2.5cm,anchor1=55,anchor2=-145,arg={ROTATE\_GESTURE},pos=0.5,name=IDLETOCAM2]{IDLE}{CAMROT}
-\umlpoint{IDLETOCAM2-1}
-\umlHVHtrans[arm1=-3cm,anchor1=-170]{OBJMAN}{IDLETOCAM2-1}
+\umltrans[recursive=-10|-60|3cm, recursive direction=right to bottom]{IDLE}{IDLE}
+\umltrans{CAMROT}{IDLE}
+\umltrans[anchor1=15,anchor2=-140]{FLY}{IDLE}
+\umltrans{OBJMAN}{IDLE}
+\umltrans{CAMTRANS}{IDLE}
 
-\umlVHVtrans[anchor1=-140,anchor2=155,arm1=-4cm,arg={GRAB\_GESTURE},pos=0.999,name=CAMTOOBJ]{CAMROT}{OBJMAN}
-\umlpoint{CAMTOOBJ-4}
-\umlVHVtrans[anchor1=-35,arm1=-1cm]{CAMTRANS}{CAMTOOBJ-4}
+\node at (8.3,5.6) {U};
+\node at (9.7,4.4) {U};
+\node at (6.4,4.8) {U};
+\node at (6.1,4.6) {U};
+\node at (7,3) {U};
+
+\umltrans[recursive=-60|-120|1cm, recursive direction=bottom to bottom]{FLY}{FLY}
+\umltrans{CAMROT}{FLY}
+\umltrans{IDLE}{FLY}
+\umltrans[anchor1=-120,anchor2=35]{OBJMAN}{FLY}
+\umlHVHtrans[anchor1=-190,anchor2=-160,arm1=-2cm]{CAMTRANS}{FLY}
+
+\node at (-1,-1.5) {F};
+\node at (-1.5,-.5) {F};
+\node at (0.4,1.7) {F};
+\node at (2.5,2) {F};
+\node at (2.2,1.6) {F};
+
+\umltrans[recursive=-170|-190|.5cm, recursive direction=left to left]{CAMROT}{CAMROT}
+\umltrans[anchor1=-110,anchor2=110]{CAMTRANS}{CAMROT}
+\umltrans[anchor1=-163,anchor2=-10]{IDLE}{CAMROT}
+\umltrans[anchor1=-160,anchor2=35]{OBJMAN}{CAMROT}
+\umltrans[anchor1=110,anchor2=-110]{FLY}{CAMROT}
+
+\node at (-.8,5.8) {R};
+\node at (-.8,2.8) {R};
+\node at (-2.6,5) {R};
+\node at (1.3,5.8) {R};
+\node at (2.6,3.7) {R};
+
+\umltrans[recursive=-10|5|1cm, recursive direction=right to right]{CAMTRANS}{CAMTRANS}
+\umltrans{CAMROT}{CAMTRANS}
+\umltrans[anchor1=140,anchor2=-20]{IDLE}{CAMTRANS}
+\umltrans[anchor1=-175,anchor2=-5]{OBJMAN}{CAMTRANS}
+\umlHVHtrans[anchor1=-190,anchor2=-170,arm1=-3cm]{FLY}{CAMTRANS}
+
+\node at (3.6,8.8) {T};
+\node at (3.4,7.3) {T};
+\node at (-3.4,7.4) {T};
+\node at (.5,6.8) {T};
+\node at (4,7.8) {T};
+
+%\umlVHVtrans[arm1=-1cm,anchor1=-60,anchor2=-150,arg={GRAB\_GESTURE},pos=1.4]{IDLE}{OBJMAN}
+%\umlVHVtrans[arm1=-2cm,anchor1=-30,anchor2=-120,arg={UNKNOWN\_GESTURE},pos=1.5]{OBJMAN}{IDLE}
+
+%\umlVHVtrans[arm1=4cm,anchor1=130,anchor2=-45,arg={TRANSLATE\_GESTURE},pos=0.5,name=IDLETOCAM]{IDLE}{CAMTRANS}
+%\umlVHVtrans[arm2=3.75cm,anchor2=120,anchor1=-40,arg={UNKNOWN\_GESTURE},pos=2.1,name=CAMTOIDLE]{CAMTRANS}{IDLE}
+%\umlpoint{CAMTOIDLE-2}
+%\umlVHtrans[anchor1=-150]{CAMROT}{CAMTOIDLE-2}
+%\umlpoint{IDLETOCAM-1}
+%\umlHVHtrans[arm1=-2cm,anchor1=170]{OBJMAN}{IDLETOCAM-1}
+
+%\umlVHVtrans[arm1=2.5cm,anchor1=55,anchor2=-145,arg={ROTATE\_GESTURE},pos=0.5,name=IDLETOCAM2]{IDLE}{CAMROT}
+%\umlpoint{IDLETOCAM2-1}
+%\umlHVHtrans[arm1=-3cm,anchor1=-170]{OBJMAN}{IDLETOCAM2-1}
+
+%\umlVHVtrans[anchor1=-140,anchor2=155,arm1=-4cm,arg={GRAB\_GESTURE},pos=0.999,name=CAMTOOBJ]{CAMROT}{OBJMAN}
+%\umlpoint{CAMTOOBJ-4}
+%\umlVHVtrans[anchor1=-35,arm1=-1cm]{CAMTRANS}{CAMTOOBJ-4}
 %\umltrans[recursive=90|180|5cm,recursive direction=top to left,arg={UNKNOWN\_GESTURE},pos=.5]{IDLE}{OBJMAN}
 %\umlVHtrans{IDLE}{OBJMAN}
 \end{tikzpicture}
 }
-\bigskip
-\begin{tikzpicture}
-\begin{umlstate}[x=0,y=8,name=CAM, fill=black!20]{zu Kamera-Manipulation}
-	\umlbasicstate[x=0,y=0, name=CAMFLY, fill=white]{FLY}
-\end{umlstate}
-\end{tikzpicture}

@@ -104,6 +104,60 @@
     \field{year}{2016}
   \endentry
 
+  \entry{kinectimg}{misc}{}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+  \field{howpublished}{\url{https://blogs.msdn.microsoft.com/kinectforwindows/2014/06/05/pre-order-your-kinect-for-windows-v2-sensor-starting-today/}}
+    \field{note}{Zugriff 18.8.2017}
+    \field{title}{Kinect for Windows v2 sensor}
+  \endentry
+
+  \entry{heise}{article}{}
+    \name{author}{1}{}{%
+      {{hash=KP}{%
+         family={König},
+         family_i={K\bibinitperiod},
+         given={P.},
+         given_i={P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KP1}
+    \strng{fullhash}{KP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{note}{Zugriff 17.8.17}
+    \field{title}{Kinect v2 für Windows}
+    \verb{url}
+    \verb https://www.heise.de/ct/ausgabe/2014-17-aktuell-Kinect-fuer-Windows-2
+    \verb 264919.html
+    \endverb
+    \field{journaltitle}{c't}
+    \field{year}{2014}
+  \endentry
+
+  \entry{gamasutra}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=LD}{%
+         family={Lau},
+         family_i={L\bibinitperiod},
+         given={D.},
+         given_i={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LD1}
+    \strng{fullhash}{LD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+  \field{howpublished}{\url{http://gamasutra.com/blogs/DanielLau/20131127/205820/The_Science_Behind_Kinects_or_Kinect_10_versus_20.php}}
+    \field{note}{Zugriff 17.8.2017}
+    \field{title}{The Science Behind Kinects or Kinect 1.0 versus 2.0}
+  \endentry
+
   \entry{kinectsdk}{misc}{}
     \name{author}{1}{}{%
       {{hash=M}{%
@@ -158,6 +212,26 @@
     \field{year}{2013}
   \endentry
 
+  \entry{specs}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         family_i={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://developer.microsoft.com/de-de/windows/kinect/hardware}}
+    \field{note}{Zugriff 17.8.2017}
+    \field{title}{Kinect Hardware}
+  \endentry
+
   \entry{skeletal}{misc}{}
     \name{author}{1}{}{%
       {{hash=NMD}{%
@@ -174,7 +248,7 @@
     \field{sortinit}{N}
     \field{sortinithash}{N}
   \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/hh973074.aspx}}
-    \field{note}{Zugriff 25.4.2017}
+    \field{note}{Bezieht sich noch auf die Kinect 1, Zugriff 25.4.2017}
     \field{title}{{Skeletal Tracking}}
     \field{year}{2017}
   \endentry
@@ -219,6 +293,51 @@
     \field{note}{Zugriff 12.6.17}
     \field{title}{TrackingState Enumeration}
     \field{year}{2017}
+  \endentry
+
+  \entry{vgb}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=NMD}{%
+         family={Network},
+         family_i={N\bibinitperiod},
+         given={Microsoft\bibnamedelima Developer},
+         given_i={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NMD1}
+    \strng{fullhash}{NMD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+  \field{howpublished}{\url{https://msdn.microsoft.com/en-us/library/dn785529.aspx}}
+    \field{note}{Zugriff 17.8.2017}
+    \field{title}{Visual Gestrue Builder in Context}
+  \endentry
+
+  \entry{latimes}{article}{}
+    \name{author}{1}{}{%
+      {{hash=PA}{%
+         family={Pham},
+         family_i={P\bibinitperiod},
+         given={A.},
+         given_i={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PA1}
+    \strng{fullhash}{PA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{note}{Zugriff 17.8.17}
+    \field{title}{E3: Microsoft shows off gesture control technology for Xbox
+  360}
+    \verb{url}
+    \verb http://latimesblogs.latimes.com/technology/2009/06/microsofte3.html
+    \endverb
+    \field{journaltitle}{Los Angeles Times}
+    \field{year}{2009}
   \endentry
 
   \entry{kinectlight}{thesis}{}

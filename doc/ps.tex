@@ -48,7 +48,9 @@
 \lhead{}
 \renewcommand{\footrulewidth}{0.5pt}
 \renewcommand{\headrulewidth}{0.5pt}
-
+\usepackage{subcaption}
+\widowpenalty10000
+\clubpenalty10000
 \begin{document}
 \begin{titlepage}
 \setmarginsrb{2.5cm}{2.5cm}{2.5cm}{2.5cm}%  %ränder links oben rechts unten
@@ -73,7 +75,7 @@ Fachgebiet Graphische Datenverarbeitung}\par
 	& Peter Lindner\\
 	& Patrick Stäblein\\
 &\\
-\emph{Betreuer:} & M.\,sc. Julian Meder
+\emph{Betreuer:} & M.\,Sc. Julian Meder
 \end{tabular}\par
 \vfill
 {\today}\par
@@ -83,7 +85,7 @@ Fachgebiet Graphische Datenverarbeitung}\par
 \clearpage
 \section{Rahmenbedingungen}
 Die vorliegende Ausarbeitung entstand im Rahmen des Projektseminars im Master-Studiengang Informatik an der Technischen Universität Ilmenau. Ziel und Zweck des Projektseminars ist die teambasierte Auseinandersetzung mit einem Forschungsgegenstand unter Verwendung von Fachliteratur.\par
-Im Folgenden erläutern wir die Grundgegebenheiten, formulieren die uns gegebene Aufgabenstellungen und führen das titelgebende Tracking-System Microsoft Kinect ein.
+Im Folgenden werden die Grundgegebenheiten erläutert, die genaue Aufgabenstellung formuliert und das titelgebende Tracking-System Microsoft Kinect eingeführt.
 	\input{sections/grundlagen}
 	\input{sections/aufgaben}
 	\input{sections/kinect}
@@ -95,7 +97,7 @@ Im Folgenden erläutern wir die Grundgegebenheiten, formulieren die uns gegebene
 	%
 	%
 \clearpage
-\section{Entwurfsentscheidungen}
+\section{Entwurfsentscheidungen}\label{sec:entwurf}
 	\input{sections/master}
 	\input{sections/gesten}
 	\input{sections/zustandsmaschine}
@@ -103,8 +105,8 @@ Im Folgenden erläutern wir die Grundgegebenheiten, formulieren die uns gegebene
 %
 %
 \clearpage
-\section{Bemerkungen zum Quellcode}
-In diesem Abschnitt wollen wir wesentliche Stellen bzw. Strukturen des Programmcodes etwas technischer erläutern. Wir gehen dazu auf die verwendeten Datenstrukturen, Variablen und Funktionen ein und erläutern grob ihr Zusammenspiel. Schließlich wird in diesem Abschnitt auch auf das Einbinden unseres Programmes zur Verwendung in fremder Software eingegangen.
+\section{Bemerkungen zum Quellcode}\label{sec:code}
+In diesem Abschnittwerden wesentliche Stellen bzw. Strukturen des Programmcodes erläutert. Dazu wird auf die verwendeten Datenstrukturen, Variablen und Funktionen eingegangen und ihr Zusammenspiel grob illustriert. Schließlich wird in diesem Abschnitt auch auf das Einbinden des Programmes zur Verwendung in fremder Software eingegangen.
 	\input{sections/datenstrukturen}
 	\input{sections/zusammenspiel}
 	\input{sections/einbinden}
